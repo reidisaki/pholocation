@@ -44,6 +44,7 @@ import java.util.Locale;
 public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
     public static Bitmap mBitmap;
+    private static String mEmail;
     SurfaceHolder holder;
     static Camera mCamera;
     static Context mContext;
@@ -172,7 +173,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         focusOnTouch(event);
                     }
-                    return true;
+                    return false;
                 }
             });
             mCamera.setPreviewDisplay(holder);
@@ -259,8 +260,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     /***
      * Take a picture and and convert it from bytes[] to Bitmap.
      */
-    public static void takeAPicture(final Context context) {
-
+    public static void takeAPicture(final Context context, String email) {
+        mEmail = email;
         Camera.PictureCallback mPictureCallback = new PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
@@ -300,7 +301,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.setType("image/jpg");
 
-        i.putExtra(Intent.EXTRA_EMAIL, new String[]{"pchung528@gmail.com"});
+        i.putExtra(Intent.EXTRA_EMAIL, new String[]{mEmail});
         i.putExtra(Intent.EXTRA_SUBJECT, "");
         i.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(String.format("<a href=\"%s\">Map location</a>", mapLink)));
 
