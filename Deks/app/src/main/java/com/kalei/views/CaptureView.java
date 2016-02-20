@@ -94,9 +94,11 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                                 add += addresses.get(0).getAddressLine(i) + "\n";
                             }
                         }
-                        mMapLink = "https://maps.googleapis.com/maps/api/staticmap?center=" + add +
-                                "i&zoom=17&size=600x300&maptype=roadmap&markers=color:red%7Clabel:X%7C" +
-                                mLocation.getLatitude() + "," + mLocation.getLongitude() + "&key=AIzaSyBryuOc-tskt2bkYh_vxfYq_HVRW5ddjoI";
+
+                        mMapLink = "http://maps.google.com/?q=" + add;
+//                        mMapLink = "https://maps.googleapis.com/maps/api/staticmap?center=" + add +
+//                                "i&zoom=17&size=600x300&maptype=roadmap&markers=color:red%7Clabel:X%7C" +
+//                                mLocation.getLatitude() + "," + mLocation.getLongitude() + "&key=AIzaSyBryuOc-tskt2bkYh_vxfYq_HVRW5ddjoI";
                         Log.i("Reid", mapLink);
                     }
                 } catch (IOException e1) {
