@@ -1,7 +1,5 @@
 package com.kalei.pholocation;
 
-import com.google.android.gms.maps.GoogleMapOptions;
-
 import com.kalei.utils.PhoLocationUtils;
 import com.kalei.views.CaptureView;
 
@@ -47,7 +45,6 @@ public class MainActivity extends Activity implements OnClickListener {
         //3. show amodal where you can update the email address /save to shared preferences
         //4. create a google map snapshot of where the picture was taken
         //5. after a user takes a picture send it to an email address  attach both items and send automatically
-        GoogleMapOptions options = new GoogleMapOptions().liteMode(true);
     }
 
     @Override
