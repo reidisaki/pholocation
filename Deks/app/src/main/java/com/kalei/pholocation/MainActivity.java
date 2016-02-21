@@ -72,11 +72,11 @@ public class MainActivity extends Activity implements OnClickListener, Connectio
                     .addApi(LocationServices.API)
                     .build();
         }
+        mGoogleApiClient.connect();
     }
 
     @Override
     public void onClick(final View v) {
-        Log.i("Reid", "view was clicked");
         switch (v.getId()) {
             case R.id.settings_image:
                 mEditEmail.setText(PhoLocationUtils.getData(this).get(EMAIL_KEY));
@@ -133,6 +133,7 @@ public class MainActivity extends Activity implements OnClickListener, Connectio
         }
         mLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
+        Log.i("Reid", "got location" + mLocation.getLongitude());
     }
 
     @Override

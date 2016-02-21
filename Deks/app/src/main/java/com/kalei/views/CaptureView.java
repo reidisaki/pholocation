@@ -1,6 +1,7 @@
 package com.kalei.views;
 
 import com.kalei.pholocation.PhotoLocationSender;
+import com.kalei.pholocation.R;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -207,7 +208,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         // using Environment.getExternalStorageState() before doing this.
 
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp");
+                Environment.DIRECTORY_PICTURES), mContext.getString(R.string.app_name));
         // This location works best if you want the created images to be shared
         // between applications and persist after your app has been uninstalled.
 

@@ -1,6 +1,5 @@
 package com.kalei.pholocation;
 
-import android.os.StrictMode;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -37,9 +36,6 @@ public class GMailSender extends javax.mail.Authenticator {
     }
 
     public GMailSender(String user, String password) {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-
-        StrictMode.setThreadPolicy(policy);
 
         this.user = user;
         this.password = password;
@@ -61,7 +57,8 @@ public class GMailSender extends javax.mail.Authenticator {
 
     private Multipart _multipart;
 
-    public void addAttachment(String filename, String body) throws Exception {
+    public synchronized void addAttachment(String filename, String body) throws Exception {
+        Log.i("Reid", "attaching file: " + filename);
         BodyPart messageBodyPart = new MimeBodyPart();
         DataSource source = new FileDataSource(filename);
         messageBodyPart.setDataHandler(new DataHandler(source));
@@ -81,6 +78,7 @@ public class GMailSender extends javax.mail.Authenticator {
 
     public synchronized void sendMail(String subject, String body, String sender, String recipients, String filename) throws Exception {
         try {
+
             addAttachment(filename, body);
             MimeMessage message = new MimeMessage(session);
             DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/plain"));
@@ -95,6 +93,7 @@ public class GMailSender extends javax.mail.Authenticator {
             }
 
             Transport.send(message);
+            Log.i("Reid", "Sending mail");
             Log.i("SendMail", "send mail Succeded");
         } catch (Exception e) {
             Log.i("SendMail", "send mail failed:" + e.getMessage());

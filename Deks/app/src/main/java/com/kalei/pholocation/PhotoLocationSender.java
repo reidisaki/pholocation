@@ -27,10 +27,10 @@ public class PhotoLocationSender {
 
     private static GMailSender mSender;
     static Context mContext;
-    private static boolean mIsSent;
-    private static String mMapLink;
-    private static String mFileName;
-    private final Location mLocation;
+    private boolean mIsSent;
+    private String mMapLink;
+    private String mFileName;
+    private Location mLocation;
     private Handler mHandler;
     public GoogleApiClient mGoogleApiClient;
     private static int TIME_TO_WAIT_TO_GET_LOCATION = 10000;//wait 10 seconds to get location at MAX
@@ -45,13 +45,17 @@ public class PhotoLocationSender {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (!mIsSent && mLocation == null) {
+                mLocation = MainActivity.mLocation;
+                if (mLocation == null) {
+                    Log.i("Reid", "couldn't get location");
+                    //waited 10 seconds maximum check to see if location was found yet.
+                    tryGetLocation();
+                }
+                if (!mIsSent) {
+                    Log.i("Reid", "waited 10 seconds trying to send now");
                     mMapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer";
                     new SendEmailAsyncTask().execute();
                     mIsSent = true;
-                } else {
-                    //waited 10 seconds maximum check to see if location was found yet.
-                    tryGetLocation();
                 }
             }
         }, TIME_TO_WAIT_TO_GET_LOCATION);
@@ -83,6 +87,8 @@ public class PhotoLocationSender {
                     mIsSent = true;
                     new SendEmailAsyncTask().execute();
                 }
+            } else {
+                Log.i("Reid", "mLocation was null");
             }
         } catch (IOException e1) {
             e1.printStackTrace();
@@ -97,7 +103,7 @@ public class PhotoLocationSender {
                 Log.v(SendEmailAsyncTask.class.getName(), "doInBackground()");
             }
             try {
-                Log.i("Reid", "do in background async task");
+                Log.i("Reid", "do in background async task SENDING EMAIL!!!");
                 Date d = new Date();
                 mSender.sendMail("new image " + d.toString(),
                         mMapLink,
@@ -105,14 +111,17 @@ public class PhotoLocationSender {
                         PhoLocationUtils.getData(mContext).get(MainActivity.EMAIL_KEY), mFileName);
                 return true;
             } catch (AuthenticationFailedException e) {
+                Log.i("Reid", "Not sending authentication failure");
                 Log.e(SendEmailAsyncTask.class.getName(), "Bad account details");
                 e.printStackTrace();
                 return false;
             } catch (MessagingException e) {
+                Log.i("Reid", "Not sending messaging exception");
 //                Log.e(SendEmailAsyncTask.class.getName(), mSender.getTo(null) + "failed");
                 e.printStackTrace();
                 return false;
             } catch (Exception e) {
+                Log.i("Reid", "Not sending exception");
                 e.printStackTrace();
                 return false;
             }
