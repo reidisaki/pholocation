@@ -103,7 +103,7 @@ public class MainActivity extends Activity implements OnClickListener, Connectio
             public void run() {
                 mShutterScreen.setVisibility(View.GONE);
             }
-        }, 500);
+        }, 300);
     }
 
     private void onSaveData() {

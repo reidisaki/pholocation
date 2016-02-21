@@ -26,7 +26,7 @@ import javax.mail.MessagingException;
 public class PhotoLocationSender {
 
     private static GMailSender mSender;
-    static Context mContext;
+    Context mContext;
     private boolean mIsSent;
     private String mMapLink;
     private String mFileName;
@@ -39,7 +39,7 @@ public class PhotoLocationSender {
         mContext = context;
         mIsSent = false;
         mFileName = filename;
-        mSender = new GMailSender("reidisaki", "Password01!");
+        mSender = new GMailSender(mContext.getString(R.string.username), mContext.getString(R.string.password));
         mLocation = MainActivity.mLocation;
         mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
@@ -103,7 +103,6 @@ public class PhotoLocationSender {
                 Log.v(SendEmailAsyncTask.class.getName(), "doInBackground()");
             }
             try {
-                Log.i("Reid", "do in background async task SENDING EMAIL!!!");
                 Date d = new Date();
                 mSender.sendMail("new image " + d.toString(),
                         mMapLink,

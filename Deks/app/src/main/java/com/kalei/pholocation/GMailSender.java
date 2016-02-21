@@ -1,5 +1,6 @@
 package com.kalei.pholocation;
 
+import android.os.StrictMode;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -36,6 +37,9 @@ public class GMailSender extends javax.mail.Authenticator {
     }
 
     public GMailSender(String user, String password) {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+        StrictMode.setThreadPolicy(policy);
 
         this.user = user;
         this.password = password;
@@ -45,19 +49,21 @@ public class GMailSender extends javax.mail.Authenticator {
         props.setProperty("mail.host", mailhost);
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "465");
+        props.put("mail.smtp.EnableSSL.enable", "true");
         props.put("mail.smtp.socketFactory.port", "465");
         props.put("mail.smtp.socketFactory.class",
                 "javax.net.ssl.SSLSocketFactory");
         props.put("mail.smtp.socketFactory.fallback", "false");
         props.setProperty("mail.smtp.quitwait", "false");
 
-        session = Session.getDefaultInstance(props, this);
-        _multipart = new MimeMultipart();
+        session = Session.getInstance(props, this);
+        _multipart = new MimeMultipart("mixed");
     }
 
     private Multipart _multipart;
 
-    public synchronized void addAttachment(String filename, String body) throws Exception {
+    public void addAttachment(String filename, String body) throws Exception {
+
         Log.i("Reid", "attaching file: " + filename);
         BodyPart messageBodyPart = new MimeBodyPart();
         DataSource source = new FileDataSource(filename);
@@ -97,6 +103,7 @@ public class GMailSender extends javax.mail.Authenticator {
             Log.i("SendMail", "send mail Succeded");
         } catch (Exception e) {
             Log.i("SendMail", "send mail failed:" + e.getMessage());
+            Log.i("Reid", "FAILED: " + e.getMessage());
         }
     }
 

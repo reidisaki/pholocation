@@ -197,7 +197,11 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 new PhotoLocationSender(context, email, pictureFile.toString());
             }
         };
-        mCamera.takePicture(null, null, mPictureCallback);
+        try {
+            mCamera.takePicture(null, null, mPictureCallback);
+        } catch (RuntimeException e) {
+            Log.i("Reid", "clicked too fast");
+        }
     }
 
     /**
