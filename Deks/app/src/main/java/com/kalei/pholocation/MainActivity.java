@@ -1,5 +1,6 @@
 package com.kalei.pholocation;
 
+import com.crashlytics.android.Crashlytics;
 import com.kalei.utils.PhoLocationUtils;
 import com.kalei.views.CaptureView;
 
@@ -13,6 +14,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import io.fabric.sdk.android.Fabric;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +31,7 @@ public class MainActivity extends Activity implements OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         mSettingsImage = (ImageView) findViewById(R.id.settings_image);
         mSettingsImage.setOnClickListener(this);
