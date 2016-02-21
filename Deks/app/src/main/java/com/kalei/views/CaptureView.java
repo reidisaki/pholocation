@@ -1,8 +1,12 @@
 package com.kalei.views;
 
+import com.kalei.pholocation.BuildConfig;
+import com.kalei.pholocation.GMailSender;
+import com.kalei.pholocation.MainActivity;
+import com.kalei.utils.PhoLocationUtils;
+
 import android.Manifest.permission;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -16,10 +20,11 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
-import android.text.Html;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
@@ -41,10 +46,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.mail.AuthenticationFailedException;
+import javax.mail.MessagingException;
+
 public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
     public static Bitmap mBitmap;
     private static String mEmail;
+    private static GMailSender mSender;
     SurfaceHolder holder;
     static Camera mCamera;
     static Context mContext;
@@ -62,6 +71,10 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     private static Uri mPictureURI;
     private static boolean mIsSent;
     private static String mMapLink;
+    private static String mFileName;
+    private SendEmailAsyncTask mTask;
+    private Handler mHandler;
+    private static int TIME_TO_WAIT_TO_GET_LOCATION = 10000;//wait 10 seconds to get location at MAX
 
     public CaptureView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -74,7 +87,19 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         mIsSent = false;
         mHasPicture = false;
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-
+        mSender = new GMailSender("reidisaki", "Password01!");
+        mTask = new SendEmailAsyncTask();
+        mHandler = new Handler();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!mIsSent) {
+                    mMapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer";
+                    mTask.execute();
+                    mIsSent = true;
+                }
+            }
+        }, TIME_TO_WAIT_TO_GET_LOCATION);
         mLocationListener = new LocationListener() {
 
             @Override
@@ -92,11 +117,11 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                         String add = "";
                         if (addresses.size() > 0) {
                             for (int i = 0; i < addresses.get(0).getMaxAddressLineIndex(); i++) {
-                                add += addresses.get(0).getAddressLine(i) + "\n";
+                                add += addresses.get(0).getAddressLine(i) + ",";
                             }
                         }
 
-                        mMapLink = "http://maps.google.com/?q=" + add;
+                        mMapLink = "http://maps.google.com/?q=" + add.replace(" ", "+");
 //                        mMapLink = "https://maps.googleapis.com/maps/api/staticmap?center=" + add +
 //                                "i&zoom=17&size=600x300&maptype=roadmap&markers=color:red%7Clabel:X%7C" +
 //                                mLocation.getLatitude() + "," + mLocation.getLongitude() + "&key=AIzaSyBryuOc-tskt2bkYh_vxfYq_HVRW5ddjoI";
@@ -106,7 +131,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                     e1.printStackTrace();
                 }
                 if (mHasPicture && !mIsSent) {
-                    sendPicture(mMapLink);
+                    mTask.execute();
+//                    sendPicture(mMapLink);
                 }
             }
 
@@ -260,7 +286,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     /***
      * Take a picture and and convert it from bytes[] to Bitmap.
      */
-    public static void takeAPicture(final Context context, String email) {
+    public void takeAPicture(final Context context, String email) {
         mEmail = email;
         Camera.PictureCallback mPictureCallback = new PictureCallback() {
             @Override
@@ -268,6 +294,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 mHasPicture = true;
                 mCamera.startPreview();
                 File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                mFileName = pictureFile.toString();
                 if (pictureFile == null) {
                     Log.d("REid", "Error creating media file, check storage permissions: ");
                     return;
@@ -285,7 +312,10 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
                 mPictureURI = Uri.fromFile(pictureFile);
                 if (mHasLocation) {
-                    sendPicture(mMapLink);
+//                    new SendEmailAsyncTask().execute();
+                    Log.i("Reid", "in onLocationChanged");
+                    mTask.execute();
+//                    sendPicture(mMapLink);
                 } else {
                     //show loading image now
                     Toast.makeText(mContext, "Trying to get location hang on a sec..", Toast.LENGTH_SHORT).show();
@@ -295,18 +325,61 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         mCamera.takePicture(null, null, mPictureCallback);
     }
 
+    class SendEmailAsyncTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            if (BuildConfig.DEBUG) {
+                Log.v(SendEmailAsyncTask.class.getName(), "doInBackground()");
+            }
+            try {
+                Log.i("Reid", "do in background async task");
+                Date d = new Date();
+                mSender.sendMail("new image " + d.toString(),
+                        mMapLink,
+                        "reidisaki@yahoo.com",
+                        PhoLocationUtils.getData(mContext).get(MainActivity.EMAIL_KEY), mFileName);
+                mIsSent = false;
+                return true;
+            } catch (AuthenticationFailedException e) {
+                Log.e(SendEmailAsyncTask.class.getName(), "Bad account details");
+                e.printStackTrace();
+                return false;
+            } catch (MessagingException e) {
+//                Log.e(SendEmailAsyncTask.class.getName(), mSender.getTo(null) + "failed");
+                e.printStackTrace();
+                return false;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
+
     private static void sendPicture(String mapLink) {
+
+        try {
+            mSender = new GMailSender("reidisaki", "Password01!");
+            mSender.sendMail("This is Subject",
+                    mapLink,
+                    "reidisaki@yahoo.com",
+                    PhoLocationUtils.getData(mContext).get(MainActivity.EMAIL_KEY), mFileName);
+            mIsSent = false;
+        } catch (Exception e) {
+            Log.e("SendMail", e.getMessage(), e);
+        }
+
         mIsSent = true;
-        Intent i = new Intent(Intent.ACTION_SEND);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        i.setType("image/jpg");
-
-        i.putExtra(Intent.EXTRA_EMAIL, new String[]{mEmail});
-        i.putExtra(Intent.EXTRA_SUBJECT, "");
-        i.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(String.format("<a href=\"%s\">Map location</a>", mapLink)));
-
-        i.putExtra(Intent.EXTRA_STREAM, mPictureURI);
-        mContext.startActivity(i);
+//        Intent i = new Intent(Intent.ACTION_SEND);
+//        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        i.setType("image/jpg");
+//
+//        i.putExtra(Intent.EXTRA_EMAIL, new String[]{mEmail});
+//        i.putExtra(Intent.EXTRA_SUBJECT, "");
+//        i.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(String.format("<a href=\"%s\">Map location</a>", mapLink)));
+//
+//        i.putExtra(Intent.EXTRA_STREAM, mPictureURI);
+//        mContext.startActivity(i);
     }
 
     public static File writebitmaptofilefirst(String filename, Bitmap bitmap) {

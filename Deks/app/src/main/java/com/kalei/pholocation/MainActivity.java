@@ -2,15 +2,17 @@ package com.kalei.pholocation;
 
 import com.google.android.gms.maps.GoogleMapOptions;
 
+import com.kalei.utils.PhoLocationUtils;
 import com.kalei.views.CaptureView;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import java.util.HashMap;
@@ -21,8 +23,10 @@ public class MainActivity extends Activity implements OnClickListener {
     private ImageView mSettingsImage, mShutter;
     private EditText mEditEmail;
     private CaptureView mCaptureView;
-    private static String EMAIL_KEY = "email_key";
-    private static String MY_PREFS_NAME = "photolocation";
+    private FrameLayout mShutterScreen;
+    public static String EMAIL_KEY = "email_key";
+    public static String MY_PREFS_NAME = "photolocation";
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +39,9 @@ public class MainActivity extends Activity implements OnClickListener {
         mShutter.setOnClickListener(this);
         mCaptureView = (CaptureView) findViewById(R.id.capture_view);
         mCaptureView.setOnClickListener(this);
-
+        mEditEmail.setText(PhoLocationUtils.getData(this).get(EMAIL_KEY));
+        mShutterScreen = (FrameLayout) findViewById(R.id.shutterScreen);
+        mHandler = new Handler();
         //1. camera activity
         //2. add gear icon to screen
         //3. show amodal where you can update the email address /save to shared preferences
@@ -49,12 +55,14 @@ public class MainActivity extends Activity implements OnClickListener {
         Log.i("Reid", "view was clicked");
         switch (v.getId()) {
             case R.id.settings_image:
-                mEditEmail.setText(getData().get(EMAIL_KEY));
+                mEditEmail.setText(PhoLocationUtils.getData(this).get(EMAIL_KEY));
                 mEditEmail.setVisibility(View.VISIBLE);
                 mShutter.setVisibility(View.GONE);
                 break;
             case R.id.shutter:
-                CaptureView.takeAPicture(this, mEditEmail.getText().toString());
+
+                mCaptureView.takeAPicture(this, mEditEmail.getText().toString());
+                shutterShow();
                 break;
             default:
                 onSaveData();
@@ -64,30 +72,25 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
+    private void shutterShow() {
+        mShutterScreen.setVisibility(View.VISIBLE);
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mShutterScreen.setVisibility(View.GONE);
+            }
+        }, 500);
+    }
+
     private void onSaveData() {
         Map<String, String> map = new HashMap<>();
         map.put(EMAIL_KEY, mEditEmail.getText().toString());
-        saveData(map);
+        PhoLocationUtils.saveData(map, this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         onSaveData();
-    }
-
-    private void saveData(Map<String, String> map) {
-        SharedPreferences.Editor editor = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
-        for (String i : map.keySet()) {
-            editor.putString(i, map.get(i));
-        }
-        editor.commit();
-    }
-
-    private Map<String, String> getData() {
-        SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
-        Map<String, String> map = new HashMap<String, String>();
-        map.put(EMAIL_KEY, prefs.getString(EMAIL_KEY, "pchung528+catchall@gmail.com"));//"No name defined" is the default value.
-        return map;
     }
 }

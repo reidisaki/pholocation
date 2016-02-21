@@ -16,9 +16,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
         </com.kalei.views.CaptureView>
-
-
     </FrameLayout>
+    <FrameLayout android:layout_width="match_parent"
+                 android:visibility="gone"
+                 android:id="@+id/shutterScreen"
+                 android:background="@android:color/black"
+                 android:layout_height="match_parent"/>
     <EditText android:layout_width="300dp"
               android:id="@+id/email_edit"
               android:layout_centerInParent="true"
