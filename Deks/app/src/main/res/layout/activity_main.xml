@@ -33,9 +33,11 @@
               android:layout_height="wrap_content"/>
     <ImageView android:id="@+id/shutter"
                tools:visibility="gone"
-               android:layout_centerInParent="true"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
+               android:layout_centerHorizontal="true"
+               android:layout_alignParentBottom="true"
+               android:layout_width="75dp"
+               android:padding="10dp"
+               android:layout_height="75dp"
                android:src="@drawable/fart"/>
     <ImageView android:id="@+id/settings_image"
                android:layout_alignParentRight="true"

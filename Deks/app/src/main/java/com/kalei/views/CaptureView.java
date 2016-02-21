@@ -37,7 +37,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     private static final int FOCUS_AREA_SIZE = 300;
-    private static String mFileName;
 
     public CaptureView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -177,9 +176,9 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             public void onPictureTaken(byte[] data, Camera camera) {
                 mCamera.startPreview();
                 File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-                mFileName = pictureFile.toString();
+
                 if (pictureFile == null) {
-                    Log.d("REid", "Error creating media file, check storage permissions: ");
+                    Log.d("Reid", "Error creating media file, check storage permissions: ");
                     return;
                 }
 
@@ -194,7 +193,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 }
 
 //                mPictureURI = Uri.fromFile(pictureFile);
-                new PhotoLocationSender(context, email, mFileName);
+                new PhotoLocationSender(context, email, pictureFile.toString());
             }
         };
         mCamera.takePicture(null, null, mPictureCallback);
