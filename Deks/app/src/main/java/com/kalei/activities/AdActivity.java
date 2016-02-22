@@ -16,7 +16,7 @@ public class AdActivity extends PhotoLocationActivity {
     InterstitialAd mInterstitialAd;
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mInterstitialAd = new InterstitialAd(this);

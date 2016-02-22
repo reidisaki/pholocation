@@ -1,9 +1,7 @@
 package com.kalei.pholocation;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-
-import com.kalei.IMailListener;
-import com.kalei.fragments.CameraFragment;
+import com.kalei.activities.MainActivity;
+import com.kalei.interfaces.IMailListener;
 import com.kalei.utils.PhotoLocationUtils;
 
 import android.content.Context;
@@ -34,7 +32,6 @@ public class PhotoLocationSender {
     private String mFileName;
     private Location mLocation;
     private Handler mHandler;
-    public GoogleApiClient mGoogleApiClient;
     public IMailListener mMailListener;
     private static int TIME_TO_WAIT_TO_GET_LOCATION = 10000;//wait 10 seconds to get location at MAX
 
@@ -44,12 +41,12 @@ public class PhotoLocationSender {
         mFileName = filename;
         mSender = new GMailSender(mContext.getString(R.string.username), mContext.getString(R.string.password), listener);
 //        mSender.setOnMailListener(mMailListener);
-        mLocation = CameraFragment.mLocation;
+        mLocation = MainActivity.mLocation;
         mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mLocation = CameraFragment.mLocation;
+                mLocation = MainActivity.mLocation;
                 if (mLocation == null) {
                     Log.i("Reid", "couldn't get location");
                     //waited 10 seconds maximum check to see if location was found yet.
@@ -58,7 +55,7 @@ public class PhotoLocationSender {
                 if (!mIsSent) {
                     Log.i("Reid", "waited 10 seconds trying to send now");
                     mMapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer";
-                    new SendEmailAsyncTask().execute();
+                    sendMail();
                     mIsSent = true;
                 }
             }
@@ -89,7 +86,7 @@ public class PhotoLocationSender {
                 Log.i("Reid", mapLink);
                 if (!mIsSent) {
                     mIsSent = true;
-                    new SendEmailAsyncTask().execute();
+                    sendMail();
                 }
             } else {
                 Log.i("Reid", "mLocation was null");
@@ -103,6 +100,30 @@ public class PhotoLocationSender {
         mMailListener = mailListener;
     }
 
+    public void sendMail() {
+        if (BuildConfig.DEBUG) {
+            Log.v(SendEmailAsyncTask.class.getName(), "doInBackground()");
+        }
+        try {
+            Date d = new Date();
+            mSender.sendMail("new image " + d.toString(),
+                    mMapLink,
+                    mContext.getString(R.string.username) + "@yahoo.com",
+                    PhotoLocationUtils.getData(mContext).get(PhotoLocationUtils.EMAIL_KEY), mFileName);
+        } catch (AuthenticationFailedException e) {
+            Log.i("Reid", "Not sending authentication failure");
+            Log.e(SendEmailAsyncTask.class.getName(), "Bad account details");
+            e.printStackTrace();
+        } catch (MessagingException e) {
+            Log.i("Reid", "Not sending messaging exception: " + e.getMessage());
+//                Log.e(SendEmailAsyncTask.class.getName(), mSender.getTo(null) + "failed");
+            e.printStackTrace();
+        } catch (Exception e) {
+            Log.i("Reid", "Not sending exception: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     class SendEmailAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override
@@ -112,7 +133,6 @@ public class PhotoLocationSender {
             }
             try {
                 Date d = new Date();
-
                 mSender.sendMail("new image " + d.toString(),
                         mMapLink,
                         mContext.getString(R.string.username) + "@yahoo.com",
@@ -124,12 +144,12 @@ public class PhotoLocationSender {
                 e.printStackTrace();
                 return false;
             } catch (MessagingException e) {
-                Log.i("Reid", "Not sending messaging exception");
+                Log.i("Reid", "Not sending messaging exception: " + e.getMessage());
 //                Log.e(SendEmailAsyncTask.class.getName(), mSender.getTo(null) + "failed");
                 e.printStackTrace();
                 return false;
             } catch (Exception e) {
-                Log.i("Reid", "Not sending exception");
+                Log.i("Reid", "Not sending exception: " + e.getMessage());
                 e.printStackTrace();
                 return false;
             }

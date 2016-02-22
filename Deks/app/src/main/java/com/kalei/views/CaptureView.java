@@ -1,7 +1,7 @@
 package com.kalei.views;
 
 import com.flurry.android.FlurryAgent;
-import com.kalei.IMailListener;
+import com.kalei.interfaces.IMailListener;
 import com.kalei.pholocation.PhotoLocationSender;
 import com.kalei.pholocation.R;
 

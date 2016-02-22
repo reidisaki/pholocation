@@ -24,9 +24,11 @@
                 android:value="@integer/google_play_services_version"/>
 
         <activity android:name="com.kalei.activities.MainActivity"
+                  android:theme="@style/Theme.AppCompat.NoActionBar"
                   android:screenOrientation="fullSensor">
         </activity>
         <activity android:name="com.kalei.activities.SplashActivity"
+                  android:theme="@style/Theme.AppCompat.NoActionBar"
                   android:noHistory="true"
                   android:screenOrientation="portrait">
             <intent-filter>
@@ -36,6 +38,8 @@
             </intent-filter>
         </activity>
         <activity android:name="com.kalei.activities.AdActivity"
+                  android:noHistory="true"
+                  android:theme="@style/Theme.AppCompat.NoActionBar"
                   android:screenOrientation="portrait">
         </activity>
         <meta-data

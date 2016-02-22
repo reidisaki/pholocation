@@ -1,26 +1,17 @@
 package com.kalei.fragments;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.location.LocationServices;
-
 import com.flurry.android.FlurryAgent;
-import com.kalei.IMailListener;
+import com.kalei.activities.MainActivity;
+import com.kalei.interfaces.ICameraClickListener;
+import com.kalei.interfaces.IMailListener;
 import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 import com.kalei.views.CaptureView;
 
-import android.Manifest.permission;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,7 +30,7 @@ import java.util.Map;
 /**
  * Created by risaki on 2/22/16.
  */
-public class CameraFragment extends PhotoLocationFragment implements OnClickListener, ConnectionCallbacks, OnConnectionFailedListener, IMailListener {
+public class CameraFragment extends PhotoLocationFragment implements OnClickListener, IMailListener {
     private ImageView mSettingsImage, mShutter;
     private EditText mEditEmail;
     private CaptureView mCaptureView;
@@ -50,9 +41,8 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     private TextView mErrorText;
 
     private Handler mHandler;
-    public GoogleApiClient mGoogleApiClient;
-    public static Location mLocation;
     public IMailListener mMailListener;
+    public ICameraClickListener mCameraClickListener;
 
     public static CameraFragment newInstance() {
         CameraFragment fragment = new CameraFragment();
@@ -67,6 +57,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        ((MainActivity) getActivity()).getSupportActionBar().hide();
         View rootView = inflater.inflate(R.layout.fragment_camera, container, false);
         mSettingsImage = (ImageView) rootView.findViewById(R.id.settings_image);
         mSettingsImage.setOnClickListener(this);
@@ -82,7 +73,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         mSaveButton = (Button) rootView.findViewById(R.id.save_btn);
         mSaveButton.setOnClickListener(this);
         mHandler = new Handler();
-        checkLocation();
         IMailListener listener = (IMailListener) this;
         mCaptureView.setOnMailListener(listener);
         return rootView;
@@ -94,20 +84,10 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
 
         try {
             mMailListener = (IMailListener) context;
+            mCameraClickListener = (ICameraClickListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + "must implement the IMailListener");
+            throw new ClassCastException(context.toString() + "must implement the correct listeners");
         }
-    }
-
-    private void checkLocation() {
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-        mGoogleApiClient.connect();
     }
 
     @Override
@@ -115,13 +95,15 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
 
         switch (v.getId()) {
             case R.id.settings_image:
-                if (!PhotoLocationUtils.isValidEmail(mEditEmail.getText())) {
-                    mErrorText.setVisibility(View.VISIBLE);
-                } else {
-                    mErrorText.setVisibility(View.GONE);
-                }
-                mEditEmail.setText(PhotoLocationUtils.getData(getActivity()).get(PhotoLocationUtils.EMAIL_KEY));
-                mEditLayout.setVisibility(View.VISIBLE);
+
+                mCameraClickListener.onSettingsClicked();
+//                if (!PhotoLocationUtils.isValidEmail(mEditEmail.getText())) {
+//                    mErrorText.setVisibility(View.VISIBLE);
+//                } else {
+//                    mErrorText.setVisibility(View.GONE);
+//                }
+//                mEditEmail.setText(PhotoLocationUtils.getData(getActivity()).get(PhotoLocationUtils.EMAIL_KEY));
+//                mEditLayout.setVisibility(View.VISIBLE);
 
                 break;
             case R.id.shutter:
@@ -181,37 +163,9 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     }
 
     @Override
-    public void onConnected(final Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(getActivity(), permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getActivity(), permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        mLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-        Log.i("Reid", "got location" + mLocation.getLongitude());
-    }
-
-    @Override
-    public void onConnectionSuspended(final int i) {
-
-    }
-
-    @Override
     public void onStop() {
         super.onStop();
         FlurryAgent.onEndSession(getActivity());
-    }
-
-    @Override
-    public void onConnectionFailed(final ConnectionResult connectionResult) {
-
     }
 
     @Override

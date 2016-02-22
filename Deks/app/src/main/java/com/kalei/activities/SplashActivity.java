@@ -1,7 +1,5 @@
 package com.kalei.activities;
 
-import com.kalei.pholocation.R;
-
 import android.Manifest.permission;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,9 +13,8 @@ import android.support.v4.content.ContextCompat;
  */
 public class SplashActivity extends PhotoLocationActivity {
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.splash);
         if (ContextCompat.checkSelfPermission(this,
                 permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {

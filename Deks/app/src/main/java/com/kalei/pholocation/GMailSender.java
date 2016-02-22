@@ -1,7 +1,7 @@
 package com.kalei.pholocation;
 
 import com.flurry.android.FlurryAgent;
-import com.kalei.IMailListener;
+import com.kalei.interfaces.IMailListener;
 
 import android.os.StrictMode;
 import android.util.Log;
