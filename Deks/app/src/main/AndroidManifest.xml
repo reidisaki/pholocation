@@ -24,15 +24,21 @@
         <uses-feature android:name="android.hardware.camera.autofocus"/>
         <activity android:name=".MainActivity"
                   android:screenOrientation="fullSensor">
+        </activity>
+        <activity android:name=".SplashActivity"
+                  android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".AdActivity"
+                  android:screenOrientation="portrait">
+        </activity>
         <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="c972bfa76ea337247175a6cc36112e65a8385cd4" />
+                android:name="io.fabric.ApiKey"
+                android:value="c972bfa76ea337247175a6cc36112e65a8385cd4"/>
     </application>
 
 </manifest>

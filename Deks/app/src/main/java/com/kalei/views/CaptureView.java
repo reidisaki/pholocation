@@ -158,6 +158,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             mCamera = Camera.open();
             mCamera.setPreviewDisplay(holder);
         } catch (Exception e) {
+            Log.i("Reid", "surface created error" + e.getMessage());
             e.printStackTrace();
         }
     }

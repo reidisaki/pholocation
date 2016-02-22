@@ -2,5 +2,7 @@
     <string name="app_name">Photocation</string>
     <string name="username">reidisaki</string>
     <string name="password">Password01!</string>
+    <string name="admob_id">ca-app-pub-5747146577301976/4355730843</string>
+
 
 </resources>
