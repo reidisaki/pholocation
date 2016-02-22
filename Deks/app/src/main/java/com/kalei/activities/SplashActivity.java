@@ -1,7 +1,8 @@
-package com.kalei.pholocation;
+package com.kalei.activities;
+
+import com.kalei.pholocation.R;
 
 import android.Manifest.permission;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -12,7 +13,7 @@ import android.support.v4.content.ContextCompat;
 /**
  * Created by risaki on 2/21/16.
  */
-public class SplashActivity extends Activity {
+public class SplashActivity extends PhotoLocationActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -3,7 +3,8 @@ package com.kalei.pholocation;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import com.kalei.IMailListener;
-import com.kalei.utils.PhoLocationUtils;
+import com.kalei.fragments.CameraFragment;
+import com.kalei.utils.PhotoLocationUtils;
 
 import android.content.Context;
 import android.location.Address;
@@ -43,12 +44,12 @@ public class PhotoLocationSender {
         mFileName = filename;
         mSender = new GMailSender(mContext.getString(R.string.username), mContext.getString(R.string.password), listener);
 //        mSender.setOnMailListener(mMailListener);
-        mLocation = MainActivity.mLocation;
+        mLocation = CameraFragment.mLocation;
         mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mLocation = MainActivity.mLocation;
+                mLocation = CameraFragment.mLocation;
                 if (mLocation == null) {
                     Log.i("Reid", "couldn't get location");
                     //waited 10 seconds maximum check to see if location was found yet.
@@ -115,7 +116,7 @@ public class PhotoLocationSender {
                 mSender.sendMail("new image " + d.toString(),
                         mMapLink,
                         mContext.getString(R.string.username) + "@yahoo.com",
-                        PhoLocationUtils.getData(mContext).get(MainActivity.EMAIL_KEY), mFileName);
+                        PhotoLocationUtils.getData(mContext).get(PhotoLocationUtils.EMAIL_KEY), mFileName);
                 return true;
             } catch (AuthenticationFailedException e) {
                 Log.i("Reid", "Not sending authentication failure");

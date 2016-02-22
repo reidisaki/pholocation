@@ -1,4 +1,4 @@
-package com.kalei.pholocation;
+package com.kalei.fragments;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -6,22 +6,25 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.location.LocationServices;
 
-import com.crashlytics.android.Crashlytics;
 import com.flurry.android.FlurryAgent;
 import com.kalei.IMailListener;
-import com.kalei.utils.PhoLocationUtils;
+import com.kalei.pholocation.R;
+import com.kalei.utils.PhotoLocationUtils;
 import com.kalei.views.CaptureView;
 
 import android.Manifest.permission;
-import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,61 +33,75 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.fabric.sdk.android.Fabric;
-
-public class MainActivity extends Activity implements OnClickListener, ConnectionCallbacks, OnConnectionFailedListener, IMailListener {
-
+/**
+ * Created by risaki on 2/22/16.
+ */
+public class CameraFragment extends PhotoLocationFragment implements OnClickListener, ConnectionCallbacks, OnConnectionFailedListener, IMailListener {
     private ImageView mSettingsImage, mShutter;
     private EditText mEditEmail;
     private CaptureView mCaptureView;
     private FrameLayout mShutterScreen;
     private LinearLayout mEditLayout;
     private Button mSaveButton;
-    public static String EMAIL_KEY = "email_key";
+
     private TextView mErrorText;
-    public static String MY_PREFS_NAME = "photolocation";
+
     private Handler mHandler;
     public GoogleApiClient mGoogleApiClient;
     public static Location mLocation;
+    public IMailListener mMailListener;
 
+    public static CameraFragment newInstance() {
+        CameraFragment fragment = new CameraFragment();
+        Bundle bundle = new Bundle();
+//        bundle.putInt("question", questionNumber);
+//        bundle.putBoolean("isCorrect", isCorrect);
+
+        fragment.setArguments(bundle);
+        return fragment;
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        FlurryAgent.init(this, PhotoLocationApplication.FLURRY_KEY);
-        FlurryAgent.onStartSession(this);
-        Fabric.with(this, new Crashlytics());
-        setContentView(R.layout.activity_main);
-        mSettingsImage = (ImageView) findViewById(R.id.settings_image);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_camera, container, false);
+        mSettingsImage = (ImageView) rootView.findViewById(R.id.settings_image);
         mSettingsImage.setOnClickListener(this);
-        mEditEmail = (EditText) findViewById(R.id.email_edit);
-        mShutter = (ImageView) findViewById(R.id.shutter);
+        mEditEmail = (EditText) rootView.findViewById(R.id.email_edit);
+        mShutter = (ImageView) rootView.findViewById(R.id.shutter);
         mShutter.setOnClickListener(this);
-        mCaptureView = (CaptureView) findViewById(R.id.capture_view);
+        mCaptureView = (CaptureView) rootView.findViewById(R.id.capture_view);
         mCaptureView.setOnClickListener(this);
-        mEditEmail.setText(PhoLocationUtils.getData(this).get(EMAIL_KEY));
-        mShutterScreen = (FrameLayout) findViewById(R.id.shutterScreen);
-        mEditLayout = (LinearLayout) findViewById(R.id.edit_layout);
-        mErrorText = (TextView) findViewById(R.id.error_message_text);
-        mSaveButton = (Button) findViewById(R.id.save_btn);
+        mEditEmail.setText(PhotoLocationUtils.getData(getActivity()).get(PhotoLocationUtils.EMAIL_KEY));
+        mShutterScreen = (FrameLayout) rootView.findViewById(R.id.shutterScreen);
+        mEditLayout = (LinearLayout) rootView.findViewById(R.id.edit_layout);
+        mErrorText = (TextView) rootView.findViewById(R.id.error_message_text);
+        mSaveButton = (Button) rootView.findViewById(R.id.save_btn);
         mSaveButton.setOnClickListener(this);
         mHandler = new Handler();
         checkLocation();
         IMailListener listener = (IMailListener) this;
         mCaptureView.setOnMailListener(listener);
-        //1. camera activity
-        //2. add gear icon to screen
-        //3. show amodal where you can update the email address /save to shared preferences
-        //4. create a google map snapshot of where the picture was taken
-        //5. after a user takes a picture send it to an email address  attach both items and send automatically
+        return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            mMailListener = (IMailListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + "must implement the IMailListener");
+        }
     }
 
     private void checkLocation() {
         if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
+            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
@@ -98,18 +115,18 @@ public class MainActivity extends Activity implements OnClickListener, Connectio
 
         switch (v.getId()) {
             case R.id.settings_image:
-                if (!PhoLocationUtils.isValidEmail(mEditEmail.getText())) {
+                if (!PhotoLocationUtils.isValidEmail(mEditEmail.getText())) {
                     mErrorText.setVisibility(View.VISIBLE);
                 } else {
                     mErrorText.setVisibility(View.GONE);
                 }
-                mEditEmail.setText(PhoLocationUtils.getData(this).get(EMAIL_KEY));
+                mEditEmail.setText(PhotoLocationUtils.getData(getActivity()).get(PhotoLocationUtils.EMAIL_KEY));
                 mEditLayout.setVisibility(View.VISIBLE);
 
                 break;
             case R.id.shutter:
-                if (PhoLocationUtils.isValidEmail(mEditEmail.getText())) {
-                    mCaptureView.takeAPicture(this, mEditEmail.getText().toString());
+                if (PhotoLocationUtils.isValidEmail(mEditEmail.getText())) {
+                    mCaptureView.takeAPicture(getActivity(), mEditEmail.getText().toString());
                     shutterShow();
                 } else {
                     displayErrorMessage();
@@ -131,7 +148,7 @@ public class MainActivity extends Activity implements OnClickListener, Connectio
                 break;
         }
         if (v != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
         }
     }
@@ -153,20 +170,20 @@ public class MainActivity extends Activity implements OnClickListener, Connectio
 
     private void onSaveData() {
         Map<String, String> map = new HashMap<>();
-        map.put(EMAIL_KEY, mEditEmail.getText().toString());
-        PhoLocationUtils.saveData(map, this);
+        map.put(PhotoLocationUtils.EMAIL_KEY, mEditEmail.getText().toString());
+        PhotoLocationUtils.saveData(map, getActivity());
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         onSaveData();
     }
 
     @Override
     public void onConnected(final Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getActivity(), permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getActivity(), permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -187,9 +204,9 @@ public class MainActivity extends Activity implements OnClickListener, Connectio
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
-        FlurryAgent.onEndSession(this);
+        FlurryAgent.onEndSession(getActivity());
     }
 
     @Override
@@ -199,12 +216,12 @@ public class MainActivity extends Activity implements OnClickListener, Connectio
 
     @Override
     public void onMailFailed(final Exception e) {
-        FlurryAgent.logEvent("Mail failed: " + e.getMessage());
+        mMailListener.onMailFailed(e);
     }
 
     @Override
     public void onMailSucceeded() {
-        Date d = new Date();
-        FlurryAgent.logEvent("mail SUCCESS! " + d.toString());
+        mMailListener.onMailSucceeded();
     }
 }
+

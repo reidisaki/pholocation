@@ -23,10 +23,10 @@
                 android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version"/>
 
-        <activity android:name=".MainActivity"
+        <activity android:name="com.kalei.activities.MainActivity"
                   android:screenOrientation="fullSensor">
         </activity>
-        <activity android:name=".SplashActivity"
+        <activity android:name="com.kalei.activities.SplashActivity"
                   android:noHistory="true"
                   android:screenOrientation="portrait">
             <intent-filter>
@@ -35,7 +35,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".AdActivity"
+        <activity android:name="com.kalei.activities.AdActivity"
                   android:screenOrientation="portrait">
         </activity>
         <meta-data

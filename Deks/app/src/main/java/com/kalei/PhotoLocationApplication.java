@@ -1,4 +1,4 @@
-package com.kalei.pholocation;
+package com.kalei;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;

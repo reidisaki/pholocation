@@ -1,17 +1,18 @@
-package com.kalei.pholocation;
+package com.kalei.activities;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 
-import android.app.Activity;
+import com.kalei.pholocation.R;
+
 import android.content.Intent;
 import android.os.Bundle;
 
 /**
  * Created by risaki on 2/21/16.
  */
-public class AdActivity extends Activity {
+public class AdActivity extends PhotoLocationActivity {
     InterstitialAd mInterstitialAd;
 
     @Override
