@@ -27,4 +27,8 @@ public class PhoLocationUtils {
         map.put(MainActivity.EMAIL_KEY, prefs.getString(MainActivity.EMAIL_KEY, "pchung528+catchall@gmail.com"));//"No name defined" is the default value.
         return map;
     }
+
+    public static boolean isValidEmail(CharSequence target) {
+        return target != null && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+    }
 }

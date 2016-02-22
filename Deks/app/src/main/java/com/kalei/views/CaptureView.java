@@ -1,5 +1,7 @@
 package com.kalei.views;
 
+import com.flurry.android.FlurryAgent;
+import com.kalei.IMailListener;
 import com.kalei.pholocation.PhotoLocationSender;
 import com.kalei.pholocation.R;
 
@@ -38,6 +40,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     private static final int FOCUS_AREA_SIZE = 300;
+    public IMailListener mMailListener;
 
     public CaptureView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -45,6 +48,10 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         holder = getHolder();
         holder.addCallback(this);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+    }
+
+    public void setOnMailListener(IMailListener listener) {
+        mMailListener = listener;
     }
 
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -108,7 +115,11 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 meteringAreas.add(new Camera.Area(rect, 800));
                 parameters.setFocusAreas(meteringAreas);
 
-                mCamera.setParameters(parameters);
+                try {
+                    mCamera.setParameters(parameters);
+                } catch (RuntimeException e) {
+                    FlurryAgent.logEvent("set parameters failed: " + e.getMessage());
+                }
                 mCamera.autoFocus(mAutoFocusTakePictureCallback);
             } else {
                 mCamera.autoFocus(mAutoFocusTakePictureCallback);
@@ -155,6 +166,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder) {
 
         try {
+            releaseCameraAndPreview();
             mCamera = Camera.open();
             mCamera.setPreviewDisplay(holder);
         } catch (Exception e) {
@@ -195,7 +207,9 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 }
 
 //                mPictureURI = Uri.fromFile(pictureFile);
-                new PhotoLocationSender(context, email, pictureFile.toString());
+
+                PhotoLocationSender photoLocationSender = new PhotoLocationSender(context, email, pictureFile.toString(), mMailListener);
+                photoLocationSender.setOnMailListener(mMailListener);
             }
         };
         try {
@@ -239,5 +253,12 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         return mediaFile;
+    }
+
+    private void releaseCameraAndPreview() {
+        if (mCamera != null) {
+            mCamera.release();
+            mCamera = null;
+        }
     }
 }

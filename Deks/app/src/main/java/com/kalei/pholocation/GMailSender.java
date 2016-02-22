@@ -1,5 +1,8 @@
 package com.kalei.pholocation;
 
+import com.flurry.android.FlurryAgent;
+import com.kalei.IMailListener;
+
 import android.os.StrictMode;
 import android.util.Log;
 
@@ -31,19 +34,20 @@ public class GMailSender extends javax.mail.Authenticator {
     private String user;
     private String password;
     private Session session;
+    public IMailListener mMailListener;
 
     static {
         Security.addProvider(new com.kalei.pholocation.JSSEProvider());
     }
 
-    public GMailSender(String user, String password) {
+    public GMailSender(String user, String password, IMailListener listener) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
 
         this.user = user;
         this.password = password;
-
+        mMailListener = listener;
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");
         props.setProperty("mail.host", mailhost);
@@ -101,10 +105,17 @@ public class GMailSender extends javax.mail.Authenticator {
             Transport.send(message);
             Log.i("Reid", "Sending mail");
             Log.i("SendMail", "send mail Succeded");
+            mMailListener.onMailSucceeded();
         } catch (Exception e) {
+            mMailListener.onMailFailed(e);
+            FlurryAgent.logEvent("failed to send: " + e.getMessage());
             Log.i("SendMail", "send mail failed:" + e.getMessage());
             Log.i("Reid", "FAILED: " + e.getMessage());
         }
+    }
+
+    public void setOnMailListener(final IMailListener mailListener) {
+        mMailListener = mailListener;
     }
 
     public class ByteArrayDataSource implements DataSource {

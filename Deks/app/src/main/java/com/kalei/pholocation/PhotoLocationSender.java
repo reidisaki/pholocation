@@ -2,6 +2,7 @@ package com.kalei.pholocation;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import com.kalei.IMailListener;
 import com.kalei.utils.PhoLocationUtils;
 
 import android.content.Context;
@@ -33,13 +34,15 @@ public class PhotoLocationSender {
     private Location mLocation;
     private Handler mHandler;
     public GoogleApiClient mGoogleApiClient;
+    public IMailListener mMailListener;
     private static int TIME_TO_WAIT_TO_GET_LOCATION = 10000;//wait 10 seconds to get location at MAX
 
-    public PhotoLocationSender(Context context, String email, String filename) {
+    public PhotoLocationSender(Context context, String email, String filename, IMailListener listener) {
         mContext = context;
         mIsSent = false;
         mFileName = filename;
-        mSender = new GMailSender(mContext.getString(R.string.username), mContext.getString(R.string.password));
+        mSender = new GMailSender(mContext.getString(R.string.username), mContext.getString(R.string.password), listener);
+//        mSender.setOnMailListener(mMailListener);
         mLocation = MainActivity.mLocation;
         mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
@@ -95,6 +98,10 @@ public class PhotoLocationSender {
         }
     }
 
+    public void setOnMailListener(final IMailListener mailListener) {
+        mMailListener = mailListener;
+    }
+
     class SendEmailAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override
@@ -104,9 +111,10 @@ public class PhotoLocationSender {
             }
             try {
                 Date d = new Date();
+
                 mSender.sendMail("new image " + d.toString(),
                         mMapLink,
-                        "reidisaki@yahoo.com",
+                        mContext.getString(R.string.username) + "@yahoo.com",
                         PhoLocationUtils.getData(mContext).get(MainActivity.EMAIL_KEY), mFileName);
                 return true;
             } catch (AuthenticationFailedException e) {
