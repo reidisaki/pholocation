@@ -5,6 +5,9 @@ import com.crashlytics.android.core.CrashlyticsCore;
 import com.flurry.android.FlurryAgent;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -14,6 +17,15 @@ import io.fabric.sdk.android.Fabric;
 public class PhotoLocationApplication extends Application {
 
     public static String FLURRY_KEY = "JGBTZJXTZFXBS5VY6T56";
+    public static PhotoLocationApplication mInstance;
+
+    public PhotoLocationApplication() {
+        mInstance = this;
+    }
+
+    public static PhotoLocationApplication getInstance() {
+        return mInstance;
+    }
 
     @Override
     public void onCreate() {
@@ -27,5 +39,28 @@ public class PhotoLocationApplication extends Application {
 
         // init Flurry
         FlurryAgent.init(this, FLURRY_KEY);
+    }
+
+    public static String getVersionName(Context context) {
+        PackageInfo pInfo;
+        try {
+            pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            return pInfo.versionName;
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return "error";
+    }
+
+    public static int getVersionCode(Context context) {
+        PackageInfo pInfo;
+
+        try {
+            pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            return pInfo.versionCode;
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 }

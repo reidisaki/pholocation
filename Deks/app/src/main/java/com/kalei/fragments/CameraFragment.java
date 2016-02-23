@@ -12,7 +12,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -142,12 +141,10 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     }
 
     private void shutterShow() {
-        Log.i("Reid", "showing screen");
         mShutterScreen.setVisibility(View.VISIBLE);
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.i("Reid", "hiding screen");
                 mShutterScreen.setVisibility(View.GONE);
             }
         }, 300);

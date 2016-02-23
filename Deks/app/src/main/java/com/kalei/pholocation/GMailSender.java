@@ -27,8 +27,10 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import static com.google.android.gms.internal.zzir.runOnUiThread;
+
 public class GMailSender extends javax.mail.Authenticator {
-    private String mailhost = "smtp.mail.yahoo.com";
+    private String mailhost = "smtp.mailgun.org";
 //    private String mailhost = "smtp.gmail.com";
 
     private String user;
@@ -92,7 +94,7 @@ public class GMailSender extends javax.mail.Authenticator {
             addAttachment(filename, body);
             MimeMessage message = new MimeMessage(session);
             DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/plain"));
-            message.setSender(new InternetAddress(sender));
+            message.setSender(new InternetAddress("picture@photolocation.com"));
             message.setSubject(subject);
             message.setDataHandler(handler);
             message.setContent(_multipart);
@@ -105,9 +107,19 @@ public class GMailSender extends javax.mail.Authenticator {
             Transport.send(message);
             Log.i("Reid", "Sending mail");
             Log.i("SendMail", "send mail Succeded");
-//            mMailListener.onMailSucceeded();
-        } catch (Exception e) {
-//            mMailListener.onMailFailed(e);
+
+            runOnUiThread(new Thread(new Runnable() {
+                public void run() {
+                    mMailListener.onMailSucceeded();
+                }
+            }));
+        } catch (final Exception e) {
+            runOnUiThread(new Thread(new Runnable() {
+                public void run() {
+                    mMailListener.onMailFailed(e);
+                }
+            }));
+
             FlurryAgent.logEvent("failed to send: " + e.getMessage());
             Log.i("SendMail", "send mail failed:" + e.getMessage());
             Log.i("Reid", "FAILED: " + e.getMessage());

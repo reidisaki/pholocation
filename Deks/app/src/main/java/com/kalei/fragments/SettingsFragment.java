@@ -1,5 +1,6 @@
 package com.kalei.fragments;
 
+import com.kalei.PhotoLocationApplication;
 import com.kalei.activities.MainActivity;
 import com.kalei.pholocation.R;
 
@@ -8,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 /**
  * Created by risaki on 2/22/16.
@@ -34,6 +36,8 @@ public class SettingsFragment extends PhotoLocationFragment {
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
         ((MainActivity) getActivity()).getSupportActionBar().show();
         View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
+        TextView versionText = (TextView) rootView.findViewById(R.id.version_text);
+        versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
         return rootView;
     }
 }

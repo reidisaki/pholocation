@@ -40,12 +40,7 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState == null) {
-
-            mSettingsFragment = mSettingsFragment.newInstance();
-            mSettingsFragment.setArguments(getIntent().getExtras());
-            getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mSettingsFragment, "settings").commit();
-        } else {
+        if (savedInstanceState != null) {
             mSettingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag("settings");
         }
         setContentView(R.layout.activity_main);
@@ -55,7 +50,9 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         checkLocation();
         loadToolbar("Settings");
         mCameraFragment = CameraFragment.newInstance();
-        if (mSettingsFragment != null && mSettingsFragment.isInLayout()) {
+        if (mSettingsFragment != null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mSettingsFragment).commit();
+        } else {
             getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
         }
         toolbar.setNavigationOnClickListener(new OnClickListener() {

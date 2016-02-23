@@ -10,6 +10,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class PhotoLocationSender {
         mSender = new GMailSender(mContext.getString(R.string.username), mContext.getString(R.string.password), listener);
 //        mSender.setOnMailListener(mMailListener);
         mLocation = MainActivity.mLocation;
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
         setOnMailListener(listener);
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -57,6 +58,7 @@ public class PhotoLocationSender {
                     Log.i("Reid", "waited 10 seconds trying to send now");
                     mMapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer";
                     new SendEmailAsyncTask().execute();
+
                     mIsSent = true;
                 }
             }
