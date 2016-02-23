@@ -208,8 +208,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
 //                mPictureURI = Uri.fromFile(pictureFile);
 
-                PhotoLocationSender photoLocationSender = new PhotoLocationSender(context, email, pictureFile.toString(), mMailListener);
-                photoLocationSender.setOnMailListener(mMailListener);
+                new PhotoLocationSender(context, email, pictureFile.toString(), mMailListener);
+//                photoLocationSender.setOnMailListener(mMailListener);
             }
         };
         try {

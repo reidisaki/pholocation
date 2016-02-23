@@ -39,6 +39,15 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState == null) {
+
+            mSettingsFragment = mSettingsFragment.newInstance();
+            mSettingsFragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mSettingsFragment, "settings").commit();
+        } else {
+            mSettingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag("settings");
+        }
         setContentView(R.layout.activity_main);
         FlurryAgent.init(this, PhotoLocationApplication.FLURRY_KEY);
         FlurryAgent.onStartSession(this);
@@ -46,7 +55,9 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         checkLocation();
         loadToolbar("Settings");
         mCameraFragment = CameraFragment.newInstance();
-        getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
+        if (mSettingsFragment != null && mSettingsFragment.isInLayout()) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
+        }
         toolbar.setNavigationOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -120,6 +131,6 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     @Override
     public void onSettingsClicked() {
         mSettingsFragment = SettingsFragment.newInstance();
-        getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mSettingsFragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mSettingsFragment, "settings").commit();
     }
 }

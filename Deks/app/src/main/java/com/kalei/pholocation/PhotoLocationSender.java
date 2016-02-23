@@ -43,6 +43,7 @@ public class PhotoLocationSender {
 //        mSender.setOnMailListener(mMailListener);
         mLocation = MainActivity.mLocation;
         mHandler = new Handler();
+        setOnMailListener(listener);
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -55,7 +56,7 @@ public class PhotoLocationSender {
                 if (!mIsSent) {
                     Log.i("Reid", "waited 10 seconds trying to send now");
                     mMapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer";
-                    sendMail();
+                    new SendEmailAsyncTask().execute();
                     mIsSent = true;
                 }
             }
@@ -86,7 +87,7 @@ public class PhotoLocationSender {
                 Log.i("Reid", mapLink);
                 if (!mIsSent) {
                     mIsSent = true;
-                    sendMail();
+                    new SendEmailAsyncTask().execute();
                 }
             } else {
                 Log.i("Reid", "mLocation was null");
@@ -101,6 +102,7 @@ public class PhotoLocationSender {
     }
 
     public void sendMail() {
+        Log.i("Reid", "SendMail called()");
         if (BuildConfig.DEBUG) {
             Log.v(SendEmailAsyncTask.class.getName(), "doInBackground()");
         }

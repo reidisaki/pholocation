@@ -25,7 +25,7 @@ public class SplashActivity extends PhotoLocationActivity {
                 public void run() {
                     startActivity(new Intent(SplashActivity.this, AdActivity.class));
                 }
-            }, 1000);
+            }, 200);
         }
     }
 

@@ -105,9 +105,9 @@ public class GMailSender extends javax.mail.Authenticator {
             Transport.send(message);
             Log.i("Reid", "Sending mail");
             Log.i("SendMail", "send mail Succeded");
-            mMailListener.onMailSucceeded();
+//            mMailListener.onMailSucceeded();
         } catch (Exception e) {
-            mMailListener.onMailFailed(e);
+//            mMailListener.onMailFailed(e);
             FlurryAgent.logEvent("failed to send: " + e.getMessage());
             Log.i("SendMail", "send mail failed:" + e.getMessage());
             Log.i("Reid", "FAILED: " + e.getMessage());
