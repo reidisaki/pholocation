@@ -23,9 +23,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by risaki on 2/22/16.
  */
@@ -96,43 +93,22 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
             case R.id.settings_image:
 
                 mCameraClickListener.onSettingsClicked();
-//                if (!PhotoLocationUtils.isValidEmail(mEditEmail.getText())) {
-//                    mErrorText.setVisibility(View.VISIBLE);
-//                } else {
-//                    mErrorText.setVisibility(View.GONE);
-//                }
-//                mEditEmail.setText(PhotoLocationUtils.getData(getActivity()).get(PhotoLocationUtils.EMAIL_KEY));
-//                mEditLayout.setVisibility(View.VISIBLE);
-
                 break;
             case R.id.shutter:
                 if (PhotoLocationUtils.getEmailStringList(getContext()).length() > 0) {
                     mCaptureView.takeAPicture(getActivity(), mEditEmail.getText().toString());
                     shutterShow();
                 } else {
-                    displayErrorMessage();
+                    mCameraClickListener.onNoEmailSet();
                 }
                 break;
-            case R.id.save_btn:
-                onSaveData();
-                mEditLayout.setVisibility(View.GONE);
-                mErrorText.setVisibility(View.GONE);
-                mShutter.setVisibility(View.VISIBLE);
-                mCaptureView.setAlpha(1f);
-                break;
             default:
-                onSaveData();
                 mCaptureView.setAlpha(1f);
                 mShutter.setVisibility(View.VISIBLE);
                 mErrorText.setVisibility(View.GONE);
                 mEditLayout.setVisibility(View.GONE);
                 break;
         }
-    }
-
-    private void displayErrorMessage() {
-        mEditLayout.setVisibility(View.VISIBLE);
-        mErrorText.setVisibility(View.VISIBLE);
     }
 
     private void shutterShow() {
@@ -145,17 +121,9 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         }, 300);
     }
 
-    private void onSaveData() {
-        //TODO: this is GOING AWAY
-        Map<String, String> map = new HashMap<>();
-        map.put(PhotoLocationUtils.EMAIL_KEY, mEditEmail.getText().toString());
-//        PhotoLocationUtils.saveData()
-    }
-
     @Override
     public void onPause() {
         super.onPause();
-        onSaveData();
     }
 
     @Override

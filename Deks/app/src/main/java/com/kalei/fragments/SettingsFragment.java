@@ -9,6 +9,7 @@ import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.util.Rfc822Tokenizer;
@@ -41,9 +42,16 @@ public class SettingsFragment extends PhotoLocationFragment {
         setRetainInstance(true);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+
         ((MainActivity) getActivity()).getSupportActionBar().show();
         View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
         TextView versionText = (TextView) rootView.findViewById(R.id.version_text);
@@ -85,5 +93,11 @@ public class SettingsFragment extends PhotoLocationFragment {
 
         versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
         return rootView;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
     }
 }

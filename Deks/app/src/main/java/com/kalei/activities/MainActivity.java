@@ -16,6 +16,7 @@ import com.kalei.interfaces.IMailListener;
 import com.kalei.pholocation.R;
 
 import android.Manifest.permission;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -64,6 +65,7 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     }
 
     public void clickBack() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
         getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
     }
 
@@ -132,6 +134,13 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     @Override
     public void onSettingsClicked() {
         mSettingsFragment = SettingsFragment.newInstance();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mSettingsFragment, "settings").commit();
+    }
+
+    @Override
+    public void onNoEmailSet() {
+        Toast.makeText(this, "No email has been set yet", Toast.LENGTH_LONG).show();
+        onSettingsClicked();
     }
 }

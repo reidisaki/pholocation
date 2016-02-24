@@ -28,7 +28,6 @@
           android:layout_marginBottom="30dp"
           android:background="@android:color/black"/>
     <com.android.ex.chips.RecipientEditTextView android:layout_width="match_parent"
-                                                android:lines="5"
                                                 android:layout_height="wrap_content"
                                                 android:id="@+id/phone_retv"/>
 
