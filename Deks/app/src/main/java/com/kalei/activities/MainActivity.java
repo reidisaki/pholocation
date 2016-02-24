@@ -58,9 +58,13 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         toolbar.setNavigationOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
+                clickBack();
             }
         });
+    }
+
+    public void clickBack() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
     }
 
     public void loadToolbar(String title) {

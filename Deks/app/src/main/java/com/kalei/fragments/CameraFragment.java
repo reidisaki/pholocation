@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -107,7 +106,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
 
                 break;
             case R.id.shutter:
-                if (PhotoLocationUtils.isValidEmail(mEditEmail.getText())) {
+                if (PhotoLocationUtils.getEmailStringList(getContext()).length() > 0) {
                     mCaptureView.takeAPicture(getActivity(), mEditEmail.getText().toString());
                     shutterShow();
                 } else {
@@ -128,10 +127,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                 mErrorText.setVisibility(View.GONE);
                 mEditLayout.setVisibility(View.GONE);
                 break;
-        }
-        if (v != null) {
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
         }
     }
 

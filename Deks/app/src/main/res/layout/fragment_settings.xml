@@ -1,29 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:padding="5dp"
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
-    <!--<TextView android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="About Us"/>-->
-    <!--<TextView android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="Set Email"/>-->
-    <!--<TextView android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="Help"/>-->
+
     <TextView android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:id="@+id/version_text"
               android:layout_gravity="right"
               android:text="version: v 1.1.0"/>
+    <Button android:layout_width="wrap_content"
+            android:layout_gravity="right"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            android:id="@+id/save_btn"/>
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textSize="26sp"
+              android:textStyle="bold"
+              tools:text="test email stuff"
+              android:paddingBottom="20dp"
+              android:id="@+id/current_emails"/>
+    <View android:layout_height="1dp"
+          android:layout_width="match_parent"
+          android:layout_marginBottom="30dp"
+          android:background="@android:color/black"/>
+    <com.android.ex.chips.RecipientEditTextView android:layout_width="match_parent"
+                                                android:lines="5"
+                                                android:layout_height="wrap_content"
+                                                android:id="@+id/phone_retv"/>
 
-    <ListView android:id="@+id/list"
-              android:layout_height="match_parent"
-              android:layout_weight="1"
-              android:layout_width="match_parent">
 
-    </ListView>
+    <!--<ListView android:id="@+id/list"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:layout_width="match_parent" />-->
+
 
 </LinearLayout>

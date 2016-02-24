@@ -1,9 +1,13 @@
 package com.kalei.adapters;
 
+import com.android.ex.chips.BaseRecipientAdapter;
+import com.android.ex.chips.RecipientEditTextView;
 import com.kalei.models.Recipient;
 import com.kalei.pholocation.R;
 
 import android.content.Context;
+import android.text.util.Rfc822Tokenizer;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +25,7 @@ import java.util.List;
 /**
  * Created by risaki on 2/22/16.
  */
+
 public class RecipientAdapter extends ArrayAdapter<Recipient> {
     private final Context mContext;
     private List<Recipient> mRecipientList;
@@ -54,6 +60,12 @@ public class RecipientAdapter extends ArrayAdapter<Recipient> {
             // if not null get tag
             // no need to initialize
         }
+
+        // creates an autocomplete for phone number contacts
+        final RecipientEditTextView emailRetv =
+                (RecipientEditTextView) convertView.findViewById(R.id.phone_retv);
+        emailRetv.setTokenizer(new Rfc822Tokenizer());
+        emailRetv.setAdapter(new BaseRecipientAdapter(mContext));
         setListeners(holder);
 //        textView.setText(values[position]);
         // change the icon for Windows and iPhone
@@ -75,6 +87,9 @@ public class RecipientAdapter extends ArrayAdapter<Recipient> {
                 holder.textView.setVisibility(View.VISIBLE);
                 holder.editText.setVisibility(View.GONE);
                 holder.textView.setText(holder.editText.getText().toString());
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) holder.textView.getLayoutParams();
+                params.gravity = Gravity.CENTER_VERTICAL;
+                holder.textView.setLayoutParams(params);
                 Toast.makeText(mContext, "Saved!", Toast.LENGTH_SHORT).show();
             }
         });
