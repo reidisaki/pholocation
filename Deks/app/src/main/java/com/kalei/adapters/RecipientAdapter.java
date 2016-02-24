@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -21,7 +22,8 @@ public class RecipientAdapter extends ArrayAdapter<Recipient> {
     private List<Recipient> mRecipientList;
 
     public RecipientAdapter(final Context context, final int resource, List<Recipient> list) {
-        super(context, resource);
+
+        super(context, resource, list);
         mContext = context;
         mRecipientList = list;
     }
@@ -31,7 +33,9 @@ public class RecipientAdapter extends ArrayAdapter<Recipient> {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.row_receipient, parent, false);
         TextView textView = (TextView) rowView.findViewById(R.id.txt_name);
+        textView.setText(mRecipientList.get(position).getFirstName());
         Button saveButton = (Button) rowView.findViewById(R.id.btn_save);
+        ImageButton deleteButton = (ImageButton) rowView.findViewById(R.id.btn_delete);
 //        textView.setText(values[position]);
         // change the icon for Windows and iPhone
 //        String s = values[position];
