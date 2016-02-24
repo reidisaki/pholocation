@@ -1,10 +1,17 @@
 package com.kalei.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import com.kalei.models.Recipient;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by risaki on 2/20/16.
@@ -14,22 +21,33 @@ public class PhotoLocationUtils {
     public static String EMAIL_KEY = "email_key";
     public static String MY_PREFS_NAME = "photolocation";
 
-    public static void saveData(Map<String, String> map, Context context) {
+    public static void saveData(List<Recipient> list, Context context) {
         SharedPreferences.Editor editor = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
-        for (String i : map.keySet()) {
-            editor.putString(i, map.get(i));
-        }
+        Gson gson = new GsonBuilder().create();
+        editor.putString(EMAIL_KEY, gson.toJson(list).toString());
         editor.commit();
     }
 
-    public static Map<String, String> getData(Context context) {
+    public static List<Recipient> getData(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE);
-        Map<String, String> map = new HashMap<String, String>();
-        map.put(EMAIL_KEY, prefs.getString(EMAIL_KEY, "pchung528+catchall@gmail.com"));//"No name defined" is the default value.
-        return map;
+        Type listType = new TypeToken<ArrayList<Recipient>>() {
+        }.getType();
+        List<Recipient> list = new Gson().fromJson(prefs.getString(EMAIL_KEY, null), listType);
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        return list;
     }
 
     public static boolean isValidEmail(CharSequence target) {
         return target != null && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+    }
+
+    public static String getEmailStringList(Context context) {
+        StringBuilder sb = new StringBuilder();
+        for (Recipient r : getData(context)) {
+            sb.append(r.getEmail() + ",");
+        }
+        return sb.toString();
     }
 }

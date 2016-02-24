@@ -17,6 +17,7 @@
 
     <FrameLayout android:layout_width="match_parent"
                  android:layout_height="match_parent"
+                 android:layout_below="@+id/toolbar"
                  android:id="@+id/camera_container">
 
     </FrameLayout>

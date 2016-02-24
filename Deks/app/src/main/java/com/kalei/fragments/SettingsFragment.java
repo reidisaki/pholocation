@@ -5,6 +5,7 @@ import com.kalei.activities.MainActivity;
 import com.kalei.adapters.RecipientAdapter;
 import com.kalei.models.Recipient;
 import com.kalei.pholocation.R;
+import com.kalei.utils.PhotoLocationUtils;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,11 +44,12 @@ public class SettingsFragment extends PhotoLocationFragment {
         View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
         TextView versionText = (TextView) rootView.findViewById(R.id.version_text);
         ListView listView = (ListView) rootView.findViewById(R.id.list);
-        List<Recipient> recipientList = new ArrayList<Recipient>();
-        Recipient r = new Recipient();
-        r.firstName = "testing";
-        recipientList.add(r);
-        listView.setAdapter(new RecipientAdapter(getActivity(), R.layout.row_receipient, recipientList));
+        List<Recipient> recipientList = PhotoLocationUtils.getData(getActivity());
+        if (recipientList.size() == 0) {
+            recipientList.add(new Recipient("Enter a new email, click here"));
+        }
+        RecipientAdapter adapter = new RecipientAdapter(getActivity(), R.layout.row_receipient, recipientList);
+        listView.setAdapter(adapter);
 
         versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
         return rootView;

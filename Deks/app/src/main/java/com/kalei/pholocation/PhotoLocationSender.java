@@ -113,7 +113,7 @@ public class PhotoLocationSender {
             mSender.sendMail("new image " + d.toString(),
                     mMapLink,
                     mContext.getString(R.string.username) + "@yahoo.com",
-                    PhotoLocationUtils.getData(mContext).get(PhotoLocationUtils.EMAIL_KEY), mFileName);
+                    PhotoLocationUtils.getEmailStringList(mContext), mFileName);
         } catch (AuthenticationFailedException e) {
             Log.i("Reid", "Not sending authentication failure");
             Log.e(SendEmailAsyncTask.class.getName(), "Bad account details");
@@ -140,7 +140,7 @@ public class PhotoLocationSender {
                 mSender.sendMail("new image " + d.toString(),
                         mMapLink,
                         mContext.getString(R.string.username) + "@yahoo.com",
-                        PhotoLocationUtils.getData(mContext).get(PhotoLocationUtils.EMAIL_KEY), mFileName);
+                        PhotoLocationUtils.getEmailStringList(mContext), mFileName);
                 return true;
             } catch (AuthenticationFailedException e) {
                 Log.i("Reid", "Not sending authentication failure");

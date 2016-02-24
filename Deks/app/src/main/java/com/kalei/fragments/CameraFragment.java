@@ -66,7 +66,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         mShutter.setOnClickListener(this);
         mCaptureView = (CaptureView) rootView.findViewById(R.id.capture_view);
         mCaptureView.setOnClickListener(this);
-        mEditEmail.setText(PhotoLocationUtils.getData(getActivity()).get(PhotoLocationUtils.EMAIL_KEY));
+        mEditEmail.setText("testing this is gonna be deleted TODO reid");
         mShutterScreen = (FrameLayout) rootView.findViewById(R.id.shutterScreen);
         mEditLayout = (LinearLayout) rootView.findViewById(R.id.edit_layout);
         mErrorText = (TextView) rootView.findViewById(R.id.error_message_text);
@@ -151,9 +151,10 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     }
 
     private void onSaveData() {
+        //TODO: this is GOING AWAY
         Map<String, String> map = new HashMap<>();
         map.put(PhotoLocationUtils.EMAIL_KEY, mEditEmail.getText().toString());
-        PhotoLocationUtils.saveData(map, getActivity());
+//        PhotoLocationUtils.saveData()
     }
 
     @Override

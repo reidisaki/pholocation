@@ -7,8 +7,8 @@ public class Recipient {
     public Recipient() {
     }
 
-    public Recipient(final String id) {
-        this.id = id;
+    public Recipient(final String email) {
+        this.email = email;
     }
 
     public Recipient(final String lastName, final String id, final String firstName, final String email) {
