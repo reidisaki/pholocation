@@ -11,7 +11,7 @@
               android:textSize="20sp"
               android:id="@+id/intro_text"
               android:layout_height="wrap_content"
-              android:text="Welcome to PhotoLocation \n First thing is to input an email address of the person you wish to send your photos to. Click Ok and we'll take you there. "/>
+              android:text="Welcome to PhotoLocation \nEnter a destination email to get started."/>
     <Button android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"

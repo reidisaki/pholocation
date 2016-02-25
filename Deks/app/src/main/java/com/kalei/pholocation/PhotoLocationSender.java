@@ -56,7 +56,7 @@ public class PhotoLocationSender {
                 }
                 if (!mIsSent) {
                     Log.i("Reid", "waited 10 seconds trying to send now");
-                    mMapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer";
+                    mMapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer. Is GPS enabled? \n\n\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation";
                     new SendEmailAsyncTask().execute();
 
                     mIsSent = true;
@@ -83,7 +83,7 @@ public class PhotoLocationSender {
                 }
 
                 mMapLink = "http://maps.google.com/?q=" + add.replace(" ", "+") +
-                        "\n sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation ";
+                        "\n\n\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation ";
 //                        mMapLink = "https://maps.googleapis.com/maps/api/staticmap?center=" + add +
 //                                "i&zoom=17&size=600x300&maptype=roadmap&markers=color:red%7Clabel:X%7C" +
 //                                mLocation.getLatitude() + "," + mLocation.getLongitude() + "&key=AIzaSyBryuOc-tskt2bkYh_vxfYq_HVRW5ddjoI";

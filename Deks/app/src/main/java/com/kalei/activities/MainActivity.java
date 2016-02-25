@@ -9,7 +9,6 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.location.LocationServices;
 
-import com.crashlytics.android.Crashlytics;
 import com.flurry.android.FlurryAgent;
 import com.kalei.PhotoLocationApplication;
 import com.kalei.fragments.CameraFragment;
@@ -34,7 +33,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
@@ -43,8 +41,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends PhotoLocationActivity implements IMailListener, ConnectionCallbacks, OnConnectionFailedListener, ICameraClickListener {
     public CameraFragment mCameraFragment;
@@ -75,7 +71,6 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         setContentView(R.layout.activity_main);
         FlurryAgent.init(this, PhotoLocationApplication.FLURRY_KEY);
         FlurryAgent.onStartSession(this);
-        Fabric.with(this, new Crashlytics());
         checkLocation();
         loadToolbar("Settings");
         mCameraFragment = CameraFragment.newInstance();
@@ -131,7 +126,6 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         }
         mLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
-        Log.i("Reid", "got location" + mLocation.getLongitude());
     }
 
     @Override

@@ -1,10 +1,13 @@
 package com.kalei.activities;
 
+import com.crashlytics.android.Crashlytics;
 import com.kalei.pholocation.R;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by risaki on 2/22/16.
@@ -15,6 +18,7 @@ public abstract class PhotoLocationActivity extends AppCompatActivity {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.splash);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {

@@ -32,7 +32,7 @@ public class PhotoLocationApplication extends Application {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
         Crashlytics crashlyticsKit = new Crashlytics.Builder()
-                .core(new CrashlyticsCore.Builder().disabled(true).build())
+                .core(new CrashlyticsCore.Builder().disabled(false).build())
                 .build();
         // configure Flurry
         FlurryAgent.setLogEnabled(false);
