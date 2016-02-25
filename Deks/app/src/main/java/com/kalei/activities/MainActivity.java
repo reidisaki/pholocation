@@ -250,4 +250,13 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
             unregisterReceiver(this);
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        if (mSettingsFragment != null && mSettingsFragment.isVisible()) {
+            clickBack();
+        } else {
+            super.onBackPressed();
+        }
+    }
 }

@@ -66,7 +66,7 @@ public class SettingsFragment extends PhotoLocationFragment {
                 (RecipientEditTextView) rootView.findViewById(R.id.phone_retv);
         emailRetv.setTokenizer(new Rfc822Tokenizer());
         emailRetv.setAdapter(new BaseRecipientAdapter(getActivity()));
-
+        emailRetv.requestFocus();
         emailRetv.dismissDropDownOnItemSelected(true);
 
         ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
