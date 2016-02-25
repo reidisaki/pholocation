@@ -1,5 +1,8 @@
 package com.kalei.fragments;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import com.android.ex.chips.BaseRecipientAdapter;
 import com.android.ex.chips.RecipientEditTextView;
 import com.android.ex.chips.recipientchip.DrawableRecipientChip;
@@ -11,6 +14,7 @@ import com.kalei.utils.PhotoLocationUtils;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.support.annotation.Nullable;
 import android.text.util.Rfc822Tokenizer;
 import android.view.LayoutInflater;
@@ -84,6 +88,16 @@ public class SettingsFragment extends PhotoLocationFragment {
                 ((MainActivity) getActivity()).clickBack();
             }
         });
+
+        AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
+        if (mAdView != null) {
+            String android_id = Secure.getString(getActivity().getContentResolver(),
+                    Secure.ANDROID_ID);
+//            AdRequest adRequest = new AdRequest.Builder().addTestDevice(android_id).build();
+            AdRequest adRequest = new AdRequest.Builder().build();
+
+            mAdView.loadAd(adRequest);
+        }
 //        ListView listView = (ListView) rootView.findViewById(R.id.list);
 //        List<Recipient> recipientList = PhotoLocationUtils.getData(getActivity());
 //        if (recipientList.size() == 0) {

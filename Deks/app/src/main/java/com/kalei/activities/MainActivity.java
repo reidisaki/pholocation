@@ -173,4 +173,9 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         Toast.makeText(this, "No email has been set yet", Toast.LENGTH_LONG).show();
         onSettingsClicked();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 }

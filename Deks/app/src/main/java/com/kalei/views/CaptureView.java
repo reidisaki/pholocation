@@ -189,7 +189,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
                 mCamera.startPreview();
-                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, false);
+                File originalPicture = getOutputMediaFile(MEDIA_TYPE_IMAGE, true);
                 if (pictureFile == null) {
                     Log.d("Reid", "Error creating media file, check storage permissions: ");
                     return;
@@ -200,6 +201,10 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
                     fos.write(data);
                     fos.close();
+
+                    FileOutputStream fos_original = new FileOutputStream(originalPicture);
+                    fos_original.write(data);
+                    fos_original.close();
                 } catch (FileNotFoundException e) {
                     Log.d("Reid", "File not found: " + e.getMessage());
                 } catch (IOException e) {
@@ -222,7 +227,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     /**
      * Create a File for saving an image or video
      */
-    private static File getOutputMediaFile(int type) {
+    private static File getOutputMediaFile(int type, boolean isOriginal) {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
@@ -243,8 +248,13 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_" + timeStamp + ".jpg");
+            if (isOriginal) {
+                mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                        "IMG_" + timeStamp + "_o.jpg");
+            } else {
+                mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                        "IMG_" + timeStamp + ".jpg");
+            }
         } else if (type == MEDIA_TYPE_VIDEO) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                     "VID_" + timeStamp + ".mp4");
