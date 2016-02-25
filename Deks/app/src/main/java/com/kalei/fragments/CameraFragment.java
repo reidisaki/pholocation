@@ -39,6 +39,8 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     private Handler mHandler;
     public IMailListener mMailListener;
     public ICameraClickListener mCameraClickListener;
+    public int numPicturesTaken = 1;
+    private static int NUMBER_PICTURES_BEFORE_SHOWING_AD = 5;
 
     public static CameraFragment newInstance() {
         CameraFragment fragment = new CameraFragment();
@@ -96,6 +98,11 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                 mCameraClickListener.onSettingsClicked();
                 break;
             case R.id.shutter:
+                numPicturesTaken++;
+                if (numPicturesTaken % NUMBER_PICTURES_BEFORE_SHOWING_AD == 0) {
+                    ((MainActivity) getActivity()).requestNewInterstitial();
+                    numPicturesTaken = 1;
+                }
                 if (PhotoLocationUtils.getEmailStringList(getContext()).length() > 0) {
                     mCaptureView.takeAPicture(getActivity(), mEditEmail.getText().toString());
                     shutterShow();

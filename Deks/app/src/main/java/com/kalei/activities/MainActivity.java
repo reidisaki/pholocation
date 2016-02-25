@@ -1,5 +1,8 @@
 package com.kalei.activities;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -43,6 +46,8 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     public static Location mLocation;
     NotificationCompat.Builder mBuilder;
     NotificationManager mNotificationManager;
+
+    InterstitialAd mInterstitialAd;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -137,7 +142,7 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     @Override
     public void onMailFailed(final Exception e, String imageName) {
         FlurryAgent.logEvent("Mail failed: " + e.getMessage());
-        Toast.makeText(this, "Could not send email: " + e.getMessage(), Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "Could not send email: " + e.getMessage(), Toast.LENGTH_LONG).show();
         mBuilder.setSmallIcon(R.drawable.fart_backup);
         mBuilder.setContentTitle("Failed sending picture");
         mBuilder.setContentText("Sorry, I wasn't able to send this image: " + imageName);
@@ -148,7 +153,7 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     public void onMailSucceeded(String imageName) {
         Date d = new Date();
         FlurryAgent.logEvent("mail SUCCESS! " + d.toString());
-        Toast.makeText(this, "Picture sent successfully", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Picture sent successfully", Toast.LENGTH_SHORT).show();
 
         mBuilder.setSmallIcon(R.drawable.fart_backup);
         mBuilder.setContentTitle("Sent picture successfully");
@@ -174,8 +179,27 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         onSettingsClicked();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    public void requestNewInterstitial() {
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getString(R.string.admob_id));
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                mInterstitialAd.show();
+            }
+
+            @Override
+            public void onAdClosed() {
+
+            }
+        });
+
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
+                .build();
+
+        mInterstitialAd.loadAd(adRequest);
     }
 }

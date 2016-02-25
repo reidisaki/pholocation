@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Photocation</string>
+    <string name="app_name">PhotoLocation</string>
     <string name="username">postmaster@sandbox540fa4eec6994c5788835bb8518a246c.mailgun.org</string>
     <string name="password">6fda75b4cec66d1a81391a6c69913bbe</string>
     <string name="admob_id">ca-app-pub-5747146577301976/4355730843</string>
