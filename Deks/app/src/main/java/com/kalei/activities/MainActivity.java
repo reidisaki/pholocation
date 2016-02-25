@@ -17,12 +17,14 @@ import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 
 import android.Manifest.permission;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -39,10 +41,14 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     public SettingsFragment mSettingsFragment;
     private GoogleApiClient mGoogleApiClient;
     public static Location mLocation;
+    NotificationCompat.Builder mBuilder;
+    NotificationManager mNotificationManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mBuilder = new NotificationCompat.Builder(this);
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (savedInstanceState != null) {
             mSettingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag("settings");
@@ -129,16 +135,25 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     }
 
     @Override
-    public void onMailFailed(final Exception e) {
+    public void onMailFailed(final Exception e, String imageName) {
         FlurryAgent.logEvent("Mail failed: " + e.getMessage());
         Toast.makeText(this, "Could not send email: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        mBuilder.setSmallIcon(R.drawable.fart_backup);
+        mBuilder.setContentTitle("Failed sending picture");
+        mBuilder.setContentText("Sorry, I wasn't able to send this image: " + imageName);
+        mNotificationManager.notify(0, mBuilder.build());
     }
 
     @Override
-    public void onMailSucceeded() {
+    public void onMailSucceeded(String imageName) {
         Date d = new Date();
         FlurryAgent.logEvent("mail SUCCESS! " + d.toString());
         Toast.makeText(this, "Picture sent successfully", Toast.LENGTH_SHORT).show();
+
+        mBuilder.setSmallIcon(R.drawable.fart_backup);
+        mBuilder.setContentTitle("Sent picture successfully");
+        mBuilder.setContentText("this image: " + imageName);
+        mNotificationManager.notify(0, mBuilder.build());
     }
 
     @Override

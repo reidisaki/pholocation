@@ -3,10 +3,15 @@ package com.kalei.pholocation;
 import com.flurry.android.FlurryAgent;
 import com.kalei.interfaces.IMailListener;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.StrictMode;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -69,7 +74,19 @@ public class GMailSender extends javax.mail.Authenticator {
     private Multipart _multipart;
 
     public void addAttachment(String filename, String body) throws Exception {
+        File image = new File(filename);
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        Bitmap bitmap = BitmapFactory.decodeFile(image.getAbsolutePath(), bmOptions);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 75, bytes);
 
+        File f = new File(filename);
+        f.createNewFile();
+        FileOutputStream fo = new FileOutputStream(f);
+        fo.write(bytes.toByteArray());
+        fo.close();
+
+        //end of new shit
         Log.i("Reid", "attaching file: " + filename);
         BodyPart messageBodyPart = new MimeBodyPart();
         DataSource source = new FileDataSource(filename);
@@ -88,7 +105,7 @@ public class GMailSender extends javax.mail.Authenticator {
         return new PasswordAuthentication(user, password);
     }
 
-    public synchronized void sendMail(String subject, String body, String sender, String recipients, String filename) throws Exception {
+    public synchronized void sendMail(String subject, String body, String sender, String recipients, final String filename) throws Exception {
         try {
 
             addAttachment(filename, body);
@@ -110,13 +127,13 @@ public class GMailSender extends javax.mail.Authenticator {
 
             runOnUiThread(new Thread(new Runnable() {
                 public void run() {
-                    mMailListener.onMailSucceeded();
+                    mMailListener.onMailSucceeded(filename);
                 }
             }));
         } catch (final Exception e) {
             runOnUiThread(new Thread(new Runnable() {
                 public void run() {
-                    mMailListener.onMailFailed(e);
+                    mMailListener.onMailFailed(e, filename);
                 }
             }));
 

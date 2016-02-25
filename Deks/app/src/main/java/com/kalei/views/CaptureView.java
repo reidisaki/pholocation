@@ -190,7 +190,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             public void onPictureTaken(byte[] data, Camera camera) {
                 mCamera.startPreview();
                 File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-
                 if (pictureFile == null) {
                     Log.d("Reid", "Error creating media file, check storage permissions: ");
                     return;
@@ -198,6 +197,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
                 try {
                     FileOutputStream fos = new FileOutputStream(pictureFile);
+
                     fos.write(data);
                     fos.close();
                 } catch (FileNotFoundException e) {

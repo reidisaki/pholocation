@@ -53,6 +53,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+
         ((MainActivity) getActivity()).getSupportActionBar().hide();
         View rootView = inflater.inflate(R.layout.fragment_camera, container, false);
         mSettingsImage = (ImageView) rootView.findViewById(R.id.settings_image);
@@ -133,13 +134,14 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     }
 
     @Override
-    public void onMailFailed(final Exception e) {
-        mMailListener.onMailFailed(e);
+    public void onMailFailed(final Exception e, String imageName) {
+
+        mMailListener.onMailFailed(e, imageName);
     }
 
     @Override
-    public void onMailSucceeded() {
-        mMailListener.onMailSucceeded();
+    public void onMailSucceeded(String imageName) {
+        mMailListener.onMailSucceeded(imageName);
     }
 }
 
