@@ -30,6 +30,8 @@ import android.widget.Toast;
  * Created by risaki on 2/22/16.
  */
 public class SettingsFragment extends PhotoLocationFragment {
+    public RecipientEditTextView emailRetv;
+
     public static SettingsFragment newInstance() {
         SettingsFragment fragment = new SettingsFragment();
         Bundle bundle = new Bundle();
@@ -60,14 +62,15 @@ public class SettingsFragment extends PhotoLocationFragment {
         View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
         TextView versionText = (TextView) rootView.findViewById(R.id.version_text);
         TextView currentEmails = (TextView) rootView.findViewById(R.id.current_emails);
-        final RecipientEditTextView emailRetv =
+        emailRetv =
                 (RecipientEditTextView) rootView.findViewById(R.id.phone_retv);
         emailRetv.setTokenizer(new Rfc822Tokenizer());
         emailRetv.setAdapter(new BaseRecipientAdapter(getActivity()));
 
         emailRetv.dismissDropDownOnItemSelected(true);
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(emailRetv, InputMethodManager.SHOW_IMPLICIT);
+
+        ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
+                .toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
         Button saveBtn = (Button) rootView.findViewById(R.id.save_btn);
         String currentEmailString = PhotoLocationUtils.getEmailStringList(getActivity());
         currentEmails.setText(currentEmailString.length() == 0 ? "Please enter at least one email" : currentEmailString);
@@ -114,5 +117,7 @@ public class SettingsFragment extends PhotoLocationFragment {
     public void onPause() {
         super.onPause();
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+        ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(emailRetv.getWindowToken(), 0);
     }
 }

@@ -21,13 +21,18 @@ import com.kalei.utils.PhotoLocationUtils;
 
 import android.Manifest.permission;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -35,7 +40,9 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -46,15 +53,19 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     public static Location mLocation;
     NotificationCompat.Builder mBuilder;
     NotificationManager mNotificationManager;
-
+    public static int mSuccessfulSends = 0;
+    public static int mFailedSends = 0;
     InterstitialAd mInterstitialAd;
+    public List<String> imageFileNames;
+    public List<String> imageFailedFileNames;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBuilder = new NotificationCompat.Builder(this);
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
+        imageFileNames = new ArrayList<>();
+        imageFailedFileNames = new ArrayList<>();
         if (savedInstanceState != null) {
             mSettingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag("settings");
         }
@@ -142,22 +153,46 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     @Override
     public void onMailFailed(final Exception e, String imageName) {
         FlurryAgent.logEvent("Mail failed: " + e.getMessage());
+        mFailedSends++;
 //        Toast.makeText(this, "Could not send email: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        mBuilder.setSmallIcon(R.drawable.fart_backup);
-        mBuilder.setContentTitle("Failed sending picture");
-        mBuilder.setContentText("Sorry, I wasn't able to send this image: " + imageName);
-        mNotificationManager.notify(0, mBuilder.build());
+        Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
+        imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
+        mBuilder.setSmallIcon(R.drawable.ic_launcher);
+        mBuilder.setContentTitle("Failed sending picture" + mBuilder.setContentText(imageName));
+        mBuilder.setDeleteIntent(pendingIntent);
+        mBuilder.setContentText(mFailedSends + (mFailedSends == 1 ? " picture " : " pictures ") + " failed sending" + imageName);
+        imageFailedFileNames.add(imageName);
+        InboxStyle style = new InboxStyle().setSummaryText(mFailedSends + " failed to send");
+        for (String s : imageFailedFileNames) {
+            style.addLine(s);
+        }
+        mBuilder.setStyle(style);
+        mNotificationManager.notify(1, mBuilder.build());
     }
 
     @Override
     public void onMailSucceeded(String imageName) {
         Date d = new Date();
+        mSuccessfulSends++;
         FlurryAgent.logEvent("mail SUCCESS! " + d.toString());
 //        Toast.makeText(this, "Picture sent successfully", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
+        imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
+        mBuilder.setSmallIcon(R.drawable.ic_launcher);
+        mBuilder.setContentTitle(mSuccessfulSends + (mSuccessfulSends == 1 ? " picture " : " pictures ") + "sent successfully");
+        mBuilder.setContentText(imageName);
+        mBuilder.setDeleteIntent(pendingIntent);
+        imageFileNames.add(imageName);
+        InboxStyle style = new InboxStyle().setSummaryText(mSuccessfulSends + " sent");
+        for (String s : imageFileNames) {
+            style.addLine(s);
+        }
+        mBuilder.setStyle(style);
 
-        mBuilder.setSmallIcon(R.drawable.fart_backup);
-        mBuilder.setContentTitle("Sent picture successfully");
-        mBuilder.setContentText("this image: " + imageName);
         mNotificationManager.notify(0, mBuilder.build());
     }
 
@@ -202,4 +237,17 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
 
         mInterstitialAd.loadAd(adRequest);
     }
+
+    private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mSuccessfulSends = 0;
+            mFailedSends = 0;
+            imageFailedFileNames.clear();
+            imageFileNames.clear();
+            unregisterReceiver(this);
+        }
+    };
 }
