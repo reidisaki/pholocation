@@ -26,6 +26,7 @@
 
         <activity android:name="com.kalei.activities.MainActivity"
                   android:theme="@style/Theme.AppCompat.NoActionBar"
+                  android:windowSoftInputMode="adjustPan"
                   android:screenOrientation="fullSensor">
         </activity>
         <activity android:name="com.kalei.activities.IntroActivity"
