@@ -5,6 +5,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 
 import com.kalei.pholocation.R;
+import com.kalei.utils.PhotoLocationUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,7 +32,12 @@ public class AdActivity extends PhotoLocationActivity {
 
             @Override
             public void onAdClosed() {
-                startActivity(new Intent(AdActivity.this, MainActivity.class));
+
+                if (PhotoLocationUtils.getEmailStringList(getApplicationContext()).length() == 0) {
+                    startActivity(new Intent(AdActivity.this, IntroActivity.class));
+                } else {
+                    startActivity(new Intent(AdActivity.this, MainActivity.class));
+                }
             }
         });
         requestNewInterstitial();

@@ -62,10 +62,11 @@ public class SettingsFragment extends PhotoLocationFragment {
         emailRetv.setAdapter(new BaseRecipientAdapter(getActivity()));
 
         emailRetv.dismissDropDownOnItemSelected(true);
-
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(emailRetv, InputMethodManager.SHOW_IMPLICIT);
         Button saveBtn = (Button) rootView.findViewById(R.id.save_btn);
         String currentEmailString = PhotoLocationUtils.getEmailStringList(getActivity());
-        currentEmails.setText(currentEmailString.length() == 0 ? "No emails set" : currentEmailString);
+        currentEmails.setText(currentEmailString.length() == 0 ? "Please enter at least one email" : currentEmailString);
         saveBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {

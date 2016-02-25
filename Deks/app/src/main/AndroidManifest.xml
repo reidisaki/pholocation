@@ -28,6 +28,10 @@
                   android:theme="@style/Theme.AppCompat.NoActionBar"
                   android:screenOrientation="fullSensor">
         </activity>
+        <activity android:name="com.kalei.activities.IntroActivity"
+                  android:theme="@style/Theme.AppCompat.NoActionBar"
+                  android:screenOrientation="fullSensor">
+        </activity>
         <activity android:name="com.kalei.activities.SplashActivity"
                   android:theme="@style/Theme.AppCompat.NoActionBar"
                   android:noHistory="true"

@@ -14,8 +14,10 @@ import com.kalei.fragments.SettingsFragment;
 import com.kalei.interfaces.ICameraClickListener;
 import com.kalei.interfaces.IMailListener;
 import com.kalei.pholocation.R;
+import com.kalei.utils.PhotoLocationUtils;
 
 import android.Manifest.permission;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -25,6 +27,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import java.util.Date;
@@ -44,6 +47,9 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         if (savedInstanceState != null) {
             mSettingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag("settings");
         }
+        if (PhotoLocationUtils.getEmailStringList(this).length() == 0) {
+            mSettingsFragment = SettingsFragment.newInstance();
+        }
         setContentView(R.layout.activity_main);
         FlurryAgent.init(this, PhotoLocationApplication.FLURRY_KEY);
         FlurryAgent.onStartSession(this);
@@ -60,13 +66,22 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
             @Override
             public void onClick(final View v) {
                 clickBack();
+                //hide keyboard
+                if (v != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
             }
         });
     }
 
     public void clickBack() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
-        getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
+        if (PhotoLocationUtils.getEmailStringList(getApplicationContext()).length() > 0) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+            getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
+        } else {
+            Toast.makeText(getApplicationContext(), "Please enter a valid email address. ", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void loadToolbar(String title) {
