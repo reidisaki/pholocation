@@ -18,7 +18,6 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.View;
@@ -168,7 +167,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
 //                Log.v("Reid", "Orientation = 270");
                 break;
             case ORIENTATION_LANDSCAPE_INVERTED:
-                rotateIcons(mCameraSwitch, 270);
+                rotateIcons(mCameraSwitch, -90);
 //                Log.v("Reid", "Orientation = 180");
                 break;
         }
@@ -196,7 +195,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         if (!mIsAnimating) {
             RotateAnimation r; // = new RotateAnimation(ROTATE_FROM, ROTATE_TO);
             r = new RotateAnimation(0.0f, rotation, RotateAnimation.RELATIVE_TO_SELF, .5f, RotateAnimation.RELATIVE_TO_SELF, .5f);
-            r.setDuration(500);
+            r.setDuration(750);
             r.setRepeatCount(0);
             image.startAnimation(r);
             r.setAnimationListener(new AnimationListener() {
@@ -224,7 +223,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public void onResume() {
         super.onResume();
         if (mOrientationEventListener == null) {
-            int orientation = getResources().getConfiguration().orientation;
 
             mOrientationEventListener = new OrientationEventListener(getActivity(), SensorManager.SENSOR_DELAY_UI) {
 
