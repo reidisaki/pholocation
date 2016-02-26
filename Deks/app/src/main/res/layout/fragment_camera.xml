@@ -21,41 +21,6 @@
                  android:id="@+id/shutterScreen"
                  android:background="@android:color/black"
                  android:layout_height="match_parent"/>
-    <LinearLayout android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:visibility="gone"
-                  tools:visibility="visible"
-                  android:id="@+id/edit_layout"
-                  android:layout_centerInParent="true"
-                  android:orientation="vertical">
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textSize="22sp"
-                  android:visibility="gone"
-                  tools:visibility="visible"
-                  android:padding="10dp"
-                  android:textColor="@android:color/white"
-                  android:id="@+id/error_message_text"
-                  android:background="@android:color/black"
-                  android:text="Please enter a valid email address before continuing"/>
-        <LinearLayout android:layout_width="wrap_content"
-                      android:layout_height="wrap_content">
-            <EditText android:layout_width="300dp"
-                      android:id="@+id/email_edit"
-                      android:textColor="@android:color/white"
-                      android:background="@android:color/black"
-                      tools:visibility="visible"
-                      android:padding="15dp"
-                      android:layout_height="wrap_content"/>
-            <Button android:layout_width="wrap_content"
-                    android:text="Save"
-                    android:id="@+id/save_btn"
-                    android:layout_marginLeft="30dp"
-                    android:layout_gravity="right"
-                    android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-    </LinearLayout>
 
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -69,6 +34,13 @@
                    android:padding="10dp"
                    android:layout_height="75dp"
                    android:src="@drawable/fart"/>
+        <ImageView
+                android:padding="10dp"
+                android:id="@+id/camera_switch"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/switch_camera"/>
         <ImageView android:id="@+id/settings_image"
                    android:padding="10dp"
                    android:layout_alignParentRight="true"

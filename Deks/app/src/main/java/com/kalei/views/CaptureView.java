@@ -1,14 +1,17 @@
 package com.kalei.views;
 
 import com.flurry.android.FlurryAgent;
+import com.kalei.activities.MainActivity;
 import com.kalei.interfaces.IMailListener;
 import com.kalei.pholocation.PhotoLocationSender;
 import com.kalei.pholocation.R;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Area;
+import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.os.Environment;
@@ -41,6 +44,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     public static final int MEDIA_TYPE_VIDEO = 2;
     private static final int FOCUS_AREA_SIZE = 300;
     public IMailListener mMailListener;
+    public int mCurrentCameraId = CameraInfo.CAMERA_FACING_BACK;
 
     public CaptureView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -48,10 +52,41 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         holder = getHolder();
         holder.addCallback(this);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        mCurrentCameraId = MainActivity.currentCameraId;
     }
 
     public void setOnMailListener(IMailListener listener) {
         mMailListener = listener;
+    }
+
+    public void switchCamera() {
+
+        if (mIsPreviewRunning) {
+            mCamera.stopPreview();
+        }
+        //NB: if you don't release the current camera before switching, you app will crash
+        mCamera.release();
+
+        //swap the id of the camera to be used
+        if (mCurrentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            Log.i("Reid", "facing front");
+            mCurrentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+            MainActivity.currentCameraId = mCurrentCameraId;
+        } else {
+            Log.i("Reid", "facing back");
+            mCurrentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+            MainActivity.currentCameraId = mCurrentCameraId;
+        }
+        mCamera = Camera.open(mCurrentCameraId);
+        //Code snippet for this method from somewhere on android developers, i forget where
+        setCameraDisplayOrientation(mCurrentCameraId, mCamera);
+        try {
+            //this step is critical or preview on new camera will no know where to render to
+            mCamera.setPreviewDisplay(holder);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mCamera.startPreview();
     }
 
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -61,7 +96,13 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         if (mIsPreviewRunning) {
             mCamera.stopPreview();
         }
+        calculateOrientation(width, height);
+        setCameraDisplayOrientation(mCurrentCameraId, mCamera);
+        previewCamera();
+    }
 
+    private void calculateOrientation(int width, int height) {
+        Log.i("Reid", "curren cameraid 0 is back: " + mCurrentCameraId);
         Parameters parameters = mCamera.getParameters();
         Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 
@@ -82,7 +123,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             parameters.setPreviewSize(width, height);
             mCamera.setDisplayOrientation(180);
         }
-        previewCamera();
     }
 
     public void previewCamera() {
@@ -123,10 +163,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 } catch (RuntimeException e) {
                     FlurryAgent.logEvent("set parameters failed: " + e.getMessage());
                 }
-                mCamera.autoFocus(mAutoFocusTakePictureCallback);
-            } else {
-                mCamera.autoFocus(mAutoFocusTakePictureCallback);
             }
+            mCamera.autoFocus(mAutoFocusTakePictureCallback);
         }
     }
 
@@ -170,7 +208,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
         try {
             releaseCameraAndPreview();
-            mCamera = Camera.open();
+            mCamera = Camera.open(mCurrentCameraId);
             mCamera.setPreviewDisplay(holder);
         } catch (Exception e) {
             Log.i("Reid", "surface created error" + e.getMessage());
@@ -187,7 +225,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     /***
      * Take a picture and and convert it from bytes[] to Bitmap.
      */
-    public void takeAPicture(final Context context, final String email) {
+    public void takeAPicture(final Context context) {
         Camera.PictureCallback mPictureCallback = new PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
@@ -216,7 +254,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
 //                mPictureURI = Uri.fromFile(pictureFile);
 
-                new PhotoLocationSender(context, email, pictureFile.toString(), mMailListener);
+                new PhotoLocationSender(context, pictureFile.toString(), mMailListener);
 //                photoLocationSender.setOnMailListener(mMailListener);
             }
         };
@@ -273,5 +311,39 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             mCamera.release();
             mCamera = null;
         }
+    }
+
+    public static void setCameraDisplayOrientation(
+            int cameraId, android.hardware.Camera camera) {
+        android.hardware.Camera.CameraInfo info =
+                new android.hardware.Camera.CameraInfo();
+        android.hardware.Camera.getCameraInfo(cameraId, info);
+        int rotation = ((Activity) mContext).getWindowManager().getDefaultDisplay()
+                .getRotation();
+        int degrees = 0;
+        Log.i("Reid", "rotated screen");
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+
+        int result;
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360;
+            result = (360 - result) % 360;  // compensate the mirror
+        } else {  // back-facing
+            result = (info.orientation - degrees + 360) % 360;
+        }
+        camera.setDisplayOrientation(result);
     }
 }

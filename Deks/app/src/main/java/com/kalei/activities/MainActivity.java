@@ -57,6 +57,7 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     InterstitialAd mInterstitialAd;
     public List<String> imageFileNames;
     public List<String> imageFailedFileNames;
+    public static int currentCameraId = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

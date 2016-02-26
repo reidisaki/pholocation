@@ -36,7 +36,7 @@ public class PhotoLocationSender {
     public IMailListener mMailListener;
     private static int TIME_TO_WAIT_TO_GET_LOCATION = 10000;//wait 10 seconds to get location at MAX
 
-    public PhotoLocationSender(Context context, String email, String filename, IMailListener listener) {
+    public PhotoLocationSender(Context context, String filename, IMailListener listener) {
         mContext = context;
         mIsSent = false;
         mFileName = filename;

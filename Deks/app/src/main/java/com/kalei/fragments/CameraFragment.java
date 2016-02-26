@@ -16,25 +16,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 /**
  * Created by risaki on 2/22/16.
  */
 public class CameraFragment extends PhotoLocationFragment implements OnClickListener, IMailListener {
-    private ImageView mSettingsImage, mShutter;
-    private EditText mEditEmail;
+    private ImageView mSettingsImage, mShutter, mCameraSwitch;
     private CaptureView mCaptureView;
     private FrameLayout mShutterScreen;
-    private LinearLayout mEditLayout;
-    private Button mSaveButton;
-
-    private TextView mErrorText;
 
     private Handler mHandler;
     public IMailListener mMailListener;
@@ -60,17 +51,13 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         View rootView = inflater.inflate(R.layout.fragment_camera, container, false);
         mSettingsImage = (ImageView) rootView.findViewById(R.id.settings_image);
         mSettingsImage.setOnClickListener(this);
-        mEditEmail = (EditText) rootView.findViewById(R.id.email_edit);
         mShutter = (ImageView) rootView.findViewById(R.id.shutter);
         mShutter.setOnClickListener(this);
         mCaptureView = (CaptureView) rootView.findViewById(R.id.capture_view);
         mCaptureView.setOnClickListener(this);
-        mEditEmail.setText("testing this is gonna be deleted TODO reid");
+        mCameraSwitch = (ImageView) rootView.findViewById(R.id.camera_switch);
+        mCameraSwitch.setOnClickListener(this);
         mShutterScreen = (FrameLayout) rootView.findViewById(R.id.shutterScreen);
-        mEditLayout = (LinearLayout) rootView.findViewById(R.id.edit_layout);
-        mErrorText = (TextView) rootView.findViewById(R.id.error_message_text);
-        mSaveButton = (Button) rootView.findViewById(R.id.save_btn);
-        mSaveButton.setOnClickListener(this);
         mHandler = new Handler();
         IMailListener listener = (IMailListener) this;
         mCaptureView.setOnMailListener(listener);
@@ -104,17 +91,18 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                     numPicturesTaken = 1;
                 }
                 if (PhotoLocationUtils.getEmailStringList(getContext()).length() > 0) {
-                    mCaptureView.takeAPicture(getActivity(), mEditEmail.getText().toString());
+                    mCaptureView.takeAPicture(getActivity());
                     shutterShow();
                 } else {
                     mCameraClickListener.onNoEmailSet();
                 }
                 break;
+            case R.id.camera_switch:
+                mCaptureView.switchCamera();
+                break;
             default:
                 mCaptureView.setAlpha(1f);
                 mShutter.setVisibility(View.VISIBLE);
-                mErrorText.setVisibility(View.GONE);
-                mEditLayout.setVisibility(View.GONE);
                 break;
         }
     }
