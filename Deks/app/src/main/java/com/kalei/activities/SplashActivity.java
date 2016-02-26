@@ -18,8 +18,9 @@ public class SplashActivity extends PhotoLocationActivity {
         if (ContextCompat.checkSelfPermission(this,
                 permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
+
             ActivityCompat.requestPermissions(this, new String[]{permission.CAMERA, permission.ACCESS_COARSE_LOCATION, permission.ACCESS_FINE_LOCATION,
-                    permission.INTERNET, permission.WRITE_EXTERNAL_STORAGE, permission.ACCESS_WIFI_STATE}, 0);
+                    permission.INTERNET, permission.WRITE_EXTERNAL_STORAGE, permission.ACCESS_WIFI_STATE, permission.READ_CONTACTS}, 0);
         } else {
             new Handler().postDelayed(new Runnable() {
                 public void run() {

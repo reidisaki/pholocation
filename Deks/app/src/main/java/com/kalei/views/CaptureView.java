@@ -102,7 +102,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void calculateOrientation(int width, int height) {
-        Log.i("Reid", "curren cameraid 0 is back: " + mCurrentCameraId);
         Parameters parameters = mCamera.getParameters();
         Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 
@@ -315,7 +314,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         int rotation = ((Activity) mContext).getWindowManager().getDefaultDisplay()
                 .getRotation();
         int degrees = 0;
-        Log.i("Reid", "rotated screen");
         switch (rotation) {
             case Surface.ROTATION_0:
                 degrees = 0;
