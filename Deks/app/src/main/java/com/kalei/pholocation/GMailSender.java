@@ -123,7 +123,6 @@ public class GMailSender extends javax.mail.Authenticator {
 
             Transport.send(message);
             Log.i("Reid", "Sending mail");
-            Log.i("SendMail", "send mail Succeded");
 
             runOnUiThread(new Thread(new Runnable() {
                 public void run() {
@@ -138,7 +137,6 @@ public class GMailSender extends javax.mail.Authenticator {
             }));
 
             FlurryAgent.logEvent("failed to send: " + e.getMessage());
-            Log.i("SendMail", "send mail failed:" + e.getMessage());
             Log.i("Reid", "FAILED: " + e.getMessage());
         }
     }

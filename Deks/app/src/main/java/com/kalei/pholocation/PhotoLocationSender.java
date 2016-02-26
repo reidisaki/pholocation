@@ -83,6 +83,7 @@ public class PhotoLocationSender {
                     }
                 }
 
+                add = add.substring(0, add.length() - 1);//remove trailing comma
                 mMapLink = "http://maps.google.com/?q=" + add.replace(" ", "+") +
                         "\n\n\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation ";
 //                        mMapLink = "https://maps.googleapis.com/maps/api/staticmap?center=" + add +
