@@ -42,6 +42,7 @@ public class PhotoLocationSender {
         mFileName = filename;
         mSender = new GMailSender(mContext.getString(R.string.username), mContext.getString(R.string.password), listener);
 //        mSender.setOnMailListener(mMailListener);
+
         mLocation = MainActivity.mLocation;
         mHandler = new Handler(Looper.getMainLooper());
         setOnMailListener(listener);

@@ -5,6 +5,7 @@ import com.google.android.gms.ads.AdView;
 
 import com.android.ex.chips.BaseRecipientAdapter;
 import com.android.ex.chips.RecipientEditTextView;
+import com.android.ex.chips.RecipientEntry;
 import com.android.ex.chips.recipientchip.DrawableRecipientChip;
 import com.kalei.PhotoLocationApplication;
 import com.kalei.activities.MainActivity;
@@ -25,6 +26,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by risaki on 2/22/16.
@@ -68,6 +72,9 @@ public class SettingsFragment extends PhotoLocationFragment {
         emailRetv.setAdapter(new BaseRecipientAdapter(getActivity()));
         emailRetv.requestFocus();
         emailRetv.dismissDropDownOnItemSelected(true);
+        for (RecipientEntry r : PhotoLocationUtils.getDataObjects(getActivity())) {
+            emailRetv.addRecipient(r);
+        }
 
         ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
                 .toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
@@ -79,8 +86,13 @@ public class SettingsFragment extends PhotoLocationFragment {
             public void onClick(final View v) {
 
                 DrawableRecipientChip[] chips = emailRetv.getSortedRecipients();
+
+                List<RecipientEntry> list = new ArrayList<>();
+                for (DrawableRecipientChip chip : chips) {
+                    list.add(chip.getEntry());
+                }
                 if (chips.length > 0) {
-                    PhotoLocationUtils.saveData(chips, getActivity());
+                    PhotoLocationUtils.saveDataObjects(list, getActivity());
                     Toast.makeText(getActivity(), "Saved", Toast.LENGTH_SHORT).show();
                 }
                 //hide keyboard

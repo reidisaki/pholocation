@@ -55,6 +55,9 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        if (mCamera == null) {
+            return;
+        }
         if (mIsPreviewRunning) {
             mCamera.stopPreview();
         }

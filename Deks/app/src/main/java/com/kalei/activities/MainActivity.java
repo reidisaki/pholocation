@@ -7,6 +7,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import com.flurry.android.FlurryAgent;
@@ -42,7 +44,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends PhotoLocationActivity implements IMailListener, ConnectionCallbacks, OnConnectionFailedListener, ICameraClickListener {
+public class MainActivity extends PhotoLocationActivity implements IMailListener, ConnectionCallbacks, OnConnectionFailedListener, ICameraClickListener,
+                                                                   LocationListener {
     public CameraFragment mCameraFragment;
     public SettingsFragment mSettingsFragment;
     private GoogleApiClient mGoogleApiClient;
@@ -124,8 +127,15 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        mLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, createLocationRequest(), this);
+    }
+
+    protected LocationRequest createLocationRequest() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        return mLocationRequest;
     }
 
     @Override
@@ -252,5 +262,10 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void onLocationChanged(final Location location) {
+        mLocation = location;
     }
 }
