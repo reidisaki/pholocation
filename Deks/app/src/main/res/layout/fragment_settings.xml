@@ -29,6 +29,7 @@
               android:layout_height="wrap_content"
               android:textSize="26sp"
               android:textStyle="bold"
+              android:visibility="gone"
               tools:text="test email stuff"
               android:paddingBottom="20dp"
               android:id="@+id/current_emails"/>
@@ -39,7 +40,7 @@
     <com.android.ex.chips.RecipientEditTextView android:layout_width="match_parent"
                                                 android:fitsSystemWindows="true"
                                                 android:layout_height="wrap_content"
-                                                android:id="@+id/phone_retv"/>
+                                                android:id="@+id/email_retv"/>
 
 
     <!--<ListView android:id="@+id/list"-->

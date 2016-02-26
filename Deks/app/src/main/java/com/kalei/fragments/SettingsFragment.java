@@ -67,10 +67,11 @@ public class SettingsFragment extends PhotoLocationFragment {
         TextView versionText = (TextView) rootView.findViewById(R.id.version_text);
         TextView currentEmails = (TextView) rootView.findViewById(R.id.current_emails);
         emailRetv =
-                (RecipientEditTextView) rootView.findViewById(R.id.phone_retv);
+                (RecipientEditTextView) rootView.findViewById(R.id.email_retv);
         emailRetv.setTokenizer(new Rfc822Tokenizer());
         emailRetv.setAdapter(new BaseRecipientAdapter(getActivity()));
         emailRetv.requestFocus();
+
         emailRetv.dismissDropDownOnItemSelected(true);
         for (RecipientEntry r : PhotoLocationUtils.getDataObjects(getActivity())) {
             emailRetv.addRecipient(r);
