@@ -109,19 +109,10 @@ public class SettingsFragment extends PhotoLocationFragment {
         if (mAdView != null) {
             String android_id = Secure.getString(getActivity().getContentResolver(),
                     Secure.ANDROID_ID);
-//            AdRequest adRequest = new AdRequest.Builder().addTestDevice(android_id).build();
             AdRequest adRequest = new AdRequest.Builder().build();
 
             mAdView.loadAd(adRequest);
         }
-//        ListView listView = (ListView) rootView.findViewById(R.id.list);
-//        List<Recipient> recipientList = PhotoLocationUtils.getData(getActivity());
-//        if (recipientList.size() == 0) {
-//            recipientList.add(new Recipient("Enter a new email, click here"));
-//        }
-//        RecipientAdapter adapter = new RecipientAdapter(getActivity(), R.layout.row_receipient, recipientList);
-//        listView.setAdapter(adapter);
-
         versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
         return rootView;
     }

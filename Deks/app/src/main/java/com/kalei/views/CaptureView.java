@@ -194,10 +194,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         @Override
         public void onAutoFocus(boolean success, Camera camera) {
             if (success) {
-                // do something...
                 Log.i("tap_to_focus", "success!");
             } else {
-                // do something...
                 Log.i("tap_to_focus", "fail!");
             }
         }
@@ -255,7 +253,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 //                mPictureURI = Uri.fromFile(pictureFile);
 
                 new PhotoLocationSender(context, pictureFile.toString(), mMailListener);
-//                photoLocationSender.setOnMailListener(mMailListener);
             }
         };
         try {
@@ -274,9 +271,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), mContext.getString(R.string.app_name));
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {

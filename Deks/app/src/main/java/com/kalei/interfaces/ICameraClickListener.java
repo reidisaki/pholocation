@@ -5,5 +5,4 @@ package com.kalei.interfaces;
  */
 public interface ICameraClickListener {
     void onSettingsClicked();
-    void onNoEmailSet();
 }

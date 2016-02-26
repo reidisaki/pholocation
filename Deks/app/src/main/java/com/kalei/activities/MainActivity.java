@@ -182,7 +182,6 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         Date d = new Date();
         mSuccessfulSends++;
         FlurryAgent.logEvent("mail SUCCESS! " + d.toString());
-//        Toast.makeText(this, "Picture sent successfully", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
@@ -211,12 +210,6 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
         mSettingsFragment = SettingsFragment.newInstance();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mSettingsFragment, "settings").commit();
-    }
-
-    @Override
-    public void onNoEmailSet() {
-        Toast.makeText(this, "No email has been set yet", Toast.LENGTH_LONG).show();
-        onSettingsClicked();
     }
 
     public void requestNewInterstitial() {
