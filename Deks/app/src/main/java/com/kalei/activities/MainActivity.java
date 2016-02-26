@@ -98,7 +98,6 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
 
     public void clickBack() {
         if (PhotoLocationUtils.getEmailStringList(getApplicationContext()).length() > 0) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
             getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
         } else {
             Toast.makeText(getApplicationContext(), "Please enter a valid email address. ", Toast.LENGTH_SHORT).show();

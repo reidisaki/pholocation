@@ -9,13 +9,24 @@ import com.kalei.utils.PhotoLocationUtils;
 import com.kalei.views.CaptureView;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -32,6 +43,14 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public ICameraClickListener mCameraClickListener;
     public int numPicturesTaken = 1;
     private static int NUMBER_PICTURES_BEFORE_SHOWING_AD = 5;
+    private OrientationEventListener mOrientationEventListener;
+    private int mOrientation = -1;
+
+    private boolean mIsAnimating = false;
+    private static final int ORIENTATION_PORTRAIT_NORMAL = 1;
+    private static final int ORIENTATION_PORTRAIT_INVERTED = 2;
+    private static final int ORIENTATION_LANDSCAPE_NORMAL = 3;
+    private static final int ORIENTATION_LANDSCAPE_INVERTED = 4;
 
     public static CameraFragment newInstance() {
         CameraFragment fragment = new CameraFragment();
@@ -61,6 +80,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         mHandler = new Handler();
         IMailListener listener = (IMailListener) this;
         mCaptureView.setOnMailListener(listener);
+
         return rootView;
     }
 
@@ -118,6 +138,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     @Override
     public void onPause() {
         super.onPause();
+        mOrientationEventListener.disable();
     }
 
     @Override
@@ -130,6 +151,114 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public void onMailFailed(final Exception e, String imageName) {
 
         mMailListener.onMailFailed(e, imageName);
+    }
+
+    private void changeRotation(int orientation, int lastOrientation) {
+        switch (orientation) {
+            case ORIENTATION_PORTRAIT_NORMAL:
+                rotateIcons(mCameraSwitch, 0);
+//                Log.v("Reid", "Orientation = 90");
+                break;
+            case ORIENTATION_LANDSCAPE_NORMAL:
+                rotateIcons(mCameraSwitch, 90);
+//                Log.v("Reid", "Orientation = 0");
+                break;
+            case ORIENTATION_PORTRAIT_INVERTED:
+                rotateIcons(mCameraSwitch, 180);
+//                Log.v("Reid", "Orientation = 270");
+                break;
+            case ORIENTATION_LANDSCAPE_INVERTED:
+                rotateIcons(mCameraSwitch, 270);
+//                Log.v("Reid", "Orientation = 180");
+                break;
+        }
+    }
+
+    /**
+     * Rotates given Drawable
+     *
+     * @param drawableId Drawable Id to rotate
+     * @param degrees    Rotate drawable by Degrees
+     *
+     * @return Rotated Drawable
+     */
+    private Drawable getRotatedImage(int drawableId, int degrees) {
+        Bitmap original = BitmapFactory.decodeResource(getResources(), drawableId);
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degrees);
+
+        Bitmap rotated = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
+        return new BitmapDrawable(rotated);
+    }
+
+    public void rotateIcons(final ImageView image, final int rotation) {
+
+        if (!mIsAnimating) {
+            RotateAnimation r; // = new RotateAnimation(ROTATE_FROM, ROTATE_TO);
+            r = new RotateAnimation(0.0f, rotation, RotateAnimation.RELATIVE_TO_SELF, .5f, RotateAnimation.RELATIVE_TO_SELF, .5f);
+            r.setDuration(500);
+            r.setRepeatCount(0);
+            image.startAnimation(r);
+            r.setAnimationListener(new AnimationListener() {
+                @Override
+                public void onAnimationStart(final Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(final Animation animation) {
+                    mIsAnimating = false;
+                    image.setRotation(rotation);
+                }
+
+                @Override
+                public void onAnimationRepeat(final Animation animation) {
+
+                }
+            });
+            mIsAnimating = true;
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mOrientationEventListener == null) {
+            int orientation = getResources().getConfiguration().orientation;
+
+            mOrientationEventListener = new OrientationEventListener(getActivity(), SensorManager.SENSOR_DELAY_UI) {
+
+                public void onOrientationChanged(int orientation) {
+                    // determine our orientation based on sensor response
+                    int lastOrientation = mOrientation;
+
+                    if (orientation >= 315 || orientation < 45) {
+                        if (mOrientation != ORIENTATION_PORTRAIT_NORMAL) {
+                            mOrientation = ORIENTATION_PORTRAIT_NORMAL;
+                        }
+                    } else if (orientation < 315 && orientation >= 225) {
+                        if (mOrientation != ORIENTATION_LANDSCAPE_NORMAL) {
+                            mOrientation = ORIENTATION_LANDSCAPE_NORMAL;
+                        }
+                    } else if (orientation < 225 && orientation >= 135) {
+                        if (mOrientation != ORIENTATION_PORTRAIT_INVERTED) {
+                            mOrientation = ORIENTATION_PORTRAIT_INVERTED;
+                        }
+                    } else { // orientation <135 && orientation > 45
+                        if (mOrientation != ORIENTATION_LANDSCAPE_INVERTED) {
+                            mOrientation = ORIENTATION_LANDSCAPE_INVERTED;
+                        }
+                    }
+
+                    if (lastOrientation != mOrientation) {
+                        changeRotation(mOrientation, lastOrientation);
+                    }
+                }
+            };
+        }
+        if (mOrientationEventListener.canDetectOrientation()) {
+            mOrientationEventListener.enable();
+        }
     }
 
     @Override
