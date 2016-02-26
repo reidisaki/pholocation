@@ -93,8 +93,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                 if (PhotoLocationUtils.getEmailStringList(getContext()).length() > 0) {
                     mCaptureView.takeAPicture(getActivity());
                     shutterShow();
-                } else {
-                    mCameraClickListener.onNoEmailSet();
                 }
                 break;
             case R.id.camera_switch:
