@@ -5,9 +5,13 @@ import com.kalei.activities.MainActivity;
 import com.kalei.interfaces.IMailListener;
 import com.kalei.pholocation.PhotoLocationSender;
 import com.kalei.pholocation.R;
+import com.kalei.utils.PhotoLocationUtils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Area;
@@ -96,7 +100,15 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         if (mIsPreviewRunning) {
             mCamera.stopPreview();
         }
-        calculateOrientation(width, height);
+        Camera.Parameters params = mCamera.getParameters();
+        List<Camera.Size> sizes = params.getSupportedPictureSizes();
+        Camera.Size size = sizes.get(0);
+//        Camera.Size size = sizes.get(sizes.size() - 1); smallest size
+        Log.i("Reid", "width: " + size.width + " height: " + size.height);
+
+        params.setPictureSize(size.width, size.height);
+        mCamera.setParameters(params);
+        calculateOrientation(size.width, size.height);
         setCameraDisplayOrientation(mCurrentCameraId, mCamera);
         previewCamera();
     }
@@ -235,13 +247,23 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 }
 
                 try {
-                    FileOutputStream fos = new FileOutputStream(pictureFile);
 
-                    fos.write(data);
+                    Bitmap bmpNew = BitmapFactory.decodeByteArray(data, 0, data.length);
+
+                    FileOutputStream fos = new FileOutputStream(pictureFile.toString());
+                    bmpNew = Bitmap.createScaledBitmap(bmpNew, Math.round(bmpNew.getWidth() * .75f), Math.round(bmpNew.getHeight() * .75f), false);
+                    bmpNew.compress(CompressFormat.JPEG, 70, fos); //this also writes to t he folder
+//                    fos.write(data); // this writes to the folder
                     fos.close();
 
                     FileOutputStream fos_original = new FileOutputStream(originalPicture);
-                    fos_original.write(data);
+                    Bitmap bmpOG = BitmapFactory.decodeByteArray(data, 0, data.length);
+//                    bmpOG.compress(CompressFormat.JPEG, 100, fos);
+                    PhotoLocationUtils
+                            .insertImage(context.getContentResolver(), bmpOG, originalPicture.toString(), "picture"); //this willw rite to a specified directory
+//                    fos_original.write(data);
+//                    File f = new File(originalPicture.toString());
+//                    f.delete();//delete temp saved in directory
                     fos_original.close();
                 } catch (FileNotFoundException e) {
                     Log.d("Reid", "File not found: " + e.getMessage());
@@ -251,7 +273,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
 //                mPictureURI = Uri.fromFile(pictureFile);
 
-                new PhotoLocationSender(context, pictureFile.toString(), mMailListener);
+                new PhotoLocationSender(context, originalPicture.toString(), mMailListener, pictureFile.toString());
             }
         };
         try {

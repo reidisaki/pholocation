@@ -30,16 +30,17 @@ public class PhotoLocationSender {
     Context mContext;
     private boolean mIsSent;
     private String mMapLink;
-    private String mFileName;
+    private String mFileName, mScaledImage;
     private Location mLocation;
     private Handler mHandler;
     public IMailListener mMailListener;
     private static int TIME_TO_WAIT_TO_GET_LOCATION = 10000;//wait 10 seconds to get location at MAX
 
-    public PhotoLocationSender(Context context, String filename, IMailListener listener) {
+    public PhotoLocationSender(Context context, String filename, IMailListener listener, String scaledImage) {
         mContext = context;
         mIsSent = false;
         mFileName = filename;
+        mScaledImage = scaledImage;
         mSender = new GMailSender(mContext.getString(R.string.username), mContext.getString(R.string.password), listener);
 //        mSender.setOnMailListener(mMailListener);
 
@@ -114,10 +115,10 @@ public class PhotoLocationSender {
         }
         try {
             Date d = new Date();
-            mSender.sendMail("new image " + d.toString(),
+            mSender.sendMail(d.toString() + " " + mScaledImage,
                     mMapLink,
                     mContext.getString(R.string.username) + "@yahoo.com",
-                    PhotoLocationUtils.getEmailStringList(mContext), mFileName);
+                    PhotoLocationUtils.getEmailStringList(mContext), mFileName, mScaledImage);
         } catch (AuthenticationFailedException e) {
             Log.i("Reid", "Not sending authentication failure");
             Log.e(SendEmailAsyncTask.class.getName(), "Bad account details");
@@ -141,10 +142,10 @@ public class PhotoLocationSender {
             }
             try {
                 Date d = new Date();
-                mSender.sendMail("new image " + d.toString(),
+                mSender.sendMail(d.toString() + " " + mScaledImage,
                         mMapLink,
                         mContext.getString(R.string.username) + "@yahoo.com",
-                        PhotoLocationUtils.getEmailStringList(mContext), mFileName);
+                        PhotoLocationUtils.getEmailStringList(mContext), mFileName, mScaledImage);
                 return true;
             } catch (AuthenticationFailedException e) {
                 Log.i("Reid", "Not sending authentication failure");
