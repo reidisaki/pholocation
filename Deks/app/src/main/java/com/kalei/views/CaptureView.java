@@ -9,9 +9,11 @@ import com.kalei.utils.PhotoLocationUtils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Area;
@@ -249,9 +251,21 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 try {
 
                     Bitmap bmpNew = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    int width = Math.round(bmpNew.getWidth() * .75f);
+                    int height = Math.round(bmpNew.getHeight() * .75f);
+                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        // Notice that width and height are reversed
+
+                        // Setting post rotate to 90
+
+                        Matrix mtx = new Matrix();
+                        mtx.postRotate(90);
+                        // Rotating Bitmap
+                        bmpNew = Bitmap.createBitmap(bmpNew, 0, 0, width, height, mtx, true);
+                    }
 
                     FileOutputStream fos = new FileOutputStream(pictureFile.toString());
-                    bmpNew = Bitmap.createScaledBitmap(bmpNew, Math.round(bmpNew.getWidth() * .75f), Math.round(bmpNew.getHeight() * .75f), false);
+
                     bmpNew.compress(CompressFormat.JPEG, 70, fos); //this also writes to t he folder
 //                    fos.write(data); // this writes to the folder
                     fos.close();
