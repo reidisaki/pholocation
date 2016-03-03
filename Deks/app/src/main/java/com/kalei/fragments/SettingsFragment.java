@@ -9,6 +9,7 @@ import com.android.ex.chips.RecipientEntry;
 import com.android.ex.chips.recipientchip.DrawableRecipientChip;
 import com.kalei.PhotoLocationApplication;
 import com.kalei.activities.MainActivity;
+import com.kalei.managers.PrefManager;
 import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 
@@ -24,6 +25,9 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -114,6 +118,14 @@ public class SettingsFragment extends PhotoLocationFragment {
             mAdView.loadAd(adRequest);
         }
         versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
+        CheckBox wifiCheckBox = (CheckBox) rootView.findViewById(R.id.send_wifi_checkbox);
+        wifiCheckBox.setChecked(PrefManager.getSendWifiOnly(getActivity()));
+        wifiCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+                PrefManager.setSendWifiOnly(getActivity(), isChecked);
+            }
+        });
         return rootView;
     }
 
