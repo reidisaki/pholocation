@@ -2,6 +2,7 @@ package com.kalei.views;
 
 import com.flurry.android.FlurryAgent;
 import com.kalei.activities.MainActivity;
+import com.kalei.fragments.CameraFragment;
 import com.kalei.interfaces.IMailListener;
 import com.kalei.pholocation.PhotoLocationSender;
 import com.kalei.pholocation.R;
@@ -9,7 +10,6 @@ import com.kalei.utils.PhotoLocationUtils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -253,16 +253,11 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                     Bitmap bmpNew = BitmapFactory.decodeByteArray(data, 0, data.length);
                     int width = Math.round(bmpNew.getWidth() * .75f);
                     int height = Math.round(bmpNew.getHeight() * .75f);
-                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        // Notice that width and height are reversed
-
-                        // Setting post rotate to 90
-
-                        Matrix mtx = new Matrix();
-                        mtx.postRotate(90);
-                        // Rotating Bitmap
-                        bmpNew = Bitmap.createBitmap(bmpNew, 0, 0, width, height, mtx, true);
-                    }
+                    Matrix mtx = new Matrix();
+                    // Notice that width and height are reversed
+                    mtx.postRotate(getOrientationRotation());
+                    // Rotating Bitmap
+                    bmpNew = Bitmap.createBitmap(bmpNew, 0, 0, width, height, mtx, true);
 
                     FileOutputStream fos = new FileOutputStream(pictureFile.toString());
 
@@ -272,6 +267,9 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
                     FileOutputStream fos_original = new FileOutputStream(originalPicture);
                     Bitmap bmpOG = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    Matrix mtx2 = new Matrix();
+                    mtx2.postRotate(getOrientationRotation());
+                    bmpOG = Bitmap.createBitmap(bmpOG, 0, 0, width, height, mtx2, true);
 //                    bmpOG.compress(CompressFormat.JPEG, 100, fos);
                     PhotoLocationUtils
                             .insertImage(context.getContentResolver(), bmpOG, originalPicture.toString(), "picture"); //this willw rite to a specified directory
@@ -297,9 +295,29 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    private int getOrientationRotation() {
+        int degrees = 0;
+        if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_PORTRAIT_NORMAL) {
+            degrees = 90;
+        }
+
+        if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_LANDSCAPE_INVERTED) {
+            degrees = 180;
+        }
+        if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_LANDSCAPE_NORMAL) {
+            degrees = 270;
+        }
+        if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_PORTRAIT_INVERTED) {
+            degrees = -90;
+        }
+
+        return degrees;
+    }
+
     /**
      * Create a File for saving an image or video
      */
+
     private static File getOutputMediaFile(int type, boolean isOriginal) {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.

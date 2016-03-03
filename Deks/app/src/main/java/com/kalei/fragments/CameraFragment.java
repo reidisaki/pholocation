@@ -43,13 +43,13 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public int numPicturesTaken = 1;
     private static int NUMBER_PICTURES_BEFORE_SHOWING_AD = 5;
     private OrientationEventListener mOrientationEventListener;
-    private int mOrientation = -1;
+    public static int mOrientation = -1;
 
     private boolean mIsAnimating = false;
-    private static final int ORIENTATION_PORTRAIT_NORMAL = 1;
-    private static final int ORIENTATION_PORTRAIT_INVERTED = 2;
-    private static final int ORIENTATION_LANDSCAPE_NORMAL = 3;
-    private static final int ORIENTATION_LANDSCAPE_INVERTED = 4;
+    public static final int ORIENTATION_PORTRAIT_NORMAL = 1;
+    public static final int ORIENTATION_PORTRAIT_INVERTED = 2;
+    public static final int ORIENTATION_LANDSCAPE_NORMAL = 3;
+    public static final int ORIENTATION_LANDSCAPE_INVERTED = 4;
 
     public static CameraFragment newInstance() {
         CameraFragment fragment = new CameraFragment();
