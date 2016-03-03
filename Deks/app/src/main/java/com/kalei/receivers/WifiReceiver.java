@@ -15,8 +15,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.util.Log;
@@ -44,8 +42,7 @@ public class WifiReceiver extends BroadcastReceiver {
         imageFileNames = new ArrayList<>();
         imageFailedFileNames = new ArrayList<>();
 
-        NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-        if (isOnline(context)) {
+        if (isOnlineAndFast(context)) {
             Log.i("Reid", "Connected to wifi and sending data");
             //TODO: send photos through email here, and if wifi connectivity is lost. back out.. phase 2
             List<Photo> photoList = PrefManager.getPhotoList(context);
@@ -105,16 +102,17 @@ public class WifiReceiver extends BroadcastReceiver {
             }
             photoList.clear();
             PrefManager.savePhotoList(context, photoList);
-            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-            String ssid = wifiInfo.getSSID();
         }
     }
 
-    public boolean isOnline(Context context) {
+    public boolean isOnlineAndFast(Context context) {
 
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return (netInfo != null && netInfo.isConnected());
+
+        //if send wifi only then only use wifi
+        //if not wifi, then only check if is fast internet
+        return (netInfo != null && netInfo.isConnected() &&
+                ((PhotoLocationUtils.isConnectedFast(context) && !PrefManager.getSendWifiOnly(context)) || PhotoLocationUtils.isConnectedWifi(context)));
     }
 }
