@@ -67,8 +67,24 @@ public class WifiReceiver extends BroadcastReceiver {
             for (Photo p : photoList) {
                 GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), new IMailListener() {
                     @Override
-                    public void onMailFailed(final Exception e, final String imageName) {
-                        //show notification
+                    public void onMailFailed(final Exception e, String imageName) {
+                        FlurryAgent.logEvent("Mail failed: " + e.getMessage());
+                        mFailedSends++;
+//        Toast.makeText(this, "Could not send email: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+                        imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
+                        mBuilder.setSmallIcon(R.drawable.ic_launcher);
+                        mBuilder.setContentTitle("Failed sending picture" + mBuilder.setContentText(imageName));
+                        mBuilder.setDeleteIntent(pendingIntent);
+                        mBuilder.setContentText(mFailedSends + (mFailedSends == 1 ? " picture " : " pictures ") + " failed sending" + imageName);
+                        imageFailedFileNames.add(imageName);
+                        InboxStyle style = new InboxStyle().setSummaryText(mFailedSends + " failed to send");
+                        for (String s : imageFailedFileNames) {
+                            style.addLine(s);
+                        }
+                        mBuilder.setStyle(style);
+                        mNotificationManager.notify(1, mBuilder.build());
                     }
 
                     @Override
