@@ -31,16 +31,26 @@ public class AdActivity extends PhotoLocationActivity {
             }
 
             @Override
-            public void onAdClosed() {
+            public void onAdFailedToLoad(final int errorCode) {
+                super.onAdFailedToLoad(errorCode);
+                gotoActivity();
+            }
 
-                if (PhotoLocationUtils.getEmailStringList(getApplicationContext()).length() == 0) {
-                    startActivity(new Intent(AdActivity.this, IntroActivity.class));
-                } else {
-                    startActivity(new Intent(AdActivity.this, MainActivity.class));
-                }
+            @Override
+            public void onAdClosed() {
+                gotoActivity();
             }
         });
+
         requestNewInterstitial();
+    }
+
+    private void gotoActivity() {
+        if (PhotoLocationUtils.getEmailStringList(getApplicationContext()).length() == 0) {
+            startActivity(new Intent(AdActivity.this, IntroActivity.class));
+        } else {
+            startActivity(new Intent(AdActivity.this, MainActivity.class));
+        }
     }
 
     private void requestNewInterstitial() {

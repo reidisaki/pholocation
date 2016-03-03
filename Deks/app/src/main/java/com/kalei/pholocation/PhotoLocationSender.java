@@ -2,12 +2,16 @@ package com.kalei.pholocation;
 
 import com.kalei.activities.MainActivity;
 import com.kalei.interfaces.IMailListener;
+import com.kalei.managers.PrefManager;
+import com.kalei.models.Photo;
 import com.kalei.utils.PhotoLocationUtils;
 
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
@@ -47,60 +51,70 @@ public class PhotoLocationSender {
         mLocation = MainActivity.mLocation;
         mHandler = new Handler(Looper.getMainLooper());
         setOnMailListener(listener);
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mLocation = MainActivity.mLocation;
-                if (mLocation == null) {
-                    Log.i("Reid", "couldn't get location");
-                    //waited 10 seconds maximum check to see if location was found yet.
-                    tryGetLocation();
-                }
-                if (!mIsSent) {
-                    Log.i("Reid", "waited 10 seconds trying to send now");
-                    mMapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer. Is GPS enabled? \n\n\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation";
-                    new SendEmailAsyncTask().execute();
+        if (PhotoLocationUtils.isConnectedFast(mContext)) {
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mLocation = MainActivity.mLocation;
+                    if (mLocation == null) {
+                        Log.i("Reid", "couldn't get location");
+                        //waited 10 seconds maximum check to see if location was found yet.
+                        tryGetLocation();
+                    }
+                    if (!mIsSent) {
+                        Log.i("Reid", "waited 10 seconds trying to send now");
+                        mMapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer. Is GPS enabled? \n\n\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation";
+                        new SendEmailAsyncTask().execute();
 
-                    mIsSent = true;
+                        mIsSent = true;
+                    }
                 }
-            }
-        }, TIME_TO_WAIT_TO_GET_LOCATION);
+            }, TIME_TO_WAIT_TO_GET_LOCATION);
 
-        tryGetLocation();
+            tryGetLocation();
+        } else {
+            mMapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer. Is GPS enabled? \n\n\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation";
+            new SendEmailAsyncTask().execute();
+        }
     }
 
     private void tryGetLocation() {
         Geocoder geoCoder = new Geocoder(mContext, Locale.getDefault());
         String mapLink = "";
 
-        try {
-            if (mLocation != null) {
+        if (mLocation != null) {
+            String add = "";
+            try {
                 List<Address> addresses = geoCoder.getFromLocation(mLocation.getLatitude(), mLocation.getLongitude(), 1);
 
-                String add = "";
                 if (addresses.size() > 0) {
                     for (int i = 0; i < addresses.get(0).getMaxAddressLineIndex(); i++) {
                         add += addresses.get(0).getAddressLine(i) + ",";
                     }
                 }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
 
+            if (add.length() > 0) {
                 add = add.substring(0, add.length() - 1);//remove trailing comma
-                mMapLink = "http://maps.google.com/?q=" + mLocation.getLatitude() + "," + mLocation.getLongitude() +
-                        "\n\n" + add +
-                        "\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation ";
+            } else {
+                add = "could not get a data connection to get address";
+            }
+
+            mMapLink = "http://maps.google.com/?q=" + mLocation.getLatitude() + "," + mLocation.getLongitude() +
+                    "\n\n" + add +
+                    "\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation ";
 //                        mMapLink = "https://maps.googleapis.com/maps/api/staticmap?center=" + add +
 //                                "i&zoom=17&size=600x300&maptype=roadmap&markers=color:red%7Clabel:X%7C" +
 //                                mLocation.getLatitude() + "," + mLocation.getLongitude() + "&key=AIzaSyBryuOc-tskt2bkYh_vxfYq_HVRW5ddjoI";
-                Log.i("Reid", mapLink);
-                if (!mIsSent) {
-                    mIsSent = true;
-                    new SendEmailAsyncTask().execute();
-                }
-            } else {
-                Log.i("Reid", "mLocation was null");
+            Log.i("Reid", mapLink);
+            if (!mIsSent) {
+                mIsSent = true;
+                new SendEmailAsyncTask().execute();
             }
-        } catch (IOException e1) {
-            e1.printStackTrace();
+        } else {
+            Log.i("Reid", "mLocation was null");
         }
     }
 
@@ -142,10 +156,29 @@ public class PhotoLocationSender {
             }
             try {
                 Date d = new Date();
-                mSender.sendMail(d.toString() + " " + mScaledImage,
-                        mMapLink,
-                        mContext.getString(R.string.username) + "@yahoo.com",
-                        PhotoLocationUtils.getEmailStringList(mContext), mFileName, mScaledImage);
+                ConnectivityManager connManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+                if ((PrefManager.getSendWifiOnly(mContext) && !mWifi.isConnected()) || !PhotoLocationUtils.isConnectedFast(mContext)) {
+                    //only send through wifi send later
+                    Photo p = new Photo();
+                    p.setScaledImage(mScaledImage);
+                    p.setDateTaken(d);
+                    p.setLocation(mLocation);
+                    p.setMapLink(mMapLink);
+                    p.setFileName(mFileName);
+                    PrefManager.setPhoto(mContext, p);
+                    Log.i("Reid", "postponing sending");
+                } else {
+                    Log.i("Reid", "sending");
+                    if (mWifi.isConnected() && PrefManager.getSendWifiOnly(mContext) ||
+                            (!PrefManager.getSendWifiOnly(mContext) && PhotoLocationUtils.isConnectedFast(mContext))) {
+                        mSender.sendMail(d.toString() + " " + mScaledImage,
+                                mMapLink,
+                                mContext.getString(R.string.username) + "@yahoo.com",
+                                PhotoLocationUtils.getEmailStringList(mContext), mFileName, mScaledImage);
+                    }
+                }
                 return true;
             } catch (AuthenticationFailedException e) {
                 Log.i("Reid", "Not sending authentication failure");

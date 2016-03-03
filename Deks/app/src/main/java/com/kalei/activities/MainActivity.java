@@ -58,6 +58,7 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     public List<String> imageFileNames;
     public List<String> imageFailedFileNames;
     public static int currentCameraId = 0;
+    private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -234,8 +235,6 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
 
         mInterstitialAd.loadAd(adRequest);
     }
-
-    private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override

@@ -124,23 +124,23 @@ public class GMailSender extends javax.mail.Authenticator {
                     File f = new File(scaledImage);
                     Log.i("Reid", "scaled image size: " + f.length());
                     f.delete(); //delete old smaller file
-                    mMailListener.onMailSucceeded(scaledImage);
+                    if (mMailListener != null) {
+                        mMailListener.onMailSucceeded(scaledImage);
+                    }
                 }
             }));
         } catch (final Exception e) {
             runOnUiThread(new Thread(new Runnable() {
                 public void run() {
-                    mMailListener.onMailFailed(e, filename);
+                    if (mMailListener != null) {
+                        mMailListener.onMailFailed(e, filename);
+                    }
                 }
             }));
 
             FlurryAgent.logEvent("failed to send: " + e.getMessage());
             Log.i("Reid", "FAILED: " + e.getMessage());
         }
-    }
-
-    public void setOnMailListener(final IMailListener mailListener) {
-        mMailListener = mailListener;
     }
 
     public class ByteArrayDataSource implements DataSource {
