@@ -31,6 +31,7 @@
                   android:layout_height="wrap_content">
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
+                  android:id="@+id/send_text_only_text"
                   android:text="@string/send_wifi_only"
                   android:paddingBottom="20dp"
                 />

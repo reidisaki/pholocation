@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.support.annotation.Nullable;
 import android.text.util.Rfc822Tokenizer;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,9 +44,6 @@ public class SettingsFragment extends PhotoLocationFragment {
     public static SettingsFragment newInstance() {
         SettingsFragment fragment = new SettingsFragment();
         Bundle bundle = new Bundle();
-//        bundle.putInt("question", questionNumber);
-//        bundle.putBoolean("isCorrect", isCorrect);
-
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -119,6 +117,18 @@ public class SettingsFragment extends PhotoLocationFragment {
         }
         versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
         CheckBox wifiCheckBox = (CheckBox) rootView.findViewById(R.id.send_wifi_checkbox);
+        //TODO: Remove this later
+        TextView sendTextOnlyText = (TextView) rootView.findViewById(R.id.send_text_only_text);
+        sendTextOnlyText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                PrefManager.clear(getActivity());
+
+                Log.i("Reid", "Cleared shared prefs");
+            }
+        });
+        //End remove
+
         wifiCheckBox.setChecked(PrefManager.getSendWifiOnly(getActivity()));
         wifiCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override

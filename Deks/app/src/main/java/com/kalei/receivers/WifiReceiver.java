@@ -1,7 +1,5 @@
 package com.kalei.receivers;
 
-import com.google.android.gms.ads.InterstitialAd;
-
 import com.flurry.android.FlurryAgent;
 import com.kalei.interfaces.IMailListener;
 import com.kalei.managers.PrefManager;
@@ -35,21 +33,9 @@ public class WifiReceiver extends BroadcastReceiver {
     NotificationManager mNotificationManager;
     public static int mSuccessfulSends = 0;
     public static int mFailedSends = 0;
-    InterstitialAd mInterstitialAd;
     public List<String> imageFileNames;
     public List<String> imageFailedFileNames;
-    public static int currentCameraId = 0;
     private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mSuccessfulSends = 0;
-            mFailedSends = 0;
-            imageFailedFileNames.clear();
-            imageFileNames.clear();
-            context.unregisterReceiver(this);
-        }
-    };
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -61,7 +47,6 @@ public class WifiReceiver extends BroadcastReceiver {
         NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
         if (isOnline(context)) {
             Log.i("Reid", "Connected to wifi and sending data");
-            // Do your work.
             //TODO: send photos through email here, and if wifi connectivity is lost. back out.. phase 2
             List<Photo> photoList = PrefManager.getPhotoList(context);
             for (Photo p : photoList) {
@@ -70,7 +55,6 @@ public class WifiReceiver extends BroadcastReceiver {
                     public void onMailFailed(final Exception e, String imageName) {
                         FlurryAgent.logEvent("Mail failed: " + e.getMessage());
                         mFailedSends++;
-//        Toast.makeText(this, "Could not send email: " + e.getMessage(), Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
                         imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
@@ -111,7 +95,7 @@ public class WifiReceiver extends BroadcastReceiver {
                     }
                 });
                 try {
-                    mSender.sendMail("SENT FROM WIFI",  //p.getDateTaken() + " " + p.getScaledImage(),
+                    mSender.sendMail(p.getDateTaken() + " " + p.getScaledImage() + " - via wifi",
                             p.getMapLink(),
                             context.getString(R.string.username) + "@yahoo.com",
                             PhotoLocationUtils.getEmailStringList(context), p.getFilePath(), p.getScaledImage());
@@ -121,7 +105,6 @@ public class WifiReceiver extends BroadcastReceiver {
             }
             photoList.clear();
             PrefManager.savePhotoList(context, photoList);
-            // e.g. To check the Network Name or other info:
             WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             WifiInfo wifiInfo = wifiManager.getConnectionInfo();
             String ssid = wifiInfo.getSSID();
@@ -132,7 +115,6 @@ public class WifiReceiver extends BroadcastReceiver {
 
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        //should check null because in air plan mode it will be null
         return (netInfo != null && netInfo.isConnected());
     }
 }

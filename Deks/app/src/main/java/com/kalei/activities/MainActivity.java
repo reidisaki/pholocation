@@ -159,7 +159,6 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     public void onMailFailed(final Exception e, String imageName) {
         FlurryAgent.logEvent("Mail failed: " + e.getMessage());
         mFailedSends++;
-//        Toast.makeText(this, "Could not send email: " + e.getMessage(), Toast.LENGTH_LONG).show();
         Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
