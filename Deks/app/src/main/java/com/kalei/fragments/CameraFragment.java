@@ -3,7 +3,6 @@ package com.kalei.fragments;
 import com.flurry.android.FlurryAgent;
 import com.kalei.activities.MainActivity;
 import com.kalei.interfaces.ICameraClickListener;
-import com.kalei.interfaces.IMailListener;
 import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 import com.kalei.views.CaptureView;
@@ -32,13 +31,12 @@ import android.widget.ImageView;
 /**
  * Created by risaki on 2/22/16.
  */
-public class CameraFragment extends PhotoLocationFragment implements OnClickListener, IMailListener {
+public class CameraFragment extends PhotoLocationFragment implements OnClickListener {
     private ImageView mSettingsImage, mShutter, mCameraSwitch;
     private CaptureView mCaptureView;
     private FrameLayout mShutterScreen;
 
     private Handler mHandler;
-    public IMailListener mMailListener;
     public ICameraClickListener mCameraClickListener;
     public int numPicturesTaken = 1;
     private static int NUMBER_PICTURES_BEFORE_SHOWING_AD = 5;
@@ -77,8 +75,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         mCameraSwitch.setOnClickListener(this);
         mShutterScreen = (FrameLayout) rootView.findViewById(R.id.shutterScreen);
         mHandler = new Handler();
-        IMailListener listener = (IMailListener) this;
-        mCaptureView.setOnMailListener(listener);
 
         return rootView;
     }
@@ -88,7 +84,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         super.onAttach(context);
 
         try {
-            mMailListener = (IMailListener) context;
             mCameraClickListener = (ICameraClickListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + "must implement the correct listeners");
@@ -144,12 +139,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public void onStop() {
         super.onStop();
         FlurryAgent.onEndSession(getActivity());
-    }
-
-    @Override
-    public void onMailFailed(final Exception e, String imageName) {
-
-        mMailListener.onMailFailed(e, imageName);
     }
 
     private void changeRotation(int orientation, int lastOrientation) {
@@ -257,11 +246,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         if (mOrientationEventListener.canDetectOrientation()) {
             mOrientationEventListener.enable();
         }
-    }
-
-    @Override
-    public void onMailSucceeded(String imageName) {
-        mMailListener.onMailSucceeded(imageName);
     }
 }
 

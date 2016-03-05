@@ -404,7 +404,7 @@ public class PhotoLocationUtils {
                     }
                 });
                 try {
-                    mSender.sendMail(p.getDateTaken() + " " + p.getScaledImage() + " - via wifi",
+                    mSender.sendMail(p.getDateTaken() + " " + p.getScaledImage(),
                             p.getMapLink(),
                             context.getString(R.string.username) + "@yahoo.com",
                             PhotoLocationUtils.getEmailStringList(context), p.getFilePath(), p.getScaledImage());
