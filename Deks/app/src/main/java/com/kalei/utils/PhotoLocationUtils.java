@@ -12,10 +12,20 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 
 import com.android.ex.chips.RecipientEntry;
+import com.flurry.android.FlurryAgent;
+import com.kalei.interfaces.IMailListener;
+import com.kalei.managers.PrefManager;
+import com.kalei.models.Photo;
+import com.kalei.pholocation.GMailSender;
+import com.kalei.pholocation.R;
+import com.kalei.receivers.WifiReceiver;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -24,7 +34,10 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +46,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,6 +57,8 @@ public class PhotoLocationUtils {
 
     public static String EMAIL_KEY = "email_key";
     public static String MY_PREFS_NAME = "photolocation";
+    public static int mSuccessfulSends = 0;
+    public static int mFailedSends = 0;
 
     public static void saveDataObjects(List<RecipientEntry> chips, Context context) {
         SharedPreferences.Editor editor = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
@@ -312,6 +328,94 @@ public class PhotoLocationUtils {
             }
         } else {
             return false;
+        }
+    }
+
+    public static boolean isOnlineAndFast(Context context) {
+
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+        //if send wifi only then only use wifi
+        //if not wifi, then only check if is fast internet
+        return (netInfo != null && netInfo.isConnected() &&
+                ((PhotoLocationUtils.isConnectedFast(context) && !PrefManager.getSendWifiOnly(context)) || PhotoLocationUtils.isConnectedWifi(context)));
+    }
+
+    public static void processEmailPicture(final Context context) {
+        final NotificationCompat.Builder mBuilder;
+        final NotificationManager mNotificationManager;
+        final List<String> imageFileNames;
+        final List<String> imageFailedFileNames;
+        final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
+        if (PhotoLocationUtils.isOnlineAndFast(context)) {
+            mBuilder = new NotificationCompat.Builder(context);
+            mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            imageFileNames = new ArrayList<>();
+            imageFailedFileNames = new ArrayList<>();
+//        String originalPicture, scaledImage;
+//        originalPicture = intent.getStringExtra(CaptureView.ORIGINAL_PICTURE_KEY);
+//        scaledImage = intent.getStringExtra(CaptureView.SCALED_PICTURE_KEY);
+            List<Photo> photoList = PrefManager.getPhotoList(context);
+
+            for (Photo p : photoList) {
+                GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), new IMailListener() {
+                    @Override
+                    public void onMailFailed(final Exception e, String imageName) {
+                        FlurryAgent.logEvent("Mail failed: " + e.getMessage());
+                        mFailedSends++;
+                        Intent intent = new Intent(WifiReceiver.NOTIFICATION_DELETED_ACTION);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+                        imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
+                        mBuilder.setSmallIcon(R.drawable.ic_launcher);
+                        mBuilder.setContentTitle("Failed sending picture" + mBuilder.setContentText(imageName));
+                        mBuilder.setDeleteIntent(pendingIntent);
+                        mBuilder.setContentText(mFailedSends + (mFailedSends == 1 ? " picture " : " pictures ") + " failed sending" + imageName);
+                        imageFailedFileNames.add(imageName);
+                        InboxStyle style = new InboxStyle().setSummaryText(mFailedSends + " failed to send");
+                        for (String s : imageFailedFileNames) {
+                            style.addLine(s);
+                        }
+                        mBuilder.setStyle(style);
+                        mNotificationManager.notify(1, mBuilder.build());
+                    }
+
+                    @Override
+                    public void onMailSucceeded(String imageName) {
+                        //show notification
+                        mSuccessfulSends++;
+                        Date d = new Date();
+                        FlurryAgent.logEvent("mail SUCCESS! " + d.toString());
+                        Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+                        imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
+                        mBuilder.setSmallIcon(R.drawable.ic_launcher);
+                        mBuilder.setContentTitle(mSuccessfulSends + (mSuccessfulSends == 1 ? " picture " : " pictures ") + "sent successfully");
+                        mBuilder.setContentText(imageName);
+                        mBuilder.setDeleteIntent(pendingIntent);
+                        imageFileNames.add(imageName);
+                        InboxStyle style = new InboxStyle().setSummaryText(mSuccessfulSends + " sent");
+                        for (String s : imageFileNames) {
+                            style.addLine(s);
+                        }
+                        mBuilder.setStyle(style);
+
+                        mNotificationManager.notify(0, mBuilder.build());
+                    }
+                });
+                try {
+                    mSender.sendMail(p.getDateTaken() + " " + p.getScaledImage() + " - via wifi",
+                            p.getMapLink(),
+                            context.getString(R.string.username) + "@yahoo.com",
+                            PhotoLocationUtils.getEmailStringList(context), p.getFilePath(), p.getScaledImage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            photoList.clear();
+            PrefManager.savePhotoList(context, photoList);
+        } else {
+            Log.i("Reid", "not sending");
         }
     }
 }

@@ -58,6 +58,10 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>
         </receiver>
+        <service android:name="com.kalei.services.PhotoService"
+                 android:icon="@drawable/ic_launcher"
+                 android:label="PhotoService Kalei style"
+                ></service>
     </application>
 
 </manifest>

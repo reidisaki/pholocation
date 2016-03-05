@@ -4,12 +4,15 @@ import com.flurry.android.FlurryAgent;
 import com.kalei.activities.MainActivity;
 import com.kalei.fragments.CameraFragment;
 import com.kalei.interfaces.IMailListener;
-import com.kalei.pholocation.PhotoLocationSender;
+import com.kalei.managers.PrefManager;
+import com.kalei.models.Photo;
 import com.kalei.pholocation.R;
+import com.kalei.services.PhotoService;
 import com.kalei.utils.PhotoLocationUtils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -20,7 +23,11 @@ import android.hardware.Camera.Area;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
@@ -39,6 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -51,6 +59,13 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     private static final int FOCUS_AREA_SIZE = 300;
     public IMailListener mMailListener;
     public int mCurrentCameraId = CameraInfo.CAMERA_FACING_BACK;
+    //    public static final String ORIGINAL_PICTURE_KEY = "original_picture_key";
+//    public static final String MAIL_LISTENER_KEY = "mail_listener_key";
+//    public static final String SCALED_PICTURE_KEY = "scaled_picture_key";
+    private long mTimePhotoTaken = new Date().getTime();
+    private long mTimePreviousPhotoTaken = new Date().getTime();
+    private final long STALE_TIME_DELTA = 30000;
+    private float mDist;
 
     public CaptureView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -106,7 +121,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         List<Camera.Size> sizes = params.getSupportedPictureSizes();
         Camera.Size size = sizes.get(0);
 //        Camera.Size size = sizes.get(sizes.size() - 1); smallest size
-        Log.i("Reid", "width: " + size.width + " height: " + size.height);
+//        Log.i("Reid", "width: " + size.width + " height: " + size.height);
 
         params.setPictureSize(size.width, size.height);
         mCamera.setParameters(params);
@@ -241,8 +256,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
                 mCamera.startPreview();
-                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, false);
-                File originalPicture = getOutputMediaFile(MEDIA_TYPE_IMAGE, true);
+                final File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, false);
+                final File originalPicture = getOutputMediaFile(MEDIA_TYPE_IMAGE, true);
                 if (pictureFile == null) {
                     Log.d("Reid", "Error creating media file, check storage permissions: ");
                     return;
@@ -285,7 +300,27 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
 //                mPictureURI = Uri.fromFile(pictureFile);
 
-                new PhotoLocationSender(context, originalPicture.toString(), mMailListener, pictureFile.toString());
+                Log.i("Reid", "got location? " + (MainActivity.mLocation != null));
+                //TODO: get location, if it's not ready by the time you click the shutter, wait 10 seconds after you've taken a picture
+                //after 10 seconds create the photo object save it and call the service.
+                //save photo object into cache to be sent later.
+                Handler handler = new Handler();
+                mTimePreviousPhotoTaken = mTimePhotoTaken;
+                if (MainActivity.mLocation == null || (hasTooMuchTimeElapsed(mTimePreviousPhotoTaken) && mTimePreviousPhotoTaken != mTimePhotoTaken)) {
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i("Reid", "waited 10 seconds");
+                            savePhoto(pictureFile.toString(), getMapLink(), originalPicture.toString());
+                            mContext.startService(getPhotoUploadIntent());
+                        }
+                    }, 10000);
+                } else {
+                    savePhoto(pictureFile.toString(), getMapLink(), originalPicture.toString());
+                    mContext.startService(getPhotoUploadIntent());
+                }
+                mTimePhotoTaken = new Date().getTime();
+//                new PhotoLocationSender(context, originalPicture.toString(), mMailListener, pictureFile.toString());
             }
         };
         try {
@@ -293,6 +328,71 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         } catch (RuntimeException e) {
             Log.i("Reid", "clicked too fast");
         }
+    }
+
+    private String getMapLink() {
+        String mapLink = "";
+        if (MainActivity.mLocation == null) {
+            mapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer. Is GPS enabled? \n\n\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation";
+        } else {
+            Location location = MainActivity.mLocation;
+            String add = "";
+            try {
+
+                Geocoder geoCoder = new Geocoder(mContext, Locale.getDefault());
+                List<Address> addresses = geoCoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+
+                if (addresses.size() > 0) {
+                    for (int i = 0; i < addresses.get(0).getMaxAddressLineIndex(); i++) {
+                        add += addresses.get(0).getAddressLine(i) + ",";
+                    }
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            if (add.length() > 0) {
+                add = add.substring(0, add.length() - 1);//remove trailing comma
+            } else {
+                add = "could not get a data connection to get address";
+            }
+
+            mapLink = "http://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude() +
+                    "\n\n" + add +
+                    "\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation ";
+        }
+        return mapLink;
+    }
+
+    private void savePhoto(String scaledImage, String mapLink, String filename) {
+
+        Photo p = new Photo();
+        p.setScaledImage(scaledImage);
+        p.setDateTaken(new Date());
+        p.setLocation(MainActivity.mLocation);
+        p.setMapLink(mapLink);
+        p.setFileName(filename);
+        PrefManager.setPhoto(mContext, p);
+        Log.i("Reid", "saved photo");
+    }
+
+    private boolean hasTooMuchTimeElapsed(long timePhotoTaken) {
+        boolean hasTooMuchTimeElapsed = false;
+
+        Long currentTime = new Date().getTime();
+        if (currentTime - timePhotoTaken > STALE_TIME_DELTA) {
+            hasTooMuchTimeElapsed = true;
+        }
+        return hasTooMuchTimeElapsed;
+    }
+
+    private Intent getPhotoUploadIntent() {
+        Intent i = new Intent(mContext, PhotoService.class);
+        // potentially add data to the intent
+//        i.putExtra(ORIGINAL_PICTURE_KEY, originalPicture);
+//        i.putExtra(SCALED_PICTURE_KEY, scaledPicture);
+        Log.i("Reid", "getUploadIntent");
+        return i;
     }
 
     private int getOrientationRotation() {
@@ -391,5 +491,76 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             result = (info.orientation - degrees + 360) % 360;
         }
         camera.setDisplayOrientation(result);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // Get the pointer ID
+        Camera.Parameters params = mCamera.getParameters();
+        int action = event.getAction();
+
+        if (event.getPointerCount() > 1) {
+            // handle multi-touch events
+            if (action == MotionEvent.ACTION_POINTER_DOWN) {
+                mDist = getFingerSpacing(event);
+            } else if (action == MotionEvent.ACTION_MOVE && params.isZoomSupported()) {
+                mCamera.cancelAutoFocus();
+                handleZoom(event, params);
+            }
+        } else {
+            // handle single touch events
+            if (action == MotionEvent.ACTION_UP) {
+                handleFocus(event, params);
+            }
+        }
+        return true;
+    }
+
+    private void handleZoom(MotionEvent event, Camera.Parameters params) {
+        int maxZoom = params.getMaxZoom();
+        int zoom = params.getZoom();
+        float newDist = getFingerSpacing(event);
+        if (newDist > mDist) {
+            //zoom in
+            if (zoom < maxZoom) {
+                zoom++;
+            }
+        } else if (newDist < mDist) {
+            //zoom out
+            if (zoom > 0) {
+                zoom--;
+            }
+        }
+        mDist = newDist;
+        params.setZoom(zoom);
+        mCamera.setParameters(params);
+    }
+
+    public void handleFocus(MotionEvent event, Camera.Parameters params) {
+        int pointerId = event.getPointerId(0);
+        int pointerIndex = event.findPointerIndex(pointerId);
+        // Get the pointer's current position
+        float x = event.getX(pointerIndex);
+        float y = event.getY(pointerIndex);
+
+        List<String> supportedFocusModes = params.getSupportedFocusModes();
+        if (supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+            mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean b, Camera camera) {
+                    // currently set to auto-focus on single touch
+                }
+            });
+        }
+    }
+
+    /**
+     * Determine the space between the first two fingers
+     */
+    private float getFingerSpacing(MotionEvent event) {
+        // ...
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float) Math.sqrt(x * x + y * y);
     }
 }

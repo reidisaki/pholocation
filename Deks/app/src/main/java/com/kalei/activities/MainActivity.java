@@ -16,24 +16,20 @@ import com.kalei.PhotoLocationApplication;
 import com.kalei.fragments.CameraFragment;
 import com.kalei.fragments.SettingsFragment;
 import com.kalei.interfaces.ICameraClickListener;
-import com.kalei.interfaces.IMailListener;
 import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 
 import android.Manifest.permission;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,10 +37,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends PhotoLocationActivity implements IMailListener, ConnectionCallbacks, OnConnectionFailedListener, ICameraClickListener,
+public class MainActivity extends PhotoLocationActivity implements ConnectionCallbacks, OnConnectionFailedListener, ICameraClickListener,
                                                                    LocationListener {
     public CameraFragment mCameraFragment;
     public SettingsFragment mSettingsFragment;
@@ -119,13 +114,6 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
     public void onConnected(final Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, createLocationRequest(), this);
@@ -153,50 +141,6 @@ public class MainActivity extends PhotoLocationActivity implements IMailListener
                     .build();
         }
         mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onMailFailed(final Exception e, String imageName) {
-        FlurryAgent.logEvent("Mail failed: " + e.getMessage());
-        mFailedSends++;
-        Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
-        imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
-        mBuilder.setSmallIcon(R.drawable.ic_launcher);
-        mBuilder.setContentTitle("Failed sending picture" + mBuilder.setContentText(imageName));
-        mBuilder.setDeleteIntent(pendingIntent);
-        mBuilder.setContentText(mFailedSends + (mFailedSends == 1 ? " picture " : " pictures ") + " failed sending" + imageName);
-        imageFailedFileNames.add(imageName);
-        InboxStyle style = new InboxStyle().setSummaryText(mFailedSends + " failed to send");
-        for (String s : imageFailedFileNames) {
-            style.addLine(s);
-        }
-        mBuilder.setStyle(style);
-        mNotificationManager.notify(1, mBuilder.build());
-    }
-
-    @Override
-    public void onMailSucceeded(String imageName) {
-        Date d = new Date();
-        mSuccessfulSends++;
-        FlurryAgent.logEvent("mail SUCCESS! " + d.toString());
-        Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
-        imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
-        mBuilder.setSmallIcon(R.drawable.ic_launcher);
-        mBuilder.setContentTitle(mSuccessfulSends + (mSuccessfulSends == 1 ? " picture " : " pictures ") + "sent successfully");
-        mBuilder.setContentText(imageName);
-        mBuilder.setDeleteIntent(pendingIntent);
-        imageFileNames.add(imageName);
-        InboxStyle style = new InboxStyle().setSummaryText(mSuccessfulSends + " sent");
-        for (String s : imageFileNames) {
-            style.addLine(s);
-        }
-        mBuilder.setStyle(style);
-
-        mNotificationManager.notify(0, mBuilder.build());
     }
 
     @Override
