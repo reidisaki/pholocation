@@ -17,6 +17,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.View;
@@ -146,19 +147,23 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     private void changeRotation(int orientation, int lastOrientation) {
         switch (orientation) {
             case ORIENTATION_PORTRAIT_NORMAL:
-                rotateIcons(mCameraSwitch, 0);
+                rotateIcons(mCameraSwitch, 90, 0, true, 0);
 //                Log.v("Reid", "Orientation = 90");
+                Log.i("Reid", "portrait normal 90");
                 break;
             case ORIENTATION_LANDSCAPE_NORMAL:
-                rotateIcons(mCameraSwitch, 90);
+                rotateIcons(mCameraSwitch, 0, 90, false, 90);
+                Log.i("Reid", "landscape normal");
 //                Log.v("Reid", "Orientation = 0");
                 break;
             case ORIENTATION_PORTRAIT_INVERTED:
-                rotateIcons(mCameraSwitch, 180);
+                rotateIcons(mCameraSwitch, 0, 90, false, 180);
 //                Log.v("Reid", "Orientation = 270");
+                Log.i("Reid", "portait inverted");
                 break;
             case ORIENTATION_LANDSCAPE_INVERTED:
-                rotateIcons(mCameraSwitch, -90);
+                rotateIcons(mCameraSwitch, 0, 90, false, 270);
+                Log.i("Reid", "landscape inverted");
 //                Log.v("Reid", "Orientation = 180");
                 break;
         }
@@ -181,24 +186,28 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         return new BitmapDrawable(rotated);
     }
 
-    public void rotateIcons(final ImageView image, final int rotation) {
+    public void rotateIcons(final ImageView image, final int fromRotation, final int rotation, final boolean isReverse, final float finalDestination) {
 
         if (!mIsAnimating) {
             RotateAnimation r; // = new RotateAnimation(ROTATE_FROM, ROTATE_TO);
-            r = new RotateAnimation(0.0f, rotation, RotateAnimation.RELATIVE_TO_SELF, .5f, RotateAnimation.RELATIVE_TO_SELF, .5f);
+            r = new RotateAnimation(fromRotation, rotation, RotateAnimation.RELATIVE_TO_SELF, .5f, RotateAnimation.RELATIVE_TO_SELF, .5f);
             r.setDuration(750);
             r.setRepeatCount(0);
             image.startAnimation(r);
             r.setAnimationListener(new AnimationListener() {
                 @Override
                 public void onAnimationStart(final Animation animation) {
-
+                    if (isReverse) {
+                        image.setRotation(finalDestination);
+                    }
                 }
 
                 @Override
                 public void onAnimationEnd(final Animation animation) {
                     mIsAnimating = false;
-                    image.setRotation(rotation);
+                    if (!isReverse) {
+                        image.setRotation(finalDestination);
+                    }
                 }
 
                 @Override
