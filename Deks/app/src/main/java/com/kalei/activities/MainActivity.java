@@ -93,7 +93,8 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     }
 
     public void clickBack() {
-        if (PhotoLocationUtils.getEmailStringList(getApplicationContext()).length() > 0) {
+        if (PhotoLocationUtils.getEmailStringList(getApplicationContext()).length() > 0 ||
+                PhotoLocationUtils.isValidEmail(mSettingsFragment.emailRetv.getText())) {
             getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
         } else {
             Toast.makeText(getApplicationContext(), "Please enter a valid email address. ", Toast.LENGTH_SHORT).show();

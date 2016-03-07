@@ -87,9 +87,15 @@ public class SettingsFragment extends PhotoLocationFragment {
         saveBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
+                //TODO: save entry first, even if its not in the contact list.
 
                 DrawableRecipientChip[] chips = emailRetv.getSortedRecipients();
 
+                if (chips.length == 0) {
+                    RecipientEntry r = RecipientEntry.constructGeneratedEntry(emailRetv.getText().toString(), emailRetv.getText().toString(), true);
+                    emailRetv.addRecipient(r);
+                    chips = emailRetv.getSortedRecipients();
+                }
                 List<RecipientEntry> list = new ArrayList<>();
                 for (DrawableRecipientChip chip : chips) {
                     list.add(chip.getEntry());

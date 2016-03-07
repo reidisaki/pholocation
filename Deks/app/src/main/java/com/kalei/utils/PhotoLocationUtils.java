@@ -19,6 +19,7 @@ import com.kalei.models.Photo;
 import com.kalei.pholocation.GMailSender;
 import com.kalei.pholocation.R;
 import com.kalei.receivers.WifiReceiver;
+import com.kalei.views.CaptureView;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -29,6 +30,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -342,7 +345,7 @@ public class PhotoLocationUtils {
                 ((PhotoLocationUtils.isConnectedFast(context) && !PrefManager.getSendWifiOnly(context)) || PhotoLocationUtils.isConnectedWifi(context)));
     }
 
-    public static void processEmailPicture(final Context context) {
+    public static void processEmailPicture(final Context context, Intent intent) {
         final NotificationCompat.Builder mBuilder;
         final NotificationManager mNotificationManager;
         final List<String> imageFileNames;
@@ -359,6 +362,7 @@ public class PhotoLocationUtils {
             List<Photo> photoList = PrefManager.getPhotoList(context);
 
             for (Photo p : photoList) {
+                p.setMapLink(getMapLink(intent.getExtras().getDouble(CaptureView.LATTITUDE), intent.getExtras().getDouble(CaptureView.LONGITUDE), context));
                 GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), new IMailListener() {
                     @Override
                     public void onMailFailed(final Exception e, String imageName) {
@@ -417,5 +421,44 @@ public class PhotoLocationUtils {
         } else {
             Log.i("Reid", "not sending");
         }
+        mSuccessfulSends = 0;
+        mFailedSends = 0;
+    }
+
+    private static String getMapLink(double lattitude, double longitude, Context context) {
+        String mapLink = "Could not connect to internet";
+        if (!PhotoLocationUtils.isConnected(context)) {
+            return mapLink;
+        }
+
+        if (lattitude == 0) {
+            mapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer. Is GPS enabled? \n\n\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation";
+        } else {
+            String add = "";
+            try {
+
+                Geocoder geoCoder = new Geocoder(context, Locale.getDefault());
+                List<Address> addresses = geoCoder.getFromLocation(lattitude, longitude, 1);
+
+                if (addresses.size() > 0) {
+                    for (int i = 0; i < addresses.get(0).getMaxAddressLineIndex(); i++) {
+                        add += addresses.get(0).getAddressLine(i) + ",";
+                    }
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            if (add.length() > 0) {
+                add = add.substring(0, add.length() - 1);//remove trailing comma
+            } else {
+                add = "could not get a data connection to get address";
+            }
+
+            mapLink = "http://maps.google.com/?q=" + lattitude + "," + lattitude +
+                    "\n\n" + add +
+                    "\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation ";
+        }
+        return mapLink;
     }
 }

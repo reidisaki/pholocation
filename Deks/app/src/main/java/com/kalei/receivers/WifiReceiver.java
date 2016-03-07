@@ -24,6 +24,6 @@ public class WifiReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-        PhotoLocationUtils.processEmailPicture(context);
+        PhotoLocationUtils.processEmailPicture(context, intent);
     }
 }

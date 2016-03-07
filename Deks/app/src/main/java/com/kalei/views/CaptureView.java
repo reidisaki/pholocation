@@ -23,9 +23,6 @@ import android.hardware.Camera.Area;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -46,7 +43,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -54,6 +50,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     static Camera mCamera;
     static Context mContext;
     static boolean mIsPreviewRunning;
+    public static boolean mCanTakePicture = true;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     private static final int FOCUS_AREA_SIZE = 300;
@@ -62,6 +59,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     //    public static final String ORIGINAL_PICTURE_KEY = "original_picture_key";
 //    public static final String MAIL_LISTENER_KEY = "mail_listener_key";
 //    public static final String SCALED_PICTURE_KEY = "scaled_picture_key";
+    public static final String LONGITUDE = "longitude_key";
+    public static final String LATTITUDE = "lattitude_key";
     private long mTimePhotoTaken = new Date().getTime();
     private long mTimePreviousPhotoTaken = new Date().getTime();
     private final long STALE_TIME_DELTA = 30000;
@@ -252,6 +251,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
      * Take a picture and and convert it from bytes[] to Bitmap.
      */
     public void takeAPicture(final Context context) {
+//        mCanTakePicture = false;
         Camera.PictureCallback mPictureCallback = new PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
@@ -266,25 +266,25 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 try {
 
                     Bitmap bmpNew = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    int width = Math.round(bmpNew.getWidth() * .75f);
-                    int height = Math.round(bmpNew.getHeight() * .75f);
                     Matrix mtx = new Matrix();
-                    // Notice that width and height are reversed
                     mtx.postRotate(getOrientationRotation());
                     // Rotating Bitmap
-                    bmpNew = Bitmap.createBitmap(bmpNew, 0, 0, width, height, mtx, true);
+                    bmpNew = Bitmap.createBitmap(bmpNew, 0, 0, bmpNew.getWidth(), bmpNew.getHeight(), mtx, true);
+//                    bmpNew = Bitmap.createScaledBitmap(bmpNew, bmpNew.getWidth(), bmpNew.getHeight(), true);
 
                     FileOutputStream fos = new FileOutputStream(pictureFile.toString());
 
-                    bmpNew.compress(CompressFormat.JPEG, 70, fos); //this also writes to t he folder
-//                    fos.write(data); // this writes to the folder
+                    bmpNew.compress(CompressFormat.JPEG, 25, fos); //this also writes to t he folder
                     fos.close();
 
-                    FileOutputStream fos_original = new FileOutputStream(originalPicture);
+                    ///beginning test
                     Bitmap bmpOG = BitmapFactory.decodeByteArray(data, 0, data.length);
+//                    new RotateTask(bmpOG, originalPicture.getPath()).execute(getOrientationRotation());
+                    FileOutputStream fos_original = new FileOutputStream(originalPicture);
+
                     Matrix mtx2 = new Matrix();
                     mtx2.postRotate(getOrientationRotation());
-                    bmpOG = Bitmap.createBitmap(bmpOG, 0, 0, width, height, mtx2, true);
+                    bmpOG = Bitmap.createBitmap(bmpOG, 0, 0, bmpOG.getWidth(), bmpOG.getHeight(), mtx2, true);
 //                    bmpOG.compress(CompressFormat.JPEG, 100, fos);
                     PhotoLocationUtils
                             .insertImage(context.getContentResolver(), bmpOG, originalPicture.toString(), "picture"); //this willw rite to a specified directory
@@ -292,6 +292,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 //                    File f = new File(originalPicture.toString());
 //                    f.delete();//delete temp saved in directory
                     fos_original.close();
+                    //end text
                 } catch (FileNotFoundException e) {
                     Log.d("Reid", "File not found: " + e.getMessage());
                 } catch (IOException e) {
@@ -299,78 +300,47 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 }
 
 //                mPictureURI = Uri.fromFile(pictureFile);
-
-                Log.i("Reid", "got location? " + (MainActivity.mLocation != null));
-                //TODO: get location, if it's not ready by the time you click the shutter, wait 10 seconds after you've taken a picture
-                //after 10 seconds create the photo object save it and call the service.
-                //save photo object into cache to be sent later.
-                Handler handler = new Handler();
-                mTimePreviousPhotoTaken = mTimePhotoTaken;
-                if (MainActivity.mLocation == null || (hasTooMuchTimeElapsed(mTimePreviousPhotoTaken) && mTimePreviousPhotoTaken != mTimePhotoTaken)) {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.i("Reid", "waited 10 seconds");
-                            savePhoto(pictureFile.toString(), getMapLink(), originalPicture.toString());
-                            mContext.startService(getPhotoUploadIntent());
-                        }
-                    }, 10000);
-                } else {
-                    savePhoto(pictureFile.toString(), getMapLink(), originalPicture.toString());
-                    mContext.startService(getPhotoUploadIntent());
-                }
-                mTimePhotoTaken = new Date().getTime();
+                boolean debug = true;
+                if (!debug) {
+                    Log.i("Reid", "got location? " + (MainActivity.mLocation != null));
+                    //TODO: get location, if it's not ready by the time you click the shutter, wait 10 seconds after you've taken a picture
+                    //after 10 seconds create the photo object save it and call the service.
+                    //save photo object into cache to be sent later.
+                    Handler handler = new Handler();
+                    mTimePreviousPhotoTaken = mTimePhotoTaken;
+                    if (MainActivity.mLocation == null || (hasTooMuchTimeElapsed(mTimePreviousPhotoTaken) && mTimePreviousPhotoTaken != mTimePhotoTaken)) {
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.i("Reid", "waited 10 seconds");
+                                savePhoto(pictureFile.toString(), originalPicture.toString());
+                                mContext.startService(getPhotoUploadIntent());
+                            }
+                        }, 10000);
+                    } else {
+                        savePhoto(pictureFile.toString(), originalPicture.toString());
+                        mContext.startService(getPhotoUploadIntent());
+                    }
+//                    mCanTakePicture = true;
+                    mTimePhotoTaken = new Date().getTime();
 //                new PhotoLocationSender(context, originalPicture.toString(), mMailListener, pictureFile.toString());
+                }
             }
         };
         try {
             mCamera.takePicture(null, null, mPictureCallback);
         } catch (RuntimeException e) {
-            Log.i("Reid", "clicked too fast");
+            Log.i("Reid", "clicked too fast" + e.getMessage());
         }
     }
 
-    private String getMapLink() {
-        String mapLink = "";
-        if (MainActivity.mLocation == null) {
-            mapLink = "COULD NOT get location SORRY!, and didn't want to wait any longer. Is GPS enabled? \n\n\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation";
-        } else {
-            Location location = MainActivity.mLocation;
-            String add = "";
-            try {
-
-                Geocoder geoCoder = new Geocoder(mContext, Locale.getDefault());
-                List<Address> addresses = geoCoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-
-                if (addresses.size() > 0) {
-                    for (int i = 0; i < addresses.get(0).getMaxAddressLineIndex(); i++) {
-                        add += addresses.get(0).getAddressLine(i) + ",";
-                    }
-                }
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-
-            if (add.length() > 0) {
-                add = add.substring(0, add.length() - 1);//remove trailing comma
-            } else {
-                add = "could not get a data connection to get address";
-            }
-
-            mapLink = "http://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude() +
-                    "\n\n" + add +
-                    "\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation ";
-        }
-        return mapLink;
-    }
-
-    private void savePhoto(String scaledImage, String mapLink, String filename) {
+    private void savePhoto(String scaledImage, String filename) {
 
         Photo p = new Photo();
         p.setScaledImage(scaledImage);
         p.setDateTaken(new Date());
         p.setLocation(MainActivity.mLocation);
-        p.setMapLink(mapLink);
+//        p.setMapLink(mapLink);
         p.setFileName(filename);
         PrefManager.setPhoto(mContext, p);
         Log.i("Reid", "saved photo");
@@ -391,6 +361,10 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         // potentially add data to the intent
 //        i.putExtra(ORIGINAL_PICTURE_KEY, originalPicture);
 //        i.putExtra(SCALED_PICTURE_KEY, scaledPicture);
+        if (MainActivity.mLocation != null) {
+            i.putExtra(LONGITUDE, MainActivity.mLocation.getLongitude());
+            i.putExtra(LATTITUDE, MainActivity.mLocation.getLatitude());
+        }
         Log.i("Reid", "getUploadIntent");
         return i;
     }
@@ -408,7 +382,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             degrees = 270;
         }
         if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_PORTRAIT_INVERTED) {
-            degrees = -90;
+            degrees = -180;
         }
 
         return degrees;
@@ -563,4 +537,42 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         float y = event.getY(0) - event.getY(1);
         return (float) Math.sqrt(x * x + y * y);
     }
+
+    //might need this for patricks s5 memory error
+//    public class RotateTask extends AsyncTask<Integer, Void, Bitmap> {
+//        private WeakReference<Bitmap> rotateBitmap;
+//        private WeakReference<Bitmap> original;
+//        private String originalPath;
+//
+//        public RotateTask(Bitmap original, String originalPath) {
+//            this.original = new WeakReference<Bitmap>(original);
+//            this.originalPath = originalPath;
+//        }
+//
+//        @Override
+//        protected Bitmap doInBackground(Integer... params) {
+//            Matrix matrix = new Matrix();
+//            matrix.postRotate(params[0]);
+//            rotateBitmap = new WeakReference<Bitmap>(Bitmap
+//                    .createBitmap(original.get(), 0, 0, original.get().getWidth(), original.get().getHeight(), matrix, true));
+//            return rotateBitmap.get();
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Bitmap result) {
+//
+//            FileOutputStream fos_original = null;
+//            try {
+//                fos_original = new FileOutputStream(originalPath);
+//                PhotoLocationUtils
+//                        .insertImage(mContext.getContentResolver(), result, originalPath, "picture"); //this willw rite to a specified directory
+//                fos_original.close();
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 }
+
