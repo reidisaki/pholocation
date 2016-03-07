@@ -75,10 +75,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         mCurrentCameraId = MainActivity.currentCameraId;
     }
 
-    public void setOnMailListener(IMailListener listener) {
-        mMailListener = listener;
-    }
-
     public void switchCamera() {
 
         if (mIsPreviewRunning) {

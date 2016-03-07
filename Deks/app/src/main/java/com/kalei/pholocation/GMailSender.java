@@ -1,6 +1,5 @@
 package com.kalei.pholocation;
 
-import com.flurry.android.FlurryAgent;
 import com.kalei.PhotoLocationApplication;
 import com.kalei.interfaces.IMailListener;
 
@@ -71,17 +70,6 @@ public class GMailSender extends javax.mail.Authenticator {
     private Multipart _multipart;
 
     public void addAttachment(String filename, String body) throws Exception {
-//        File image = new File(filename);
-//        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-//        Bitmap bitmap = BitmapFactory.decodeFile(image.getAbsolutePath(), bmOptions);
-//        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-//        bitmap.compress(CompressFormat.PNG, 70, bytes);
-//        File f = new File(filename);
-//        f.createNewFile();
-//        FileOutputStream fo = new FileOutputStream(f);
-//        fo.write(bytes.toByteArray());
-//        fo.close();
-        //end of new shit
         Log.i("Reid", "attaching file: " + filename);
         BodyPart messageBodyPart = new MimeBodyPart();
         DataSource source = new FileDataSource(filename);
@@ -141,7 +129,6 @@ public class GMailSender extends javax.mail.Authenticator {
                 }
             }));
 
-            FlurryAgent.logEvent("failed to send: " + e.getMessage());
             Log.i("Reid", "FAILED: " + e.getMessage());
         }
     }
@@ -153,15 +140,6 @@ public class GMailSender extends javax.mail.Authenticator {
         public ByteArrayDataSource(byte[] data, String type) {
             super();
             this.data = data;
-            this.type = type;
-        }
-
-        public ByteArrayDataSource(byte[] data) {
-            super();
-            this.data = data;
-        }
-
-        public void setType(String type) {
             this.type = type;
         }
 
