@@ -300,31 +300,28 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 }
 
 //                mPictureURI = Uri.fromFile(pictureFile);
-                boolean debug = true;
-                if (!debug) {
-                    Log.i("Reid", "got location? " + (MainActivity.mLocation != null));
-                    //TODO: get location, if it's not ready by the time you click the shutter, wait 10 seconds after you've taken a picture
-                    //after 10 seconds create the photo object save it and call the service.
-                    //save photo object into cache to be sent later.
-                    Handler handler = new Handler();
-                    mTimePreviousPhotoTaken = mTimePhotoTaken;
-                    if (MainActivity.mLocation == null || (hasTooMuchTimeElapsed(mTimePreviousPhotoTaken) && mTimePreviousPhotoTaken != mTimePhotoTaken)) {
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Log.i("Reid", "waited 10 seconds");
-                                savePhoto(pictureFile.toString(), originalPicture.toString());
-                                mContext.startService(getPhotoUploadIntent());
-                            }
-                        }, 10000);
-                    } else {
-                        savePhoto(pictureFile.toString(), originalPicture.toString());
-                        mContext.startService(getPhotoUploadIntent());
-                    }
-//                    mCanTakePicture = true;
-                    mTimePhotoTaken = new Date().getTime();
-//                new PhotoLocationSender(context, originalPicture.toString(), mMailListener, pictureFile.toString());
+
+                Log.i("Reid", "got location? " + (MainActivity.mLocation != null));
+                //after 10 seconds create the photo object save it and call the service.
+                //save photo object into cache to be sent later.
+                Handler handler = new Handler();
+                mTimePreviousPhotoTaken = mTimePhotoTaken;
+                if (MainActivity.mLocation == null || (hasTooMuchTimeElapsed(mTimePreviousPhotoTaken) && mTimePreviousPhotoTaken != mTimePhotoTaken)) {
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i("Reid", "waited 10 seconds");
+                            savePhoto(pictureFile.toString(), originalPicture.toString());
+                            mContext.startService(getPhotoUploadIntent());
+                        }
+                    }, 10000);
+                } else {
+                    savePhoto(pictureFile.toString(), originalPicture.toString());
+                    mContext.startService(getPhotoUploadIntent());
                 }
+//                    mCanTakePicture = true;
+                mTimePhotoTaken = new Date().getTime();
+//                new PhotoLocationSender(context, originalPicture.toString(), mMailListener, pictureFile.toString());
             }
         };
         try {

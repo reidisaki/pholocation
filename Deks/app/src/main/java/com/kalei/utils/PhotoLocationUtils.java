@@ -13,6 +13,7 @@ import com.google.gson.reflect.TypeToken;
 
 import com.android.ex.chips.RecipientEntry;
 import com.flurry.android.FlurryAgent;
+import com.kalei.PhotoLocationApplication;
 import com.kalei.interfaces.IMailListener;
 import com.kalei.managers.PrefManager;
 import com.kalei.models.Photo;
@@ -351,7 +352,8 @@ public class PhotoLocationUtils {
         final List<String> imageFileNames;
         final List<String> imageFailedFileNames;
         final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
-        if (PhotoLocationUtils.isOnlineAndFast(context)) {
+
+        if (PhotoLocationUtils.isOnlineAndFast(context) || PhotoLocationApplication.debug) {
             mBuilder = new NotificationCompat.Builder(context);
             mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             imageFileNames = new ArrayList<>();
@@ -362,7 +364,8 @@ public class PhotoLocationUtils {
             List<Photo> photoList = PrefManager.getPhotoList(context);
 
             for (Photo p : photoList) {
-                p.setMapLink(getMapLink(intent.getExtras().getDouble(CaptureView.LATTITUDE), intent.getExtras().getDouble(CaptureView.LONGITUDE), context));
+                p.setMapLink(getMapLink(intent.getDoubleExtra(CaptureView.LATTITUDE, 0),
+                        intent.getDoubleExtra(CaptureView.LONGITUDE, 0), context));
                 GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), new IMailListener() {
                     @Override
                     public void onMailFailed(final Exception e, String imageName) {

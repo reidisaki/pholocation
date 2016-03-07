@@ -18,6 +18,8 @@ public class PhotoLocationApplication extends Application {
 
     public static String FLURRY_KEY = "JGBTZJXTZFXBS5VY6T56";
     public static PhotoLocationApplication mInstance;
+    //TODO: turn off debug at the end.
+    public static boolean debug = true;
 
     public PhotoLocationApplication() {
         mInstance = this;

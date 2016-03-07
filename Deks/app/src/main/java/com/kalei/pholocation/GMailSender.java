@@ -1,6 +1,7 @@
 package com.kalei.pholocation;
 
 import com.flurry.android.FlurryAgent;
+import com.kalei.PhotoLocationApplication;
 import com.kalei.interfaces.IMailListener;
 
 import android.os.StrictMode;
@@ -116,7 +117,9 @@ public class GMailSender extends javax.mail.Authenticator {
                 message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipients));
             }
 
-            Transport.send(message);
+            if (!PhotoLocationApplication.debug) {
+                Transport.send(message);
+            }
             Log.i("Reid", "Sending mail");
 
             runOnUiThread(new Thread(new Runnable() {

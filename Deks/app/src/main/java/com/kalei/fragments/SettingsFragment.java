@@ -87,8 +87,6 @@ public class SettingsFragment extends PhotoLocationFragment {
         saveBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
-                //TODO: save entry first, even if its not in the contact list.
-
                 DrawableRecipientChip[] chips = emailRetv.getSortedRecipients();
 
                 if (chips.length == 0) {
@@ -123,16 +121,19 @@ public class SettingsFragment extends PhotoLocationFragment {
         }
         versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
         CheckBox wifiCheckBox = (CheckBox) rootView.findViewById(R.id.send_wifi_checkbox);
-        //TODO: Remove this later
-        TextView sendTextOnlyText = (TextView) rootView.findViewById(R.id.send_text_only_text);
-        sendTextOnlyText.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                PrefManager.clear(getActivity());
 
-                Log.i("Reid", "Cleared shared prefs");
-            }
-        });
+        //TODO: Remove this later
+        if (PhotoLocationApplication.debug) {
+            TextView sendTextOnlyText = (TextView) rootView.findViewById(R.id.send_text_only_text);
+            sendTextOnlyText.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    PrefManager.clear(getActivity());
+
+                    Log.i("Reid", "Cleared shared prefs");
+                }
+            });
+        }
         //End remove
 
         wifiCheckBox.setChecked(PrefManager.getSendWifiOnly(getActivity()));
