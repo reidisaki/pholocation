@@ -282,14 +282,14 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     private int getOrientationRotation() {
         int degrees = 0;
         if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_PORTRAIT_NORMAL) {
-            degrees = 90;
+            degrees = 0;
         }
 
         if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_LANDSCAPE_INVERTED) {
             degrees = 180;
         }
         if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_LANDSCAPE_NORMAL) {
-            degrees = 270;
+            degrees = 90;
         }
         if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_PORTRAIT_INVERTED) {
             degrees = -180;

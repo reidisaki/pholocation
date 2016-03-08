@@ -124,7 +124,7 @@ public class GMailSender extends javax.mail.Authenticator {
             runOnUiThread(new Thread(new Runnable() {
                 public void run() {
                     if (mMailListener != null) {
-                        mMailListener.onMailFailed(e, filename);
+                        mMailListener.onMailFailed(e, scaledImage);
                     }
                 }
             }));
