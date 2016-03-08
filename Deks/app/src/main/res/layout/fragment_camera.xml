@@ -41,6 +41,16 @@
                 android:layout_height="50dp"
                 android:layout_centerVertical="true"
                 android:src="@drawable/switch_camera"/>
+        <ImageView
+                android:padding="10dp"
+                android:id="@+id/flash"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/shutter"
+                android:layout_toLeftOf="@+id/settings_image"
+                android:src="@drawable/flash"/>
+
         <ImageView android:id="@+id/settings_image"
                    android:padding="10dp"
                    android:layout_alignParentRight="true"

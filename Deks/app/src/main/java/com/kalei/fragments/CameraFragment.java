@@ -3,6 +3,7 @@ package com.kalei.fragments;
 import com.flurry.android.FlurryAgent;
 import com.kalei.activities.MainActivity;
 import com.kalei.interfaces.ICameraClickListener;
+import com.kalei.managers.PrefManager;
 import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 import com.kalei.views.CaptureView;
@@ -33,7 +34,7 @@ import android.widget.ImageView;
  * Created by risaki on 2/22/16.
  */
 public class CameraFragment extends PhotoLocationFragment implements OnClickListener {
-    private ImageView mSettingsImage, mShutter, mCameraSwitch;
+    private ImageView mSettingsImage, mShutter, mCameraSwitch, mFlash;
     private CaptureView mCaptureView;
     private FrameLayout mShutterScreen;
 
@@ -76,7 +77,8 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         mCameraSwitch.setOnClickListener(this);
         mShutterScreen = (FrameLayout) rootView.findViewById(R.id.shutterScreen);
         mHandler = new Handler();
-
+        mFlash = (ImageView) rootView.findViewById(R.id.flash);
+        mFlash.setOnClickListener(this);
         return rootView;
     }
 
@@ -110,6 +112,15 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                         mCaptureView.takeAPicture(getActivity());
                         shutterShow();
                     }
+                }
+                break;
+            case R.id.flash:
+                if (PrefManager.getFlashOption(getActivity())) {
+                    mFlash.setImageDrawable(getResources().getDrawable(R.drawable.flash_off));
+                    PrefManager.setFlashOption(getActivity(), false);
+                } else {
+                    mFlash.setImageDrawable(getResources().getDrawable(R.drawable.flash));
+                    PrefManager.setFlashOption(getActivity(), true);
                 }
                 break;
             case R.id.camera_switch:

@@ -114,6 +114,11 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             mCamera.stopPreview();
         }
         Camera.Parameters params = mCamera.getParameters();
+        if (PrefManager.getFlashOption(mContext)) {
+            params.setFlashMode(Parameters.FLASH_MODE_ON);
+        } else {
+            params.setFlashMode(Parameters.FLASH_MODE_OFF);
+        }
         List<Camera.Size> sizes = params.getSupportedPictureSizes();
         Camera.Size size = sizes.get(0);
 //        Camera.Size size = sizes.get(sizes.size() - 1); smallest size
@@ -282,7 +287,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     private int getOrientationRotation() {
         int degrees = 0;
         if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_PORTRAIT_NORMAL) {
-            degrees = 0;
+            degrees = 90;
         }
 
         if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_LANDSCAPE_INVERTED) {
@@ -533,6 +538,13 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void takeAPicture(final Context context) {
 //        mCanTakePicture = false;
+        Parameters params = mCamera.getParameters();
+        if (PrefManager.getFlashOption(mContext)) {
+            params.setFlashMode(Parameters.FLASH_MODE_ON);
+        } else {
+            params.setFlashMode(Parameters.FLASH_MODE_OFF);
+        }
+        mCamera.setParameters(params);
         Camera.PictureCallback mPictureCallback = new PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
@@ -606,6 +618,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             }
         };
         try {
+
             mCamera.takePicture(null, null, mPictureCallback);
         } catch (RuntimeException e) {
             Log.i("Reid", "clicked too fast" + e.getMessage());
