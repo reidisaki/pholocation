@@ -125,6 +125,7 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
         return mLocationRequest;
     }
 
@@ -203,5 +204,12 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     @Override
     public void onLocationChanged(final Location location) {
         mLocation = location;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
     }
 }
