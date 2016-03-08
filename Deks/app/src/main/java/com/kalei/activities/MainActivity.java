@@ -20,24 +20,18 @@ import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 
 import android.Manifest.permission;
-import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends PhotoLocationActivity implements ConnectionCallbacks, OnConnectionFailedListener, ICameraClickListener,
                                                                    LocationListener {
@@ -45,23 +39,12 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     public SettingsFragment mSettingsFragment;
     private GoogleApiClient mGoogleApiClient;
     public static Location mLocation;
-    NotificationCompat.Builder mBuilder;
-    NotificationManager mNotificationManager;
-    public static int mSuccessfulSends = 0;
-    public static int mFailedSends = 0;
     InterstitialAd mInterstitialAd;
-    public List<String> imageFileNames;
-    public List<String> imageFailedFileNames;
     public static int currentCameraId = 0;
-    private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBuilder = new NotificationCompat.Builder(this);
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        imageFileNames = new ArrayList<>();
-        imageFailedFileNames = new ArrayList<>();
         if (savedInstanceState != null) {
             mSettingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag("settings");
         }
@@ -71,7 +54,6 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
         setContentView(R.layout.activity_main);
         FlurryAgent.init(this, PhotoLocationApplication.FLURRY_KEY);
         FlurryAgent.onStartSession(this);
-        checkLocation();
         loadToolbar("Settings");
         mCameraFragment = CameraFragment.newInstance();
         if (mSettingsFragment != null) {
@@ -115,8 +97,10 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     public void onConnected(final Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i("Reid", "Failed onConnected permissions");
             return;
         }
+        Log.i("Reid", "requesting location updates");
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, createLocationRequest(), this);
     }
 
@@ -139,6 +123,7 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
+                    .enableAutoManage(this, this)
                     .addApi(LocationServices.API)
                     .build();
         }
@@ -181,17 +166,6 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
         mInterstitialAd.loadAd(adRequest);
     }
 
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mSuccessfulSends = 0;
-            mFailedSends = 0;
-            imageFailedFileNames.clear();
-            imageFileNames.clear();
-            unregisterReceiver(this);
-        }
-    };
-
     @Override
     public void onBackPressed() {
         if (mSettingsFragment != null && mSettingsFragment.isVisible()) {
@@ -209,7 +183,14 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     @Override
     protected void onPause() {
         super.onPause();
+        Log.i("Reid", "removing location updates");
         LocationServices.FusedLocationApi.removeLocationUpdates(
                 mGoogleApiClient, this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkLocation();
     }
 }
