@@ -184,8 +184,10 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     protected void onPause() {
         super.onPause();
         Log.i("Reid", "removing location updates");
-        LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient, this);
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    mGoogleApiClient, this);
+        }
     }
 
     @Override

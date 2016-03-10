@@ -288,20 +288,23 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         return i;
     }
 
-    private int getOrientationRotation() {
+    private int getOrientationRotation(int mCameraRotation) {
         int degrees = 0;
-        if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_PORTRAIT_NORMAL) {
+        if (mCameraRotation == CameraFragment.ORIENTATION_PORTRAIT_NORMAL) {
             degrees = 90;
+            Log.i("Reid", "portait");
         }
-
-        if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_LANDSCAPE_INVERTED) {
+        if (mCameraRotation == CameraFragment.ORIENTATION_LANDSCAPE_INVERTED) {
+            Log.i("Reid", "landscape inverted");
             degrees = 180;
         }
-        if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_LANDSCAPE_NORMAL) {
-            degrees = 90;
+        if (mCameraRotation == CameraFragment.ORIENTATION_LANDSCAPE_NORMAL) {
+            degrees = 0;
+            Log.i("Reid", "landscape ");
         }
-        if (CameraFragment.mOrientation == CameraFragment.ORIENTATION_PORTRAIT_INVERTED) {
+        if (mCameraRotation == CameraFragment.ORIENTATION_PORTRAIT_INVERTED) {
             degrees = -180;
+            Log.i("Reid", "portait inverted");
         }
 
         return degrees;
@@ -457,7 +460,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         return (float) Math.sqrt(x * x + y * y);
     }
 
-    public class SavePhotoTask extends AsyncTask<Void, Void, Void> {
+    public class SavePhotoTask extends AsyncTask<Integer, Void, Void> {
         String pictureFilePath, originalFilePath;
         byte[] data;
 
@@ -468,12 +471,12 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         @Override
-        protected Void doInBackground(Void... stuff) {
+        protected Void doInBackground(Integer... orientation) {
             try {
-
                 Bitmap bmpNew = BitmapFactory.decodeByteArray(this.data, 0, this.data.length);
                 Matrix mtx = new Matrix();
-                mtx.postRotate(getOrientationRotation());
+
+                mtx.postRotate(getOrientationRotation(orientation[0]));
                 // Rotating Bitmap
                 bmpNew = Bitmap.createBitmap(bmpNew, 0, 0, bmpNew.getWidth(), bmpNew.getHeight(), mtx, true);
 //                    bmpNew = Bitmap.createScaledBitmap(bmpNew, bmpNew.getWidth(), bmpNew.getHeight(), true);
@@ -489,7 +492,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 FileOutputStream fos_original = new FileOutputStream(originalFilePath);
 
                 Matrix mtx2 = new Matrix();
-                mtx2.postRotate(getOrientationRotation());
+                mtx2.postRotate(getOrientationRotation(orientation[0]));
                 bmpOG = Bitmap.createBitmap(bmpOG, 0, 0, bmpOG.getWidth(), bmpOG.getHeight(), mtx2, true);
 //                    bmpOG.compress(CompressFormat.JPEG, 100, fos);
                 PhotoLocationUtils
@@ -542,6 +545,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void takeAPicture(final Context context) {
 //        mCanTakePicture = false;
+        final int mCameraRotation = CameraFragment.mOrientation;
         Parameters params = mCamera.getParameters();
         if (PrefManager.getFlashOption(mContext)) {
             params.setFlashMode(Parameters.FLASH_MODE_ON);
@@ -561,7 +565,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                     Log.d("Reid", "Error creating media file, check storage permissions: ");
                     return;
                 }
-                new SavePhotoTask(pictureFile.toString(), originalPicture.toString(), data).execute();
+                new SavePhotoTask(pictureFile.toString(), originalPicture.toString(), data).execute(mCameraRotation);
 //                try {
 //
 //                    Bitmap bmpNew = BitmapFactory.decodeByteArray(data, 0, data.length);
