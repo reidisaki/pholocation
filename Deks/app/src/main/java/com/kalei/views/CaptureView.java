@@ -115,8 +115,12 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         }
         Camera.Parameters params = mCamera.getParameters();
         if (PrefManager.getFlashOption(mContext)) {
-            params.setFlashMode(Parameters.FLASH_MODE_ON);
+            if (PhotoLocationUtils.hasFlash(params)) {
+                params.setFlashMode(Parameters.FLASH_MODE_ON);
+                Log.i("Reid", "flash mode on surface Changed");
+            }
         } else {
+            Log.i("Reid", "flash mode OFF surface Changed");
             params.setFlashMode(Parameters.FLASH_MODE_OFF);
         }
         List<Camera.Size> sizes = params.getSupportedPictureSizes();
@@ -541,7 +545,9 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         Parameters params = mCamera.getParameters();
         if (PrefManager.getFlashOption(mContext)) {
             params.setFlashMode(Parameters.FLASH_MODE_ON);
+            Log.i("Reid", "flash mode on");
         } else {
+            Log.i("Reid", "flash mode off");
             params.setFlashMode(Parameters.FLASH_MODE_OFF);
         }
         mCamera.setParameters(params);

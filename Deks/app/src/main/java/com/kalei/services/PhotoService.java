@@ -4,7 +4,6 @@ import com.kalei.utils.PhotoLocationUtils;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 /**
  * Created by risaki on 3/2/16.
@@ -27,7 +26,6 @@ public class PhotoService extends IntentService {
 
     @Override
     protected void onHandleIntent(final Intent intent) {
-        Log.i("Reid", "got intent here");
         PhotoLocationUtils.processEmailPicture(this, intent);
     }
 }

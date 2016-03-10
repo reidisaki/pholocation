@@ -79,6 +79,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         mHandler = new Handler();
         mFlash = (ImageView) rootView.findViewById(R.id.flash);
         mFlash.setOnClickListener(this);
+        mFlash.setImageDrawable(getResources().getDrawable(PrefManager.getFlashOption(getActivity()) ? R.drawable.flash : R.drawable.flash_off));
         return rootView;
     }
 

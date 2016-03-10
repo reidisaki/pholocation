@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.hardware.Camera;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.ConnectivityManager;
@@ -63,6 +64,7 @@ public class PhotoLocationUtils {
     public static String MY_PREFS_NAME = "photolocation";
     public static int mSuccessfulSends = 0;
     public static int mFailedSends = 0;
+    public static String NOTIFICATION_DELETED_ACTION = "notification_cancelled";
 
     public static void saveDataObjects(List<RecipientEntry> chips, Context context) {
         SharedPreferences.Editor editor = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
@@ -351,7 +353,6 @@ public class PhotoLocationUtils {
         final NotificationManager mNotificationManager;
         final List<String> imageFileNames;
         final List<String> imageFailedFileNames;
-        final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 
         if (PhotoLocationUtils.isOnlineAndFast(context) || PhotoLocationApplication.debug) {
             mBuilder = new NotificationCompat.Builder(context);
@@ -371,13 +372,14 @@ public class PhotoLocationUtils {
                     public void onMailFailed(final Exception e, String imageName) {
                         FlurryAgent.logEvent("Mail failed: " + e.getMessage());
                         mFailedSends++;
-                        Intent intent = new Intent(WifiReceiver.NOTIFICATION_DELETED_ACTION);
+                        Intent intent = new Intent(context, WifiReceiver.class);
+                        intent.setAction(NOTIFICATION_DELETED_ACTION);
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
                         imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
-                        mBuilder.setSmallIcon(R.drawable.ic_launcher);
-                        mBuilder.setContentTitle("Failed sending picture" + mBuilder.setContentText(imageName));
-                        mBuilder.setDeleteIntent(pendingIntent);
-                        mBuilder.setContentText(mFailedSends + (mFailedSends == 1 ? " picture " : " pictures ") + " failed sending" + imageName);
+                        mBuilder.setSmallIcon(R.drawable.ic_launcher)
+                                .setContentTitle("Failed sending picture" + mBuilder.setContentText(imageName))
+                                .setDeleteIntent(pendingIntent)
+                                .setContentText(mFailedSends + (mFailedSends == 1 ? " picture " : " pictures ") + " failed sending" + imageName);
                         imageFailedFileNames.add(imageName);
                         InboxStyle style = new InboxStyle().setSummaryText(mFailedSends + " failed to send");
                         for (String s : imageFailedFileNames) {
@@ -394,14 +396,14 @@ public class PhotoLocationUtils {
                         Date d = new Date();
                         FlurryAgent.logEvent("mail SUCCESS! " + d.toString());
                         Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
                         imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
-                        mBuilder.setSmallIcon(R.drawable.ic_launcher);
-                        mBuilder.setContentTitle(mSuccessfulSends + (mSuccessfulSends == 1 ? " picture " : " pictures ") + "sent successfully");
-                        mBuilder.setContentText(imageName);
-                        mBuilder.setDeleteIntent(pendingIntent);
+                        mBuilder.setSmallIcon(R.drawable.ic_launcher)
+                                .setContentTitle(mSuccessfulSends + (mSuccessfulSends == 1 ? " picture " : " pictures ") + "sent successfully")
+                                .setContentText(imageName)
+                                .setDeleteIntent(pendingIntent);
                         imageFileNames.add(imageName);
-                        InboxStyle style = new InboxStyle().setSummaryText(mSuccessfulSends + " sent");
+                        InboxStyle style = new InboxStyle().setSummaryText((mSuccessfulSends == 0 ? 1 : mSuccessfulSends) + " sent");
                         for (String s : imageFileNames) {
                             style.addLine(s);
                         }
@@ -424,8 +426,6 @@ public class PhotoLocationUtils {
         } else {
             Log.i("Reid", "not sending");
         }
-        mSuccessfulSends = 0;
-        mFailedSends = 0;
     }
 
     private static String getMapLink(double lattitude, double longitude, Context context) {
@@ -463,5 +463,20 @@ public class PhotoLocationUtils {
                     "\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation ";
         }
         return mapLink;
+    }
+
+    public static boolean hasFlash(Camera.Parameters parameters) {
+
+        if (parameters.getFlashMode() == null) {
+            return false;
+        }
+
+        List<String> supportedFlashModes = parameters.getSupportedFlashModes();
+        if (supportedFlashModes == null || supportedFlashModes.isEmpty() ||
+                supportedFlashModes.size() == 1 && supportedFlashModes.get(0).equals(Camera.Parameters.FLASH_MODE_OFF)) {
+            return false;
+        }
+
+        return true;
     }
 }
