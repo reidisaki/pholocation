@@ -20,7 +20,6 @@ import com.kalei.models.Photo;
 import com.kalei.pholocation.GMailSender;
 import com.kalei.pholocation.R;
 import com.kalei.receivers.WifiReceiver;
-import com.kalei.views.CaptureView;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -60,11 +59,14 @@ import java.util.Locale;
  */
 public class PhotoLocationUtils {
 
+    public static final String CAPTION_KEY = "caption_key";
     public static String EMAIL_KEY = "email_key";
     public static String MY_PREFS_NAME = "photolocation";
     public static int mSuccessfulSends = 0;
     public static int mFailedSends = 0;
     public static String NOTIFICATION_DELETED_ACTION = "notification_cancelled";
+    public static final String LONGITUDE = "longitude_key";
+    public static final String LATTITUDE = "lattitude_key";
 
     public static void saveDataObjects(List<RecipientEntry> chips, Context context) {
         SharedPreferences.Editor editor = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
@@ -365,9 +367,10 @@ public class PhotoLocationUtils {
             List<Photo> photoList = PrefManager.getPhotoList(context);
 
             for (Photo p : photoList) {
-                p.setMapLink(getMapLink(intent.getDoubleExtra(CaptureView.LATTITUDE, 0),
-                        intent.getDoubleExtra(CaptureView.LONGITUDE, 0), context));
-                GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), new IMailListener() {
+                p.setMapLink(getMapLink(intent.getDoubleExtra(LATTITUDE, 0),
+                        intent.getDoubleExtra(LONGITUDE, 0), context));
+                GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), intent
+                        .getStringExtra(CAPTION_KEY), new IMailListener() {
                     @Override
                     public void onMailFailed(final Exception e, String imageName) {
                         FlurryAgent.logEvent("Mail failed: " + e.getMessage());
@@ -424,7 +427,7 @@ public class PhotoLocationUtils {
             photoList.clear();
             PrefManager.savePhotoList(context, photoList);
         } else {
-            Log.i("Reid", "not sending");
+            Log.i("pl", "not sending");
         }
     }
 
@@ -478,5 +481,16 @@ public class PhotoLocationUtils {
         }
 
         return true;
+    }
+
+    public static void savePhoto(Context context, String scaledImage, String filename) {
+
+        Photo p = new Photo();
+        p.setScaledImage(scaledImage);
+        p.setDateTaken(new Date());
+//        p.setLocation(MainActivity.mLocation);
+//        p.setMapLink(mapLink);
+        p.setFileName(filename);
+        PrefManager.setPhoto(context, p);
     }
 }

@@ -3,9 +3,11 @@ package com.kalei.fragments;
 import com.flurry.android.FlurryAgent;
 import com.kalei.activities.MainActivity;
 import com.kalei.interfaces.ICameraClickListener;
+import com.kalei.interfaces.IPhotoTakenListener;
 import com.kalei.managers.PrefManager;
 import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
+import com.kalei.views.CameraPreview;
 import com.kalei.views.CaptureView;
 
 import android.content.Context;
@@ -29,15 +31,16 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 /**
  * Created by risaki on 2/22/16.
  */
-public class CameraFragment extends PhotoLocationFragment implements OnClickListener {
+public class CameraFragment extends PhotoLocationFragment implements OnClickListener, IPhotoTakenListener {
     private ImageView mSettingsImage, mShutter, mCameraSwitch, mFlash;
     private CaptureView mCaptureView;
-    private FrameLayout mShutterScreen;
-
+    private CameraPreview mCameraPreview;
+    private FrameLayout mShutterScreen, mSurfaceFrame, mPreviewPane;
     private Handler mHandler;
     public ICameraClickListener mCameraClickListener;
     public int numPicturesTaken = 1;
@@ -71,8 +74,16 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         mSettingsImage.setOnClickListener(this);
         mShutter = (ImageView) rootView.findViewById(R.id.shutter);
         mShutter.setOnClickListener(this);
+        mSurfaceFrame = (FrameLayout) rootView.findViewById(R.id.capture_view_frame);
+        mPreviewPane = (FrameLayout) rootView.findViewById(R.id.camera_preview_frame);
+
         mCaptureView = (CaptureView) rootView.findViewById(R.id.capture_view);
         mCaptureView.setOnClickListener(this);
+        mCaptureView.setOnPhotoTakenListener(this);
+
+        mCameraPreview = (CameraPreview) rootView.findViewById(R.id.camera_preview);
+        mCameraPreview.setOnPhotoTakenListener(this);
+
         mCameraSwitch = (ImageView) rootView.findViewById(R.id.camera_switch);
         mCameraSwitch.setOnClickListener(this);
         mShutterScreen = (FrameLayout) rootView.findViewById(R.id.shutterScreen);
@@ -148,6 +159,8 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public void onPause() {
         super.onPause();
         mOrientationEventListener.disable();
+        mCameraPreview.cleanUp();
+
     }
 
     @Override
@@ -270,5 +283,42 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
             mOrientationEventListener.enable();
         }
     }
+
+    @Override
+    public void onPhotoConfirm() {
+        Log.i("pl", "photo confirmed");
+        showCamera();
+        Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPhotoCancel() {
+        Log.i("pl", "photo cancel");
+        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
+        showCamera();
+    }
+
+    private void showCamera() {
+        mSurfaceFrame.setVisibility(View.VISIBLE);
+        mPreviewPane.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onPhotoTaken(String scaledImage, String originalImage) {
+        mSurfaceFrame.setVisibility(View.GONE);
+        mPreviewPane.setVisibility(View.VISIBLE);
+        mCameraPreview.setVisibility(R.id.progress, View.VISIBLE);
+        mCameraPreview.setVisibility(R.id.imageView, View.GONE);
+        Log.i("pl", "photo taken");
+    }
+
+    @Override
+    public void onPhotoProcessed(String scaledImagePath, String originalImagePath) {
+        Log.i("pl", "Photo ready to be processed");
+        mCameraPreview.setImagePathsAndImageView(scaledImagePath, originalImagePath);
+        mCameraPreview.setVisibility(R.id.progress, View.GONE);
+        mCameraPreview.setVisibility(R.id.imageView, View.VISIBLE);
+    }
+
 }
 

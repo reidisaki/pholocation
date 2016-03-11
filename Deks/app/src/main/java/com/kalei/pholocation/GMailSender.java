@@ -37,19 +37,21 @@ public class GMailSender extends javax.mail.Authenticator {
     private String user;
     private String password;
     private Session session;
+    private String caption;
     public IMailListener mMailListener;
 
     static {
         Security.addProvider(new com.kalei.pholocation.JSSEProvider());
     }
 
-    public GMailSender(String user, String password, IMailListener listener) {
+    public GMailSender(String user, String password, String caption, IMailListener listener) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
 
         this.user = user;
         this.password = password;
+        this.caption = caption;
         mMailListener = listener;
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");
@@ -70,7 +72,7 @@ public class GMailSender extends javax.mail.Authenticator {
     private Multipart _multipart;
 
     public void addAttachment(String filename, String body) throws Exception {
-        Log.i("Reid", "attaching file: " + filename);
+        Log.i("pl", "attaching file: " + filename);
         BodyPart messageBodyPart = new MimeBodyPart();
         DataSource source = new FileDataSource(filename);
         messageBodyPart.setDataHandler(new DataHandler(source));
@@ -78,6 +80,7 @@ public class GMailSender extends javax.mail.Authenticator {
         _multipart.addBodyPart(messageBodyPart);
 
         BodyPart messageBodyPart2 = new MimeBodyPart();
+        body = (caption.length() > 0 ? caption + "\n\n" + body : body);
         messageBodyPart2.setText(body);
 //        messageBodyPart2.setText(subject);
 
@@ -108,12 +111,12 @@ public class GMailSender extends javax.mail.Authenticator {
             if (!PhotoLocationApplication.debug) {
                 Transport.send(message);
             }
-            Log.i("Reid", "Sending mail");
+            Log.i("pl", "Sending mail");
 
             runOnUiThread(new Thread(new Runnable() {
                 public void run() {
                     File f = new File(scaledImage);
-                    Log.i("Reid", "scaled image size: " + f.length());
+                    Log.i("pl", "scaled image size: " + f.length());
                     f.delete(); //delete old smaller file
                     if (mMailListener != null) {
                         mMailListener.onMailSucceeded(scaledImage);
@@ -129,7 +132,7 @@ public class GMailSender extends javax.mail.Authenticator {
                 }
             }));
 
-            Log.i("Reid", "FAILED: " + e.getMessage());
+            Log.i("pl", "FAILED: " + e.getMessage());
         }
     }
 

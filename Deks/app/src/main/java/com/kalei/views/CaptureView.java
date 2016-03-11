@@ -3,16 +3,13 @@ package com.kalei.views;
 import com.flurry.android.FlurryAgent;
 import com.kalei.activities.MainActivity;
 import com.kalei.fragments.CameraFragment;
-import com.kalei.interfaces.IMailListener;
+import com.kalei.interfaces.IPhotoTakenListener;
 import com.kalei.managers.PrefManager;
-import com.kalei.models.Photo;
 import com.kalei.pholocation.R;
-import com.kalei.services.PhotoService;
 import com.kalei.utils.PhotoLocationUtils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -25,7 +22,6 @@ import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
@@ -55,17 +51,16 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     private static final int FOCUS_AREA_SIZE = 300;
-    public IMailListener mMailListener;
     public int mCurrentCameraId = CameraInfo.CAMERA_FACING_BACK;
     //    public static final String ORIGINAL_PICTURE_KEY = "original_picture_key";
 //    public static final String MAIL_LISTENER_KEY = "mail_listener_key";
 //    public static final String SCALED_PICTURE_KEY = "scaled_picture_key";
-    public static final String LONGITUDE = "longitude_key";
-    public static final String LATTITUDE = "lattitude_key";
+
     private long mTimePhotoTaken = new Date().getTime();
     private long mTimePreviousPhotoTaken = new Date().getTime();
     private final long STALE_TIME_DELTA = 30000;
     private float mDist;
+    private IPhotoTakenListener mPhotoTakenListener;
 
     public CaptureView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -124,7 +119,9 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             params.setFlashMode(Parameters.FLASH_MODE_OFF);
         }
         List<Camera.Size> sizes = params.getSupportedPictureSizes();
-        Camera.Size size = sizes.get(0);
+        //Quality of sizes
+        Log.i("pl", "image sizes: " + sizes.size() + "getting size: " + ((sizes.size() - Math.round(sizes.size() * .75f))));
+        Camera.Size size = sizes.get((sizes.size() - Math.round(sizes.size() * .75f)));
 //        Camera.Size size = sizes.get(sizes.size() - 1); smallest size
 //        Log.i("Reid", "width: " + size.width + " height: " + size.height);
 
@@ -176,6 +173,10 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         } catch (Exception e) {
 //            Log.d(APP_CLASS, "Cannot start preview", e);
         }
+    }
+
+    public void setOnPhotoTakenListener(IPhotoTakenListener listener) {
+        mPhotoTakenListener = listener;
     }
 
     private void focusOnTouch(MotionEvent event) {
@@ -253,18 +254,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         mCamera.release();
     }
 
-    private void savePhoto(String scaledImage, String filename) {
-
-        Photo p = new Photo();
-        p.setScaledImage(scaledImage);
-        p.setDateTaken(new Date());
-//        p.setLocation(MainActivity.mLocation);
-//        p.setMapLink(mapLink);
-        p.setFileName(filename);
-        PrefManager.setPhoto(mContext, p);
-        Log.i("Reid", "saved photo");
-    }
-
     private boolean hasTooMuchTimeElapsed(long timePhotoTaken) {
         boolean hasTooMuchTimeElapsed = false;
 
@@ -273,19 +262,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             hasTooMuchTimeElapsed = true;
         }
         return hasTooMuchTimeElapsed;
-    }
-
-    private Intent getPhotoUploadIntent() {
-        Intent i = new Intent(mContext, PhotoService.class);
-        // potentially add data to the intent
-//        i.putExtra(ORIGINAL_PICTURE_KEY, originalPicture);
-//        i.putExtra(SCALED_PICTURE_KEY, scaledPicture);
-        if (MainActivity.mLocation != null) {
-            i.putExtra(LONGITUDE, MainActivity.mLocation.getLongitude());
-            i.putExtra(LATTITUDE, MainActivity.mLocation.getLatitude());
-        }
-        Log.i("Reid", "getUploadIntent");
-        return i;
     }
 
     private int getOrientationRotation(int mCameraRotation) {
@@ -471,6 +447,12 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mPhotoTakenListener.onPhotoTaken(pictureFilePath, originalFilePath);
+        }
+
+        @Override
         protected Void doInBackground(Integer... orientation) {
             try {
                 Bitmap bmpNew = BitmapFactory.decodeByteArray(this.data, 0, this.data.length);
@@ -488,9 +470,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
                 ///beginning test
                 Bitmap bmpOG = BitmapFactory.decodeByteArray(this.data, 0, this.data.length);
-//                    new RotateTask(bmpOG, originalPicture.getPath()).execute(getOrientationRotation());
                 FileOutputStream fos_original = new FileOutputStream(originalFilePath);
-
                 Matrix mtx2 = new Matrix();
                 mtx2.postRotate(getOrientationRotation(orientation[0]));
                 bmpOG = Bitmap.createBitmap(bmpOG, 0, 0, bmpOG.getWidth(), bmpOG.getHeight(), mtx2, true);
@@ -507,35 +487,31 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             } catch (IOException e) {
                 Log.d("Reid", "Error accessing file: " + e.getMessage());
             }
-
-//                mPictureURI = Uri.fromFile(pictureFile);
-
             Log.i("Reid", "got location? " + (MainActivity.mLocation != null));
             //after 10 seconds create the photo object save it and call the service.
             //save photo object into cache to be sent later.
-
             return null;
         }
 
         @Override
         protected void onPostExecute(final Void aVoid) {
             super.onPostExecute(aVoid);
-            Handler handler = new Handler();
-            mTimePreviousPhotoTaken = mTimePhotoTaken;
-            if (MainActivity.mLocation == null || (hasTooMuchTimeElapsed(mTimePreviousPhotoTaken) && mTimePreviousPhotoTaken != mTimePhotoTaken)) {
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.i("Reid", "waited 10 seconds");
-                        savePhoto(pictureFilePath, originalFilePath);
-                        mContext.startService(getPhotoUploadIntent());
-                    }
-                }, 10000);
-            } else {
-                savePhoto(pictureFilePath, originalFilePath);
-                mContext.startService(getPhotoUploadIntent());
-            }
-//                    mCanTakePicture = true;
+            mPhotoTakenListener.onPhotoProcessed(pictureFilePath, originalFilePath);
+//            Handler handler = new Handler();
+//            mTimePreviousPhotoTaken = mTimePhotoTaken;
+//            if (MainActivity.mLocation == null || (hasTooMuchTimeElapsed(mTimePreviousPhotoTaken) && mTimePreviousPhotoTaken != mTimePhotoTaken)) {
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Log.i("Reid", "waited 10 seconds");
+//                        savePhoto(pictureFilePath, originalFilePath);
+//                        mContext.startService(getPhotoUploadIntent());
+//                    }
+//                }, 10000);
+//            } else {
+//            savePhoto(pictureFilePath, originalFilePath);
+//                mContext.startService(getPhotoUploadIntent());
+//            }
             mTimePhotoTaken = new Date().getTime();
         }
     }
@@ -566,65 +542,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                     return;
                 }
                 new SavePhotoTask(pictureFile.toString(), originalPicture.toString(), data).execute(mCameraRotation);
-//                try {
-//
-//                    Bitmap bmpNew = BitmapFactory.decodeByteArray(data, 0, data.length);
-//                    Matrix mtx = new Matrix();
-//                    mtx.postRotate(getOrientationRotation());
-//                    // Rotating Bitmap
-//                    bmpNew = Bitmap.createBitmap(bmpNew, 0, 0, bmpNew.getWidth(), bmpNew.getHeight(), mtx, true);
-////                    bmpNew = Bitmap.createScaledBitmap(bmpNew, bmpNew.getWidth(), bmpNew.getHeight(), true);
-//
-//                    FileOutputStream fos = new FileOutputStream(pictureFile.toString());
-//
-//                    bmpNew.compress(CompressFormat.JPEG, 25, fos); //this also writes to t he folder
-//                    fos.close();
-//
-//                    ///beginning test
-//                    Bitmap bmpOG = BitmapFactory.decodeByteArray(data, 0, data.length);
-////                    new RotateTask(bmpOG, originalPicture.getPath()).execute(getOrientationRotation());
-//                    FileOutputStream fos_original = new FileOutputStream(originalPicture);
-//
-//                    Matrix mtx2 = new Matrix();
-//                    mtx2.postRotate(getOrientationRotation());
-//                    bmpOG = Bitmap.createBitmap(bmpOG, 0, 0, bmpOG.getWidth(), bmpOG.getHeight(), mtx2, true);
-////                    bmpOG.compress(CompressFormat.JPEG, 100, fos);
-//                    PhotoLocationUtils
-//                            .insertImage(context.getContentResolver(), bmpOG, originalPicture.toString(), "picture"); //this willw rite to a specified directory
-////                    fos_original.write(data);
-////                    File f = new File(originalPicture.toString());
-////                    f.delete();//delete temp saved in directory
-//                    fos_original.close();
-//                    //end text
-//                } catch (FileNotFoundException e) {
-//                    Log.d("Reid", "File not found: " + e.getMessage());
-//                } catch (IOException e) {
-//                    Log.d("Reid", "Error accessing file: " + e.getMessage());
-//                }
-//
-////                mPictureURI = Uri.fromFile(pictureFile);
-//
-//                Log.i("Reid", "got location? " + (MainActivity.mLocation != null));
-//                //after 10 seconds create the photo object save it and call the service.
-//                //save photo object into cache to be sent later.
-//                Handler handler = new Handler();
-//                mTimePreviousPhotoTaken = mTimePhotoTaken;
-//                if (MainActivity.mLocation == null || (hasTooMuchTimeElapsed(mTimePreviousPhotoTaken) && mTimePreviousPhotoTaken != mTimePhotoTaken)) {
-//                    handler.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Log.i("Reid", "waited 10 seconds");
-//                            savePhoto(pictureFile.toString(), originalPicture.toString());
-//                            mContext.startService(getPhotoUploadIntent());
-//                        }
-//                    }, 10000);
-//                } else {
-//                    savePhoto(pictureFile.toString(), originalPicture.toString());
-//                    mContext.startService(getPhotoUploadIntent());
-//                }
-////                    mCanTakePicture = true;
-//                mTimePhotoTaken = new Date().getTime();
-////                new PhotoLocationSender(context, originalPicture.toString(), mMailListener, pictureFile.toString());
             }
         };
         try {
