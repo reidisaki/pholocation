@@ -16,13 +16,13 @@
             android:visibility="gone"
             android:layout_weight="1"/>
     <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:id="@+id/progress"
-            style="@android:style/Widget.ProgressBar.Large"
+            android:indeterminateDrawable="@drawable/progress_custom"
             android:visibility="visible"
             tools:visibility="visible"
-            android:layout_weight="1"/>
+            android:layout_weight="10.42"/>
     <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

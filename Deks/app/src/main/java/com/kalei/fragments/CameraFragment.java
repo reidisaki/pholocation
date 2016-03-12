@@ -160,7 +160,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         super.onPause();
         mOrientationEventListener.disable();
         mCameraPreview.cleanUp();
-
     }
 
     @Override
@@ -299,6 +298,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     }
 
     private void showCamera() {
+        mCameraPreview.mCaptionText.setText("");
         mSurfaceFrame.setVisibility(View.VISIBLE);
         mPreviewPane.setVisibility(View.GONE);
     }
@@ -319,6 +319,5 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         mCameraPreview.setVisibility(R.id.progress, View.GONE);
         mCameraPreview.setVisibility(R.id.imageView, View.VISIBLE);
     }
-
 }
 

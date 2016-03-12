@@ -6,7 +6,7 @@
                 android:layout_height="match_parent">
     <FrameLayout
             tools:visibility="gone"
-            android:visibility="visible"
+            android:visibility="gone"
             android:id="@+id/capture_view_frame"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -18,7 +18,7 @@
         </com.kalei.views.CaptureView>
     </FrameLayout>
     <FrameLayout android:id="@+id/camera_preview_frame"
-                 android:visibility="gone"
+                 android:visibility="visible"
                  tools:visibility="visible"
                  android:layout_above="@+id/camera_controls_relative"
                  android:layout_width="match_parent"
