@@ -11,14 +11,19 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 import java.io.File;
 
@@ -55,6 +60,15 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
         mOkButton.setOnClickListener(this);
         mCancelButton.setOnClickListener(this);
         mProgress = (ProgressBar) view.findViewById(R.id.progress);
+        mCaptionText.setOnEditorActionListener(new OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
+                    InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+                return false;
+            }
+        });
 //        mPreviewButton = (ImageButton) view.findViewById(R.id.btn_preview);
     }
 
@@ -93,6 +107,7 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
 
     public void setImagePathsAndImageView(final String imagepath, String originalPath) {
         mImageFilepath = imagepath;
+        //not really using this ever.
         mOriginalImagePath = originalPath;
         File imgFile = new File(imagepath);
 
@@ -116,6 +131,7 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
     }
 
     public void cleanUp() {
+        //deletes the scaled version
         if (mImageFilepath != null) {
             deletePhoto(mImageFilepath);
         }

@@ -469,18 +469,20 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 fos.close();
 
                 ///beginning test
-                Bitmap bmpOG = BitmapFactory.decodeByteArray(this.data, 0, this.data.length);
-                FileOutputStream fos_original = new FileOutputStream(originalFilePath);
-                Matrix mtx2 = new Matrix();
-                mtx2.postRotate(getOrientationRotation(orientation[0]));
-                bmpOG = Bitmap.createBitmap(bmpOG, 0, 0, bmpOG.getWidth(), bmpOG.getHeight(), mtx2, true);
+                if (PrefManager.getOriginalOnly(mContext)) {
+                    Bitmap bmpOG = BitmapFactory.decodeByteArray(this.data, 0, this.data.length);
+                    FileOutputStream fos_original = new FileOutputStream(originalFilePath);
+                    Matrix mtx2 = new Matrix();
+                    mtx2.postRotate(getOrientationRotation(orientation[0]));
+                    bmpOG = Bitmap.createBitmap(bmpOG, 0, 0, bmpOG.getWidth(), bmpOG.getHeight(), mtx2, true);
 //                    bmpOG.compress(CompressFormat.JPEG, 100, fos);
-                PhotoLocationUtils
-                        .insertImage(mContext.getContentResolver(), bmpOG, originalFilePath, "picture"); //this willw rite to a specified directory
+                    PhotoLocationUtils
+                            .insertImage(mContext.getContentResolver(), bmpOG, originalFilePath, "picture"); //this willw rite to a specified directory
 //                    fos_original.write(data);
 //                    File f = new File(originalPicture.toString());
 //                    f.delete();//delete temp saved in directory
-                fos_original.close();
+                    fos_original.close();
+                }
                 //end text
             } catch (FileNotFoundException e) {
                 Log.d("Reid", "File not found: " + e.getMessage());

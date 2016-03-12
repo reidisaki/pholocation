@@ -26,9 +26,9 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * Created by risaki on 2/22/16.
  */
-public class SettingsFragment extends PhotoLocationFragment {
+public class SettingsFragment extends PhotoLocationFragment implements OnCheckedChangeListener {
     public RecipientEditTextView emailRetv;
 
     public static SettingsFragment newInstance() {
@@ -120,7 +120,8 @@ public class SettingsFragment extends PhotoLocationFragment {
             mAdView.loadAd(adRequest);
         }
         versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
-        CheckBox wifiCheckBox = (CheckBox) rootView.findViewById(R.id.send_wifi_checkbox);
+        Switch wifiSwitch = (Switch) rootView.findViewById(R.id.send_wifi_switch);
+        Switch saveOriginaLSwitch = (Switch) rootView.findViewById(R.id.save_original_switch);
 
         //TODO: Remove this later
         if (PhotoLocationApplication.debug) {
@@ -136,13 +137,11 @@ public class SettingsFragment extends PhotoLocationFragment {
         }
         //End remove
 
-        wifiCheckBox.setChecked(PrefManager.getSendWifiOnly(getActivity()));
-        wifiCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                PrefManager.setSendWifiOnly(getActivity(), isChecked);
-            }
-        });
+        wifiSwitch.setChecked(PrefManager.getSendWifiOnly(getActivity()));
+        wifiSwitch.setOnCheckedChangeListener(this);
+
+        saveOriginaLSwitch.setChecked(PrefManager.getOriginalOnly(getActivity()));
+        saveOriginaLSwitch.setOnCheckedChangeListener(this);
         return rootView;
     }
 
@@ -151,5 +150,17 @@ public class SettingsFragment extends PhotoLocationFragment {
         super.onPause();
         ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
                 .hideSoftInputFromWindow(emailRetv.getWindowToken(), 0);
+    }
+
+    @Override
+    public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+        switch (buttonView.getId()) {
+            case R.id.send_wifi_switch:
+                PrefManager.setSendWifiOnly(getActivity(), isChecked);
+                break;
+            case R.id.save_original_switch:
+                PrefManager.saveOriginalPhoto(getActivity(), isChecked);
+                break;
+        }
     }
 }

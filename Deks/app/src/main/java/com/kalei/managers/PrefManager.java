@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrefManager {
-
+    private final static String SAVE_ORIGINAL = "save_original";
     private final static String SEND_WIFI_ONLY = "send_wifi_only";
     private final static String PHOTO_LIST = "photo_list";
     private final static String FLASH_OPTION = "flash_option";
@@ -71,14 +71,6 @@ public class PrefManager {
 //        }
     }
 
-    public static void setSendWifiOnly(Context context, boolean isSendWifiOnly) {
-        putBoolean(context, SEND_WIFI_ONLY, isSendWifiOnly);
-    }
-
-    public static boolean getSendWifiOnly(Context context) {
-        return getBoolean(context, SEND_WIFI_ONLY, false);
-    }
-
     public static void setPhoto(Context context, Photo p) {
         List<Photo> photoList = getPhotoList(context);
         photoList.add(p);
@@ -115,5 +107,21 @@ public class PrefManager {
      */
     public static void clear(Context context) {
         getEditor(context).clear().commit();
+    }
+
+    public static void saveOriginalPhoto(Context context, final boolean isChecked) {
+        putBoolean(context, SAVE_ORIGINAL, isChecked);
+    }
+
+    public static boolean getOriginalOnly(Context context) {
+        return getBoolean(context, SAVE_ORIGINAL, false);
+    }
+
+    public static void setSendWifiOnly(Context context, boolean isSendWifiOnly) {
+        putBoolean(context, SEND_WIFI_ONLY, isSendWifiOnly);
+    }
+
+    public static boolean getSendWifiOnly(Context context) {
+        return getBoolean(context, SEND_WIFI_ONLY, false);
     }
 }
