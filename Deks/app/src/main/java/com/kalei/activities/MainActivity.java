@@ -26,12 +26,12 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 public class MainActivity extends PhotoLocationActivity implements ConnectionCallbacks, OnConnectionFailedListener, ICameraClickListener,
                                                                    LocationListener {
@@ -86,10 +86,10 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     public void loadToolbar(String title) {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setTitle(title);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            setActionBar(toolbar);
+            getActionBar().setTitle(title);
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+            getActionBar().setDisplayShowHomeEnabled(true);
         }
     }
 
@@ -168,8 +168,10 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
 
     @Override
     public void onBackPressed() {
-        if (mSettingsFragment != null && mSettingsFragment.isVisible()) {
+        if ((mSettingsFragment != null && mSettingsFragment.isVisible())) {
             clickBack();
+        } else if (!mCameraFragment.shouldBackOutofApp) {
+            mCameraFragment.showCamera();
         } else {
             super.onBackPressed();
         }

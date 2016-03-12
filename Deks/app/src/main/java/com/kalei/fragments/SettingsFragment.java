@@ -64,7 +64,7 @@ public class SettingsFragment extends PhotoLocationFragment implements OnChecked
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
 
-        ((MainActivity) getActivity()).getSupportActionBar().show();
+        ((MainActivity) getActivity()).getActionBar().show();
         View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
         TextView versionText = (TextView) rootView.findViewById(R.id.version_text);
         TextView currentEmails = (TextView) rootView.findViewById(R.id.current_emails);
@@ -83,7 +83,7 @@ public class SettingsFragment extends PhotoLocationFragment implements OnChecked
                 .toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
         Button saveBtn = (Button) rootView.findViewById(R.id.save_btn);
         String currentEmailString = PhotoLocationUtils.getEmailStringList(getActivity());
-        currentEmails.setText(currentEmailString.length() == 0 ? "Please enter at least one email" : currentEmailString);
+        currentEmails.setText(currentEmailString != null && currentEmailString.length() == 0 ? "Please enter at least one email" : currentEmailString);
         saveBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -122,7 +122,6 @@ public class SettingsFragment extends PhotoLocationFragment implements OnChecked
         versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
         Switch wifiSwitch = (Switch) rootView.findViewById(R.id.send_wifi_switch);
         Switch saveOriginaLSwitch = (Switch) rootView.findViewById(R.id.save_original_switch);
-
         //TODO: Remove this later
         if (PhotoLocationApplication.debug) {
             TextView sendTextOnlyText = (TextView) rootView.findViewById(R.id.send_text_only_text);

@@ -38,7 +38,7 @@
                   android:screenOrientation="fullSensor">
         </activity>
         <activity android:name="com.kalei.activities.SplashActivity"
-                  android:theme="@style/Theme.AppCompat.NoActionBar"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
                   android:noHistory="true"
                   android:screenOrientation="portrait">
             <intent-filter>

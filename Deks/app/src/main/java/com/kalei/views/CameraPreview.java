@@ -51,7 +51,7 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
     }
 
     private void setupView() {
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.preview, this);//inflater.inflate(R.layout.preview, this);
+        final View view = LayoutInflater.from(getContext()).inflate(R.layout.preview, this);//inflater.inflate(R.layout.preview, this);
 
         mOkButton = (Button) view.findViewById(R.id.okay);
         mCancelButton = (Button) view.findViewById(R.id.cancel);
@@ -64,7 +64,7 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
                     InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
                 return false;
             }

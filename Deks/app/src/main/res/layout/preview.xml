@@ -29,8 +29,12 @@
             android:id="@+id/caption"
             android:layout_gravity="center_horizontal"
             android:hint="Add a caption...."
+            android:singleLine="true"
+            tools:text="testing"
+            android:textColor="@android:color/white"
             android:textColorHint="#999999"
             android:background="#333333"
+            android:imeOptions="actionDone"
             android:padding="10dp"/>
 
     <LinearLayout
@@ -44,7 +48,7 @@
                 android:text="Cancel"
                 android:id="@+id/cancel"
                 android:layout_weight="1"
-                android:textColor="#ffffff"/>
+                android:textColor="#000"/>
 
         <Button
                 android:layout_width="wrap_content"
@@ -52,6 +56,6 @@
                 android:text="Okay"
                 android:id="@+id/okay"
                 android:layout_weight="1"
-                android:textColor="#ffffff"/>
+                android:textColor="#000"/>
     </LinearLayout>
 </LinearLayout>

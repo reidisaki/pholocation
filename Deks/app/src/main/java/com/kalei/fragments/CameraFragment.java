@@ -42,6 +42,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     private CameraPreview mCameraPreview;
     private FrameLayout mShutterScreen, mSurfaceFrame, mPreviewPane;
     private Handler mHandler;
+    public boolean shouldBackOutofApp = true;
     public ICameraClickListener mCameraClickListener;
     public int numPicturesTaken = 1;
     private static int NUMBER_PICTURES_BEFORE_SHOWING_AD = 5;
@@ -68,7 +69,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
 
-        ((MainActivity) getActivity()).getSupportActionBar().hide();
+        ((MainActivity) getActivity()).getActionBar().hide();
         View rootView = inflater.inflate(R.layout.fragment_camera, container, false);
         mSettingsImage = (ImageView) rootView.findViewById(R.id.settings_image);
         mSettingsImage.setOnClickListener(this);
@@ -110,10 +111,11 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
 
         switch (v.getId()) {
             case R.id.settings_image:
-
+                shouldBackOutofApp = false;
                 mCameraClickListener.onSettingsClicked();
                 break;
             case R.id.shutter:
+                shouldBackOutofApp = false;
                 numPicturesTaken++;
                 if (numPicturesTaken % NUMBER_PICTURES_BEFORE_SHOWING_AD == 0) {
                     ((MainActivity) getActivity()).requestNewInterstitial();
@@ -136,6 +138,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                 }
                 break;
             case R.id.camera_switch:
+                shouldBackOutofApp = true;
                 mCaptureView.switchCamera();
                 break;
             default:
@@ -159,7 +162,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public void onPause() {
         super.onPause();
         mOrientationEventListener.disable();
-        mCameraPreview.cleanUp();
     }
 
     @Override
@@ -297,8 +299,10 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         showCamera();
     }
 
-    private void showCamera() {
+    public void showCamera() {
+        shouldBackOutofApp = true;
         mCameraPreview.mCaptionText.setText("");
+        mCameraPreview.cleanUp();
         mSurfaceFrame.setVisibility(View.VISIBLE);
         mPreviewPane.setVisibility(View.GONE);
     }
