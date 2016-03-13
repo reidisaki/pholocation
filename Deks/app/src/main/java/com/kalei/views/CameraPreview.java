@@ -90,13 +90,13 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
         mOkButton.setEnabled(false);
         switch (v.getId()) {
             case R.id.okay:
-                mPhotoTakenListener.onPhotoConfirm();
                 PhotoLocationUtils.savePhoto(getContext(), mImageFilepath, mOriginalImagePath);
                 getContext().startService(getPhotoUploadIntent());
+                mPhotoTakenListener.onPhotoConfirm();
                 break;
             case R.id.cancel:
-                mPhotoTakenListener.onPhotoCancel();
                 deletePhoto(mImageFilepath);
+                mPhotoTakenListener.onPhotoCancel();
                 break;
         }
     }

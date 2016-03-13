@@ -199,7 +199,11 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                     FlurryAgent.logEvent("set parameters failed: " + e.getMessage());
                 }
             }
-            mCamera.autoFocus(mAutoFocusTakePictureCallback);
+            try {
+                mCamera.autoFocus(mAutoFocusTakePictureCallback);
+            } catch (RuntimeException e) {
+                FlurryAgent.logEvent("auto focus failed: " + e.getMessage());
+            }
         }
     }
 
