@@ -1,6 +1,5 @@
 package com.kalei.fragments;
 
-import com.flurry.android.FlurryAgent;
 import com.kalei.activities.MainActivity;
 import com.kalei.interfaces.ICameraClickListener;
 import com.kalei.interfaces.IPhotoTakenListener;
@@ -29,6 +28,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -126,12 +126,11 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                     numPicturesTaken = 1;
                 }
                 if (PhotoLocationUtils.getEmailStringList(getContext()).length() > 0) {
-                    if (mCaptureView.mCanTakePicture) {
-                        mCaptureView.takeAPicture(getActivity());
-                        shutterShow();
-                    }
+                    mCaptureView.takeAPicture(getActivity());
+                    shutterShow();
                 }
-                mCameraControls.setVisibility(View.GONE);
+
+//                        mCameraControls.setVisibility(View.GONE);
                 break;
             case R.id.flash:
                 if (PrefManager.getFlashOption(getActivity())) {
@@ -161,18 +160,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                 mShutterScreen.setVisibility(View.GONE);
             }
         }, 300);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mOrientationEventListener.disable();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        FlurryAgent.onEndSession(getActivity());
     }
 
     private void changeRotation(int orientation, int lastOrientation) {
@@ -300,7 +287,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     @Override
     public void onPhotoCancel() {
         Log.i("pl", "photo cancel");
-        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
         showCamera();
     }
 
@@ -311,15 +297,57 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
 //        mCameraPreview.cleanUp();
         mSurfaceFrame.setVisibility(View.VISIBLE);
         mPreviewPane.setVisibility(View.GONE);
-        mCameraControls.setVisibility(View.VISIBLE);
+
+        Animation animation = new TranslateAnimation(0, 0, 500, 0);
+        animation.setDuration(500);
+        animation.setFillAfter(true);
+        animation.setAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationStart(final Animation animation) {
+                mCameraControls.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(final Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(final Animation animation) {
+
+            }
+        });
+        mCameraControls.startAnimation(animation);
     }
 
     @Override
     public void onPhotoTaken(String scaledImage, String originalImage) {
+        Animation animation = new TranslateAnimation(0, 0, 0, 500);
+        animation.setDuration(500);
+        animation.setFillAfter(true);
+        animation.setAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationStart(final Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(final Animation animation) {
+                mCameraControls.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(final Animation animation) {
+
+            }
+        });
+        mCameraControls.startAnimation(animation);
+
         mSurfaceFrame.setVisibility(View.GONE);
         mPreviewPane.setVisibility(View.VISIBLE);
         mCameraPreview.setVisibility(R.id.progress, View.VISIBLE);
         mCameraPreview.setVisibility(R.id.imageView, View.GONE);
+
         Log.i("pl", "photo taken");
     }
 

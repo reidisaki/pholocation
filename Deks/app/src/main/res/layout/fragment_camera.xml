@@ -19,7 +19,7 @@
     </FrameLayout>
     <FrameLayout android:id="@+id/camera_preview_frame"
                  android:visibility="gone"
-                 tools:visibility="visible"
+                 tools:visibility="gone"
                  android:layout_above="@+id/camera_controls_relative"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent">

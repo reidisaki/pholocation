@@ -47,7 +47,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     static Camera mCamera;
     static Context mContext;
     static boolean mIsPreviewRunning;
-    public static boolean mCanTakePicture = true;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     private static final int FOCUS_AREA_SIZE = 300;
