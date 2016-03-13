@@ -80,7 +80,7 @@ public class GMailSender extends javax.mail.Authenticator {
         _multipart.addBodyPart(messageBodyPart);
 
         BodyPart messageBodyPart2 = new MimeBodyPart();
-        body = (caption.length() > 0 ? caption + "\n\n" + body : body);
+        body = (caption != null && caption.length() > 0 ? caption + "\n\n" + body : body);
         messageBodyPart2.setText(body);
 //        messageBodyPart2.setText(subject);
 

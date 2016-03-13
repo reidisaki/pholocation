@@ -26,6 +26,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -97,10 +98,10 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     public void onConnected(final Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.i("Reid", "Failed onConnected permissions");
+            Log.i("pl", "Failed onConnected permissions");
             return;
         }
-        Log.i("Reid", "requesting location updates");
+        Log.i("pl", "requesting location updates");
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, createLocationRequest(), this);
     }
 
@@ -160,8 +161,12 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
         });
 
         AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
+                .addTestDevice("990005115558117")
                 .build();
+        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+
+        String deviceid = tm.getDeviceId();
+        Log.i("pl", "deviceId: " + deviceid);
 
         mInterstitialAd.loadAd(adRequest);
     }
@@ -179,13 +184,14 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
 
     @Override
     public void onLocationChanged(final Location location) {
+        Log.i("pl", "location changed: " + location.toString());
         mLocation = location;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i("Reid", "removing location updates");
+        Log.i("pl", "removing location updates");
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(
                     mGoogleApiClient, this);

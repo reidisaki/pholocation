@@ -81,11 +81,11 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
         //swap the id of the camera to be used
         if (mCurrentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
-            Log.i("Reid", "facing front");
+            Log.i("pl", "facing front");
             mCurrentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
             MainActivity.currentCameraId = mCurrentCameraId;
         } else {
-            Log.i("Reid", "facing back");
+            Log.i("pl", "facing back");
             mCurrentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
             MainActivity.currentCameraId = mCurrentCameraId;
         }
@@ -112,10 +112,10 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         if (PrefManager.getFlashOption(mContext)) {
             if (PhotoLocationUtils.hasFlash(params)) {
                 params.setFlashMode(Parameters.FLASH_MODE_ON);
-                Log.i("Reid", "flash mode on surface Changed");
+                Log.i("", "flash mode on surface Changed");
             }
         } else {
-            Log.i("Reid", "flash mode OFF surface Changed");
+            Log.i("pl", "flash mode OFF surface Changed");
             params.setFlashMode(Parameters.FLASH_MODE_OFF);
         }
         List<Camera.Size> sizes = params.getSupportedPictureSizes();
@@ -123,7 +123,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         Log.i("pl", "image sizes: " + sizes.size() + "getting size: " + ((sizes.size() - Math.round(sizes.size() * .75f))));
         Camera.Size size = sizes.get((sizes.size() - Math.round(sizes.size() * .75f)));
 //        Camera.Size size = sizes.get(sizes.size() - 1); smallest size
-//        Log.i("Reid", "width: " + size.width + " height: " + size.height);
+//        Log.i("pl", "width: " + size.width + " height: " + size.height);
 
         params.setPictureSize(size.width, size.height);
         mCamera.setParameters(params);
@@ -193,6 +193,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 parameters.setFocusAreas(meteringAreas);
 
                 try {
+                    parameters.setFlashMode(PrefManager.getFlashOption(mContext) ? Parameters.FLASH_MODE_ON : Parameters.FLASH_MODE_OFF);
                     mCamera.setParameters(parameters);
                 } catch (RuntimeException e) {
                     FlurryAgent.logEvent("set parameters failed: " + e.getMessage());
@@ -243,7 +244,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             mCamera = Camera.open(mCurrentCameraId);
             mCamera.setPreviewDisplay(holder);
         } catch (Exception e) {
-            Log.i("Reid", "surface created error" + e.getMessage());
+            Log.i("pl", "surface created error" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -268,19 +269,19 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         int degrees = 0;
         if (mCameraRotation == CameraFragment.ORIENTATION_PORTRAIT_NORMAL) {
             degrees = 90;
-            Log.i("Reid", "portait");
+            Log.i("pl", "portait");
         }
         if (mCameraRotation == CameraFragment.ORIENTATION_LANDSCAPE_INVERTED) {
-            Log.i("Reid", "landscape inverted");
+            Log.i("pl", "landscape inverted");
             degrees = 180;
         }
         if (mCameraRotation == CameraFragment.ORIENTATION_LANDSCAPE_NORMAL) {
             degrees = 0;
-            Log.i("Reid", "landscape ");
+            Log.i("pl", "landscape ");
         }
         if (mCameraRotation == CameraFragment.ORIENTATION_PORTRAIT_INVERTED) {
             degrees = -180;
-            Log.i("Reid", "portait inverted");
+            Log.i("pl", "portait inverted");
         }
 
         return degrees;
@@ -485,11 +486,11 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 }
                 //end text
             } catch (FileNotFoundException e) {
-                Log.d("Reid", "File not found: " + e.getMessage());
+                Log.d("pl", "File not found: " + e.getMessage());
             } catch (IOException e) {
-                Log.d("Reid", "Error accessing file: " + e.getMessage());
+                Log.d("pl", "Error accessing file: " + e.getMessage());
             }
-            Log.i("Reid", "got location? " + (MainActivity.mLocation != null));
+            Log.i("pl", "got location? " + (MainActivity.mLocation != null));
             //after 10 seconds create the photo object save it and call the service.
             //save photo object into cache to be sent later.
             return null;
@@ -505,7 +506,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 //                handler.postDelayed(new Runnable() {
 //                    @Override
 //                    public void run() {
-//                        Log.i("Reid", "waited 10 seconds");
+//                        Log.i("pl", "waited 10 seconds");
 //                        savePhoto(pictureFilePath, originalFilePath);
 //                        mContext.startService(getPhotoUploadIntent());
 //                    }
@@ -525,11 +526,12 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 //        mCanTakePicture = false;
         final int mCameraRotation = CameraFragment.mOrientation;
         Parameters params = mCamera.getParameters();
+        Log.i("pl", "flash mode: " + params.getFlashMode());
         if (PrefManager.getFlashOption(mContext)) {
             params.setFlashMode(Parameters.FLASH_MODE_ON);
-            Log.i("Reid", "flash mode on");
+            Log.i("pl", "flash mode on");
         } else {
-            Log.i("Reid", "flash mode off");
+            Log.i("pl", "flash mode off");
             params.setFlashMode(Parameters.FLASH_MODE_OFF);
         }
         mCamera.setParameters(params);
@@ -540,7 +542,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 final File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, false);
                 final File originalPicture = getOutputMediaFile(MEDIA_TYPE_IMAGE, true);
                 if (pictureFile == null) {
-                    Log.d("Reid", "Error creating media file, check storage permissions: ");
+                    Log.d("pl", "Error creating media file, check storage permissions: ");
                     return;
                 }
                 new SavePhotoTask(pictureFile.toString(), originalPicture.toString(), data).execute(mCameraRotation);
@@ -550,7 +552,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
             mCamera.takePicture(null, null, mPictureCallback);
         } catch (RuntimeException e) {
-            Log.i("Reid", "clicked too fast" + e.getMessage());
+            Log.i("pl", "clicked too fast" + e.getMessage());
         }
     }
     //might need this for patricks s5 memory error

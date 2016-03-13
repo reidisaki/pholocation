@@ -87,6 +87,7 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
 
     @Override
     public void onClick(final View v) {
+        mOkButton.setEnabled(false);
         switch (v.getId()) {
             case R.id.okay:
                 mPhotoTakenListener.onPhotoConfirm();
@@ -101,8 +102,10 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
     }
 
     private void deletePhoto(final String imageFilepath) {
-        File f = new File(imageFilepath);
-        f.delete();//delete temp saved in directory
+        if (imageFilepath != null && imageFilepath.length() > 0) {
+            File f = new File(imageFilepath);
+            f.delete();//delete temp saved in directory
+        }
     }
 
     public void setImagePathsAndImageView(final String imagepath, String originalPath) {
@@ -115,6 +118,7 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             mImageView.setImageBitmap(myBitmap);
         }
+        mOkButton.setEnabled(true);
     }
 
     private Intent getPhotoUploadIntent() {

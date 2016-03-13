@@ -31,6 +31,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 /**
@@ -41,6 +42,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     private CaptureView mCaptureView;
     private CameraPreview mCameraPreview;
     private FrameLayout mShutterScreen, mSurfaceFrame, mPreviewPane;
+    private RelativeLayout mCameraControls;
     private Handler mHandler;
     public boolean shouldBackOutofApp = true;
     public ICameraClickListener mCameraClickListener;
@@ -92,6 +94,8 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         mFlash = (ImageView) rootView.findViewById(R.id.flash);
         mFlash.setOnClickListener(this);
         mFlash.setImageDrawable(getResources().getDrawable(PrefManager.getFlashOption(getActivity()) ? R.drawable.flash : R.drawable.flash_off));
+
+        mCameraControls = (RelativeLayout) rootView.findViewById(R.id.camera_controls_relative);
         return rootView;
     }
 
@@ -127,6 +131,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                         shutterShow();
                     }
                 }
+                mCameraControls.setVisibility(View.GONE);
                 break;
             case R.id.flash:
                 if (PrefManager.getFlashOption(getActivity())) {
@@ -302,9 +307,11 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public void showCamera() {
         shouldBackOutofApp = true;
         mCameraPreview.mCaptionText.setText("");
-        mCameraPreview.cleanUp();
+        //deletes saved file.
+//        mCameraPreview.cleanUp();
         mSurfaceFrame.setVisibility(View.VISIBLE);
         mPreviewPane.setVisibility(View.GONE);
+        mCameraControls.setVisibility(View.VISIBLE);
     }
 
     @Override

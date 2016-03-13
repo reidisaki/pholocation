@@ -7,8 +7,11 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 
 /**
  * Created by risaki on 2/21/16.
@@ -41,7 +44,10 @@ public class AdActivity extends PhotoLocationActivity {
                 gotoActivity();
             }
         });
+        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
 
+        String deviceid = tm.getDeviceId();
+        Log.i("pl", "deviceId: " + deviceid);
         requestNewInterstitial();
     }
 
@@ -55,7 +61,7 @@ public class AdActivity extends PhotoLocationActivity {
 
     private void requestNewInterstitial() {
         AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
+                .addTestDevice("990005115558117")
                 .build();
 
         mInterstitialAd.loadAd(adRequest);
