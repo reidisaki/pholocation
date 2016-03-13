@@ -529,16 +529,20 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     public void takeAPicture(final Context context) {
 //        mCanTakePicture = false;
         final int mCameraRotation = CameraFragment.mOrientation;
-        Parameters params = mCamera.getParameters();
-        Log.i("pl", "flash mode: " + params.getFlashMode());
+        Parameters parameters = mCamera.getParameters();
         if (PrefManager.getFlashOption(mContext)) {
-            params.setFlashMode(Parameters.FLASH_MODE_ON);
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            mCamera.setParameters(parameters);
+            parameters.setFlashMode(Parameters.FLASH_MODE_ON);
+            mCamera.setParameters(parameters);
             Log.i("pl", "flash mode on");
         } else {
             Log.i("pl", "flash mode off");
-            params.setFlashMode(Parameters.FLASH_MODE_OFF);
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            mCamera.setParameters(parameters);
         }
-        mCamera.setParameters(params);
+        mCamera.setParameters(parameters);
+
         Camera.PictureCallback mPictureCallback = new PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {

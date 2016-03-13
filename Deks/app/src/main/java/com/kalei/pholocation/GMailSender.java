@@ -52,6 +52,9 @@ public class GMailSender extends javax.mail.Authenticator {
         this.user = user;
         this.password = password;
         this.caption = caption;
+        if (caption == null || caption.length() == 0) {
+            this.caption = "";
+        }
         mMailListener = listener;
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");
@@ -80,7 +83,7 @@ public class GMailSender extends javax.mail.Authenticator {
         _multipart.addBodyPart(messageBodyPart);
 
         BodyPart messageBodyPart2 = new MimeBodyPart();
-        body = (caption != null && caption.length() > 0 ? caption + "\n\n" + body : body);
+        body = caption + "\n\n" + body;
         messageBodyPart2.setText(body);
 //        messageBodyPart2.setText(subject);
 
@@ -99,7 +102,8 @@ public class GMailSender extends javax.mail.Authenticator {
             MimeMessage message = new MimeMessage(session);
             DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/plain"));
             message.setSender(new InternetAddress("picture@photolocation.com"));
-            message.setSubject(subject);
+
+            message.setSubject(caption.length() > 0 ? caption : subject);
             message.setDataHandler(handler);
             message.setContent(_multipart);
             if (recipients.indexOf(',') > 0) {
