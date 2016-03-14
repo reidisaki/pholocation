@@ -461,7 +461,7 @@ public class PhotoLocationUtils {
                 add = "could not get a data connection to get address";
             }
 
-            mapLink = "http://maps.google.com/?q=" + lattitude + "," + lattitude +
+            mapLink = "http://maps.google.com/?q=" + lattitude + "," + longitude +
                     "\n\n" + add +
                     "\n\n\n\n\n -sent by PhotoLocation, download the app here: https://play.google.com/store/apps/details?id=com.kalei.pholocation ";
         }
