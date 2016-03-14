@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -87,14 +88,17 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
 
     @Override
     public void onClick(final View v) {
-        mOkButton.setEnabled(false);
         switch (v.getId()) {
             case R.id.okay:
-                PhotoLocationUtils.savePhoto(getContext(), mImageFilepath, mOriginalImagePath);
-                getContext().startService(getPhotoUploadIntent());
+                Log.i("pl", "clicked ok");
+                String caption = mCaptionText.getText().toString();
                 mPhotoTakenListener.onPhotoConfirm();
+                PhotoLocationUtils.savePhoto(getContext(), mImageFilepath, mOriginalImagePath);
+                getContext().startService(getPhotoUploadIntent(caption));
+
                 break;
             case R.id.cancel:
+                Log.i("pl", "clicked cancel");
                 deletePhoto(mImageFilepath);
                 mPhotoTakenListener.onPhotoCancel();
                 break;
@@ -118,15 +122,16 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             mImageView.setImageBitmap(myBitmap);
         }
+        Log.i("pl", "ok button enabled");
         mOkButton.setEnabled(true);
     }
 
-    private Intent getPhotoUploadIntent() {
+    private Intent getPhotoUploadIntent(String caption) {
         Intent i = new Intent(getContext(), PhotoService.class);
         // potentially add data to the intent
 //        i.putExtra(ORIGINAL_PICTURE_KEY, originalPicture);
 //        i.putExtra(SCALED_PICTURE_KEY, scaledPicture);
-        i.putExtra(PhotoLocationUtils.CAPTION_KEY, mCaptionText.getText().toString());
+        i.putExtra(PhotoLocationUtils.CAPTION_KEY, caption);
         if (MainActivity.mLocation != null) {
             i.putExtra(LONGITUDE, MainActivity.mLocation.getLongitude());
             i.putExtra(LATTITUDE, MainActivity.mLocation.getLatitude());

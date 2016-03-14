@@ -293,6 +293,8 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public void showCamera() {
         shouldBackOutofApp = true;
         mCameraPreview.mCaptionText.setText("");
+        Log.i("pl", "ok button disabled");
+        mCameraPreview.mOkButton.setEnabled(false);
         //deletes saved file.
 //        mCameraPreview.cleanUp();
         mSurfaceFrame.setVisibility(View.VISIBLE);
@@ -300,7 +302,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
 
         Animation animation = new TranslateAnimation(0, 0, 500, 0);
         animation.setDuration(500);
-        animation.setFillAfter(true);
         animation.setAnimationListener(new AnimationListener() {
             @Override
             public void onAnimationStart(final Animation animation) {
@@ -324,7 +325,6 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public void onPhotoTaken(String scaledImage, String originalImage) {
         Animation animation = new TranslateAnimation(0, 0, 0, 500);
         animation.setDuration(500);
-        animation.setFillAfter(true);
         animation.setAnimationListener(new AnimationListener() {
             @Override
             public void onAnimationStart(final Animation animation) {
