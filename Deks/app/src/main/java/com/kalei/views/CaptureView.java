@@ -25,6 +25,8 @@ import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -51,12 +53,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
     public static final int MEDIA_TYPE_VIDEO = 2;
     private static final int FOCUS_AREA_SIZE = 300;
     public int mCurrentCameraId = CameraInfo.CAMERA_FACING_BACK;
-    //    public static final String ORIGINAL_PICTURE_KEY = "original_picture_key";
-//    public static final String MAIL_LISTENER_KEY = "mail_listener_key";
-//    public static final String SCALED_PICTURE_KEY = "scaled_picture_key";
-
-    private long mTimePhotoTaken = new Date().getTime();
-    private long mTimePreviousPhotoTaken = new Date().getTime();
+    private GestureDetector mGestureDetector;
     private final long STALE_TIME_DELTA = 30000;
     private float mDist;
     private IPhotoTakenListener mPhotoTakenListener;
@@ -68,6 +65,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         holder.addCallback(this);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         mCurrentCameraId = MainActivity.currentCameraId;
+        mGestureDetector = new GestureDetector(context, new GestureListener());
     }
 
     public void switchCamera() {
@@ -393,6 +391,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         } catch (NullPointerException e) {
             FlurryAgent.logEvent("null pointer exception" + e.getMessage());
         }
+        mGestureDetector.onTouchEvent(event);
         return true;
     }
 
@@ -441,7 +440,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         // ...
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
-        return (float) Math.sqrt(x * x + y * y);
+        //zoom event was too slow, need to make it 4 times as fast
+        return (float) Math.sqrt(x * x + y * y) * 4;
     }
 
     public class SavePhotoTask extends AsyncTask<Integer, Void, Void> {
@@ -522,7 +522,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 //            savePhoto(pictureFilePath, originalFilePath);
 //                mContext.startService(getPhotoUploadIntent());
 //            }
-            mTimePhotoTaken = new Date().getTime();
+//            mTimePhotoTaken = new Date().getTime();
         }
     }
 
@@ -564,6 +564,48 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             mCamera.takePicture(null, null, mPictureCallback);
         } catch (RuntimeException e) {
             Log.i("pl", "clicked too fast" + e.getMessage());
+        }
+    }
+
+    private class GestureListener extends SimpleOnGestureListener {
+        @Override
+        public boolean onDown(final MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(final MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(final MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(final MotionEvent e1, final MotionEvent e2, final float distanceX, final float distanceY) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(final MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onFling(final MotionEvent e1, final MotionEvent e2, final float velocityX, final float velocityY) {
+            return false;
+        }
+
+        @Override
+        public boolean onDoubleTap(final MotionEvent e) {
+            if (mCamera != null) {
+                Parameters params = mCamera.getParameters();
+                params.setZoom(0);
+                mCamera.setParameters(params);
+            }
+            return super.onDoubleTap(e);
         }
     }
     //might need this for patricks s5 memory error
