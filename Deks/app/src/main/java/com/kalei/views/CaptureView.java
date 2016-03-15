@@ -252,8 +252,13 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        mCamera.stopPreview();
-        mCamera.release();
+        try {
+            mCamera.stopPreview();
+            Log.i("pl", "releasing CAMERA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            mCamera.release();
+        } catch (RuntimeException e) {
+            FlurryAgent.logEvent("surface Destoryed: " + e.getMessage());
+        }
     }
 
     private boolean hasTooMuchTimeElapsed(long timePhotoTaken) {
@@ -477,7 +482,6 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mPhotoTakenListener.onPhotoTaken(pictureFilePath, originalFilePath);
         }
 
         @Override
@@ -569,9 +573,11 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         Camera.PictureCallback mPictureCallback = new PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
+
                 mCamera.startPreview();
                 final File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, false);
                 final File originalPicture = getOutputMediaFile(MEDIA_TYPE_IMAGE, true);
+                mPhotoTakenListener.onPhotoTaken(pictureFile.toString(), originalPicture.toString());
                 if (pictureFile == null) {
                     Log.d("pl", "Error creating media file, check storage permissions: ");
                     return;

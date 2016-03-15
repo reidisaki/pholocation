@@ -93,7 +93,8 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
                 Log.i("pl", "clicked ok");
                 String caption = mCaptionText.getText().toString();
                 mPhotoTakenListener.onPhotoConfirm();
-                PhotoLocationUtils.savePhoto(getContext(), mImageFilepath, mOriginalImagePath);
+                PhotoLocationUtils.savePhoto(getContext(), mImageFilepath, mOriginalImagePath, MainActivity.mLocation.getLongitude(), MainActivity.mLocation
+                        .getLatitude(), caption);
                 getContext().startService(getPhotoUploadIntent(caption));
 
                 break;
@@ -131,7 +132,9 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
         // potentially add data to the intent
 //        i.putExtra(ORIGINAL_PICTURE_KEY, originalPicture);
 //        i.putExtra(SCALED_PICTURE_KEY, scaledPicture);
+        //all this only works when you're on wifi
         i.putExtra(PhotoLocationUtils.CAPTION_KEY, caption);
+        i.putExtra("Reid", "Isaki");
         if (MainActivity.mLocation != null) {
             i.putExtra(LONGITUDE, MainActivity.mLocation.getLongitude());
             i.putExtra(LATTITUDE, MainActivity.mLocation.getLatitude());

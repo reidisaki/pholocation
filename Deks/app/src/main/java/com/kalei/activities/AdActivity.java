@@ -10,6 +10,7 @@ import com.kalei.utils.PhotoLocationUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -49,6 +50,13 @@ public class AdActivity extends PhotoLocationActivity {
         String deviceid = tm.getDeviceId();
         Log.i("pl", "deviceId: " + deviceid);
         requestNewInterstitial();
+
+        //go to page within 5 seconds no matter what
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                gotoActivity();
+            }
+        }, 5000);
     }
 
     private void gotoActivity() {

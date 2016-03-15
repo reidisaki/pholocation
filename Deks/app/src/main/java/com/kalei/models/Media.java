@@ -11,6 +11,34 @@ public abstract class Media {
     String id;
     String filePath;
 
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(final double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLattitude() {
+        return lattitude;
+    }
+
+    public void setLattitude(final double lattitude) {
+        this.lattitude = lattitude;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(final String caption) {
+        this.caption = caption;
+    }
+
+    double longitude;
+    double lattitude;
+    String caption;
+
     public String getMapLink() {
         return mapLink;
     }

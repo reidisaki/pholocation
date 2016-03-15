@@ -367,10 +367,10 @@ public class PhotoLocationUtils {
             List<Photo> photoList = PrefManager.getPhotoList(context);
 
             for (Photo p : photoList) {
-                p.setMapLink(getMapLink(intent.getDoubleExtra(LATTITUDE, 0),
-                        intent.getDoubleExtra(LONGITUDE, 0), context));
-                GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), intent
-                        .getStringExtra(CAPTION_KEY), new IMailListener() {
+                p.setMapLink(getMapLink(p.getLattitude(),
+                        p.getLongitude(), context));
+                GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), p
+                        .getCaption(), new IMailListener() {
                     @Override
                     public void onMailFailed(final Exception e, String imageName) {
                         FlurryAgent.logEvent("Mail failed: " + e.getMessage());
@@ -483,11 +483,14 @@ public class PhotoLocationUtils {
         return true;
     }
 
-    public static void savePhoto(Context context, String scaledImage, String filename) {
+    public static void savePhoto(Context context, String scaledImage, String filename, double longitude, double lattitude, String caption) {
 
         Photo p = new Photo();
         p.setScaledImage(scaledImage);
         p.setDateTaken(new Date());
+        p.setCaption(caption);
+        p.setLongitude(longitude);
+        p.setLattitude(lattitude);
 //        p.setLocation(MainActivity.mLocation);
 //        p.setMapLink(mapLink);
         p.setFileName(filename);
