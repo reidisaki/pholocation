@@ -268,21 +268,42 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
     private int getOrientationRotation(int mCameraRotation) {
         int degrees = 0;
-        if (mCameraRotation == CameraFragment.ORIENTATION_PORTRAIT_NORMAL) {
-            degrees = 90;
-            Log.i("pl", "portait");
-        }
-        if (mCameraRotation == CameraFragment.ORIENTATION_LANDSCAPE_INVERTED) {
-            Log.i("pl", "landscape inverted");
-            degrees = 180;
-        }
-        if (mCameraRotation == CameraFragment.ORIENTATION_LANDSCAPE_NORMAL) {
-            degrees = 0;
-            Log.i("pl", "landscape ");
-        }
-        if (mCameraRotation == CameraFragment.ORIENTATION_PORTRAIT_INVERTED) {
-            degrees = -180;
-            Log.i("pl", "portait inverted");
+        android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
+        android.hardware.Camera.getCameraInfo(mCurrentCameraId, info);
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            if (mCameraRotation == CameraFragment.ORIENTATION_PORTRAIT_NORMAL) {
+                degrees = -90;
+                Log.i("pl", "portait");
+            }
+            if (mCameraRotation == CameraFragment.ORIENTATION_LANDSCAPE_INVERTED) {
+                Log.i("pl", "landscape inverted");
+                degrees = 180;
+            }
+            if (mCameraRotation == CameraFragment.ORIENTATION_LANDSCAPE_NORMAL) {
+                degrees = 0;
+                Log.i("pl", "landscape ");
+            }
+            if (mCameraRotation == CameraFragment.ORIENTATION_PORTRAIT_INVERTED) {
+                degrees = 90;
+                Log.i("pl", "portait inverted");
+            }
+        } else {
+            if (mCameraRotation == CameraFragment.ORIENTATION_PORTRAIT_NORMAL) {
+                degrees = 90;
+                Log.i("pl", "portait");
+            }
+            if (mCameraRotation == CameraFragment.ORIENTATION_LANDSCAPE_INVERTED) {
+                Log.i("pl", "landscape inverted");
+                degrees = 180;
+            }
+            if (mCameraRotation == CameraFragment.ORIENTATION_LANDSCAPE_NORMAL) {
+                degrees = 0;
+                Log.i("pl", "landscape ");
+            }
+            if (mCameraRotation == CameraFragment.ORIENTATION_PORTRAIT_INVERTED) {
+                degrees = -180;
+                Log.i("pl", "portait inverted");
+            }
         }
 
         return degrees;
@@ -334,10 +355,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    public static void setCameraDisplayOrientation(
-            int cameraId, android.hardware.Camera camera) {
-        android.hardware.Camera.CameraInfo info =
-                new android.hardware.Camera.CameraInfo();
+    public static void setCameraDisplayOrientation(int cameraId, android.hardware.Camera camera) {
+        android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
         android.hardware.Camera.getCameraInfo(cameraId, info);
         int rotation = ((Activity) mContext).getWindowManager().getDefaultDisplay()
                 .getRotation();
@@ -364,6 +383,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         } else {  // back-facing
             result = (info.orientation - degrees + 360) % 360;
         }
+        Log.i("pl", "frotn camera rotation:" + result);
         camera.setDisplayOrientation(result);
     }
 
@@ -608,7 +628,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             return super.onDoubleTap(e);
         }
     }
-    //might need this for patricks s5 memory error
+//might need this for patricks s5 memory error
 //    public class RotateTask extends AsyncTask<Integer, Void, Bitmap> {
 //        private WeakReference<Bitmap> rotateBitmap;
 //        private WeakReference<Bitmap> original;
