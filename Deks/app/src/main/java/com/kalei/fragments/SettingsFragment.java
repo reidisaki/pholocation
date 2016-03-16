@@ -1,8 +1,7 @@
 package com.kalei.fragments;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-
+import com.amazon.device.ads.AdLayout;
+import com.amazon.device.ads.AdTargetingOptions;
 import com.android.ex.chips.BaseRecipientAdapter;
 import com.android.ex.chips.RecipientEditTextView;
 import com.android.ex.chips.RecipientEntry;
@@ -16,7 +15,6 @@ import com.kalei.utils.PhotoLocationUtils;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.provider.Settings.Secure;
 import android.support.annotation.Nullable;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Log;
@@ -40,6 +38,7 @@ import java.util.List;
  */
 public class SettingsFragment extends PhotoLocationFragment implements OnCheckedChangeListener {
     public RecipientEditTextView emailRetv;
+    public AdLayout adView;
 
     public static SettingsFragment newInstance() {
         SettingsFragment fragment = new SettingsFragment();
@@ -111,14 +110,23 @@ public class SettingsFragment extends PhotoLocationFragment implements OnChecked
             }
         });
 
-        AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
-        if (mAdView != null) {
-            String android_id = Secure.getString(getActivity().getContentResolver(),
-                    Secure.ANDROID_ID);
-            AdRequest adRequest = new AdRequest.Builder().build();
+        // If you declared AdLayout in your xml you would instead
+        // replace the 3 lines above with the following line:
+        adView = (AdLayout) rootView.findViewById(R.id.adview);
 
-            mAdView.loadAd(adRequest);
-        }
+        AdTargetingOptions adOptions = new AdTargetingOptions();
+        // Optional: Set ad targeting options here.
+        adView.loadAd(adOptions); // Retrieves an ad on background thread
+
+        //GOOGLE BS
+//        AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
+//        if (mAdView != null) {
+//            String android_id = Secure.getString(getActivity().getContentResolver(),
+//                    Secure.ANDROID_ID);
+//            AdRequest adRequest = new AdRequest.Builder().build();
+//
+//            mAdView.loadAd(adRequest);
+//        }
         versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
         Switch wifiSwitch = (Switch) rootView.findViewById(R.id.send_wifi_switch);
         Switch saveOriginaLSwitch = (Switch) rootView.findViewById(R.id.save_original_switch);
@@ -142,6 +150,12 @@ public class SettingsFragment extends PhotoLocationFragment implements OnChecked
         saveOriginaLSwitch.setChecked(PrefManager.getOriginalOnly(getActivity()));
         saveOriginaLSwitch.setOnCheckedChangeListener(this);
         return rootView;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        adView.destroy();
     }
 
     @Override

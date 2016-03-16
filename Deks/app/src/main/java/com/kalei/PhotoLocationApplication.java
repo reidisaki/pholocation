@@ -29,6 +29,11 @@ public class PhotoLocationApplication extends Application {
         return mInstance;
     }
 
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+//        MultiDex.install(this);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

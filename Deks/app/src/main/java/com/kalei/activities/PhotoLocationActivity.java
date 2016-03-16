@@ -1,5 +1,6 @@
 package com.kalei.activities;
 
+import com.amazon.device.ads.AdRegistration;
 import com.crashlytics.android.Crashlytics;
 import com.kalei.pholocation.R;
 
@@ -23,6 +24,7 @@ public abstract class PhotoLocationActivity extends FragmentActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        AdRegistration.setAppKey(getString(R.string.amazon_ad_key));
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.splash);
         toolbar = (Toolbar) findViewById(R.id.toolbar);

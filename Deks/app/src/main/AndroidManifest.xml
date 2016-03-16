@@ -54,6 +54,9 @@
                   android:theme="@style/Theme.AppCompat.NoActionBar"
                   android:screenOrientation="portrait">
         </activity>
+        <activity
+                android:name="com.amazon.device.ads.AdActivity"
+                android:configChanges="keyboardHidden|orientation|screenSize"/>
         <meta-data
                 android:name="io.fabric.ApiKey"
                 android:value="c972bfa76ea337247175a6cc36112e65a8385cd4"/>
