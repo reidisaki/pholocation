@@ -7,10 +7,8 @@ import com.amazon.device.ads.AdProperties;
 import com.amazon.device.ads.InterstitialAd;
 import com.kalei.utils.PhotoLocationUtils;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class AdActivity extends PhotoLocationActivity {
@@ -54,10 +52,10 @@ public class AdActivity extends PhotoLocationActivity {
 
         // Load the interstitial.
         interstitialAd.loadAd();
-        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
-
-        String deviceid = tm.getDeviceId();
-        Log.i("pl", "deviceId: " + deviceid);
+//        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+//
+//        String deviceid = tm.getDeviceId();
+//        Log.i("pl", "deviceId: " + deviceid);
     }
 
     private void gotoActivity() {

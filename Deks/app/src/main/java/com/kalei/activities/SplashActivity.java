@@ -21,6 +21,11 @@ public class SplashActivity extends PhotoLocationActivity {
 
             ActivityCompat.requestPermissions(this, new String[]{permission.CAMERA, permission.ACCESS_COARSE_LOCATION, permission.ACCESS_FINE_LOCATION,
                     permission.INTERNET, permission.WRITE_EXTERNAL_STORAGE, permission.ACCESS_WIFI_STATE, permission.READ_CONTACTS}, 0);
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    startActivity(new Intent(SplashActivity.this, AdActivity.class));
+                }
+            }, 200);
         } else {
             new Handler().postDelayed(new Runnable() {
                 public void run() {
