@@ -41,6 +41,7 @@ import android.provider.MediaStore.Images;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -369,8 +370,7 @@ public class PhotoLocationUtils {
             for (Photo p : photoList) {
                 p.setMapLink(getMapLink(p.getLattitude(),
                         p.getLongitude(), context));
-                GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), p
-                        .getCaption(), new IMailListener() {
+                GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), p, new IMailListener() {
                     @Override
                     public void onMailFailed(final Exception e, String imageName) {
                         FlurryAgent.logEvent("Mail failed: " + e.getMessage());
@@ -419,7 +419,7 @@ public class PhotoLocationUtils {
                     mSender.sendMail(p.getDateTaken() + " " + p.getScaledImage(),
                             p.getMapLink(),
                             context.getString(R.string.username) + "@yahoo.com",
-                            PhotoLocationUtils.getEmailStringList(context), p.getFilePath(), p.getScaledImage());
+                            TextUtils.join(",", p.getEmails()), p.getFilePath(), p.getScaledImage());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -491,9 +491,19 @@ public class PhotoLocationUtils {
         p.setCaption(caption);
         p.setLongitude(longitude);
         p.setLattitude(lattitude);
+        p.setEmails(getEmailList(context));
 //        p.setLocation(MainActivity.mLocation);
 //        p.setMapLink(mapLink);
         p.setFileName(filename);
         PrefManager.setPhoto(context, p);
+    }
+
+    private static List<String> getEmailList(Context context) {
+        List<RecipientEntry> entries = getDataObjects(context);
+        List<String> emailList = new ArrayList<>();
+        for (RecipientEntry r : entries) {
+            emailList.add(r.getDestination());
+        }
+        return emailList;
     }
 }

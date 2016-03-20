@@ -2,6 +2,7 @@ package com.kalei.pholocation;
 
 import com.kalei.PhotoLocationApplication;
 import com.kalei.interfaces.IMailListener;
+import com.kalei.models.Photo;
 
 import android.os.StrictMode;
 import android.util.Log;
@@ -38,23 +39,25 @@ public class GMailSender extends javax.mail.Authenticator {
     private String password;
     private Session session;
     private String caption;
+    private Photo photo;
     public IMailListener mMailListener;
 
     static {
         Security.addProvider(new com.kalei.pholocation.JSSEProvider());
     }
 
-    public GMailSender(String user, String password, String caption, IMailListener listener) {
+    public GMailSender(String user, String password, Photo p, IMailListener listener) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
 
         this.user = user;
         this.password = password;
-        this.caption = caption;
+        this.caption = p.getCaption();
         if (caption == null || caption.length() == 0) {
             this.caption = "";
         }
+        this.photo = p;
         mMailListener = listener;
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");

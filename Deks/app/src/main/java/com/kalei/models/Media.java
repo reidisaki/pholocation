@@ -3,6 +3,7 @@ package com.kalei.models;
 import android.location.Location;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by risaki on 3/2/16.
@@ -10,6 +11,16 @@ import java.util.Date;
 public abstract class Media {
     String id;
     String filePath;
+
+    public List<String> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(final List<String> emails) {
+        this.emails = emails;
+    }
+
+    List<String> emails;
 
     public double getLongitude() {
         return longitude;
