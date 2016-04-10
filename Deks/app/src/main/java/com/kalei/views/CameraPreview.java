@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -124,6 +125,8 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
             mImageView.setImageBitmap(myBitmap);
         }
         Log.i("pl", "ok button enabled");
+
+        mOkButton.setBackgroundColor(Color.parseColor("#006400"));
         mOkButton.setEnabled(true);
     }
 

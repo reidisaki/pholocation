@@ -12,6 +12,16 @@ public abstract class Media {
     String id;
     String filePath;
 
+    public boolean isDidSend() {
+        return didSend;
+    }
+
+    public void setDidSend(final boolean didSend) {
+        this.didSend = didSend;
+    }
+
+    boolean didSend;
+
     public List<String> getEmails() {
         return emails;
     }

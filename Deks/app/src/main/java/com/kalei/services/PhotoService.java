@@ -26,6 +26,7 @@ public class PhotoService extends IntentService {
 
     @Override
     protected void onHandleIntent(final Intent intent) {
+
         PhotoLocationUtils.processEmailPicture(this, intent);
     }
 }

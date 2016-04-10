@@ -64,6 +64,7 @@
             <intent-filter android:priority="100">
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
                 <action android:name="notification_cancelled"/>
+                <action android:name="notification_retry"/>
             </intent-filter>
         </receiver>
         <service android:name="com.kalei.services.PhotoService"

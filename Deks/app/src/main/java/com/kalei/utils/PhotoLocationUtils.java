@@ -12,7 +12,6 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 
 import com.android.ex.chips.RecipientEntry;
-import com.flurry.android.FlurryAgent;
 import com.kalei.PhotoLocationApplication;
 import com.kalei.interfaces.IMailListener;
 import com.kalei.managers.PrefManager;
@@ -50,8 +49,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -66,6 +68,8 @@ public class PhotoLocationUtils {
     public static int mSuccessfulSends = 0;
     public static int mFailedSends = 0;
     public static String NOTIFICATION_DELETED_ACTION = "notification_cancelled";
+    public static String NOTIFICATION_RETRY_ACTION = "notification_retry";
+
     public static final String LONGITUDE = "longitude_key";
     public static final String LATTITUDE = "lattitude_key";
 
@@ -367,27 +371,29 @@ public class PhotoLocationUtils {
 //        scaledImage = intent.getStringExtra(CaptureView.SCALED_PICTURE_KEY);
             List<Photo> photoList = PrefManager.getPhotoList(context);
 
-            for (Photo p : photoList) {
+            for (final Photo p : photoList) {
                 p.setMapLink(getMapLink(p.getLattitude(),
                         p.getLongitude(), context));
                 GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), p, new IMailListener() {
                     @Override
                     public void onMailFailed(final Exception e, String imageName) {
-                        FlurryAgent.logEvent("Mail failed: " + e.getMessage());
                         mFailedSends++;
                         Intent intent = new Intent(context, WifiReceiver.class);
-                        intent.setAction(NOTIFICATION_DELETED_ACTION);
+                        intent.setAction(NOTIFICATION_RETRY_ACTION);
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
                         imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
                         mBuilder.setSmallIcon(R.drawable.ic_launcher)
-                                .setContentTitle("Failed sending picture" + mBuilder.setContentText(imageName))
-                                .setDeleteIntent(pendingIntent)
-                                .setContentText(mFailedSends + (mFailedSends == 1 ? " picture " : " pictures ") + " failed sending" + imageName);
+                                .setContentTitle("Sending failed, tap to retry ")
+                                .setContentIntent(pendingIntent)
+                                .setAutoCancel(true)
+                                .setContentText(mFailedSends + (mFailedSends == 1 ? " picture " : " pictures ") + " failed sending");
+
                         imageFailedFileNames.add(imageName);
                         InboxStyle style = new InboxStyle().setSummaryText(mFailedSends + " failed to send");
                         for (String s : imageFailedFileNames) {
                             style.addLine(s);
                         }
+                        p.setDidSend(false);
                         mBuilder.setStyle(style);
                         mNotificationManager.notify(1, mBuilder.build());
                     }
@@ -397,14 +403,13 @@ public class PhotoLocationUtils {
                         //show notification
                         mSuccessfulSends++;
                         Date d = new Date();
-                        FlurryAgent.logEvent("mail SUCCESS! " + d.toString());
                         Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
                         imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
                         mBuilder.setSmallIcon(R.drawable.ic_launcher)
                                 .setContentTitle(mSuccessfulSends + (mSuccessfulSends == 1 ? " picture " : " pictures ") + "sent successfully")
-                                .setContentText(imageName)
-                                .setDeleteIntent(pendingIntent);
+                                .setContentText(imageName).setAutoCancel(true)
+                                .setContentIntent(pendingIntent);
                         imageFileNames.add(imageName);
                         InboxStyle style = new InboxStyle().setSummaryText((mSuccessfulSends == 0 ? 1 : mSuccessfulSends) + " sent");
                         for (String s : imageFileNames) {
@@ -413,6 +418,7 @@ public class PhotoLocationUtils {
                         mBuilder.setStyle(style);
 
                         mNotificationManager.notify(0, mBuilder.build());
+                        p.setDidSend(true);
                     }
                 });
                 try {
@@ -424,11 +430,36 @@ public class PhotoLocationUtils {
                     e.printStackTrace();
                 }
             }
-            photoList.clear();
+
+            //only clear successfully sent photos - avoid concurrent modification exception
+            Iterator<Photo> iter = photoList.iterator();
+            while (iter.hasNext()) {
+                Photo photo = iter.next();
+
+                if (photo.isDidSend()) {
+                    iter.remove();
+                }
+            }
+
             PrefManager.savePhotoList(context, photoList);
         } else {
             Log.i("pl", "not sending");
         }
+    }
+
+    //not used right now.. checks if you are on wifi and have internet
+    private static boolean isConnectedAndHasInternet() {
+        boolean isConnectedAndHasInternet = false;
+        InetAddress inet;
+        try {
+            inet = InetAddress.getByName("www.google.com");
+
+            isConnectedAndHasInternet = !inet.getHostAddress().isEmpty();
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return isConnectedAndHasInternet;
     }
 
     private static String getMapLink(double lattitude, double longitude, Context context) {
@@ -492,6 +523,7 @@ public class PhotoLocationUtils {
         p.setLongitude(longitude);
         p.setLattitude(lattitude);
         p.setEmails(getEmailList(context));
+        p.setDidSend(false);
 //        p.setLocation(MainActivity.mLocation);
 //        p.setMapLink(mapLink);
         p.setFileName(filename);

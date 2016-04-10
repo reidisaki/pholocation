@@ -125,6 +125,7 @@ public class GMailSender extends javax.mail.Authenticator {
                     File f = new File(scaledImage);
                     Log.i("pl", "scaled image size: " + f.length());
                     f.delete(); //delete old smaller file
+
                     if (mMailListener != null) {
                         mMailListener.onMailSucceeded(scaledImage);
                     }
