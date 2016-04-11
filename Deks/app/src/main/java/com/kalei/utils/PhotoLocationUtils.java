@@ -369,7 +369,7 @@ public class PhotoLocationUtils {
 //        String originalPicture, scaledImage;
 //        originalPicture = intent.getStringExtra(CaptureView.ORIGINAL_PICTURE_KEY);
 //        scaledImage = intent.getStringExtra(CaptureView.SCALED_PICTURE_KEY);
-            List<Photo> photoList = PrefManager.getPhotoList(context);
+            final List<Photo> photoList = PrefManager.getPhotoList(context);
 
             for (final Photo p : photoList) {
                 p.setMapLink(getMapLink(p.getLattitude(),
@@ -396,6 +396,7 @@ public class PhotoLocationUtils {
                         p.setDidSend(false);
                         mBuilder.setStyle(style);
                         mNotificationManager.notify(1, mBuilder.build());
+                        updatePhotoList(context, photoList);
                     }
 
                     @Override
@@ -419,6 +420,8 @@ public class PhotoLocationUtils {
 
                         mNotificationManager.notify(0, mBuilder.build());
                         p.setDidSend(true);
+                        //only clear successfully sent photos - avoid concurrent modification exception
+                        updatePhotoList(context, photoList);
                     }
                 });
                 try {
@@ -427,24 +430,27 @@ public class PhotoLocationUtils {
                             context.getString(R.string.username) + "@yahoo.com",
                             TextUtils.join(",", p.getEmails()), p.getFilePath(), p.getScaledImage());
                 } catch (Exception e) {
+                    Log.i("pl", "error: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
-
-            //only clear successfully sent photos - avoid concurrent modification exception
-            Iterator<Photo> iter = photoList.iterator();
-            while (iter.hasNext()) {
-                Photo photo = iter.next();
-
-                if (photo.isDidSend()) {
-                    iter.remove();
-                }
-            }
-
-            PrefManager.savePhotoList(context, photoList);
         } else {
             Log.i("pl", "not sending");
         }
+    }
+
+    private static void updatePhotoList(Context context, List<Photo> photoList) {
+        Iterator<Photo> iter = photoList.iterator();
+        while (iter.hasNext()) {
+            Photo photo = iter.next();
+
+            if (photo.isDidSend()) {
+                Log.i("pl", "removed " + photo.getScaledImage().toString());
+                iter.remove();
+            }
+        }
+
+        PrefManager.savePhotoList(context, photoList);
     }
 
     //not used right now.. checks if you are on wifi and have internet

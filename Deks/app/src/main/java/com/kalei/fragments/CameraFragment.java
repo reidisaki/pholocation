@@ -12,6 +12,7 @@ import com.kalei.views.CaptureView;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -295,6 +296,7 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         mCameraPreview.mCaptionText.setText("");
         Log.i("pl", "ok button disabled");
         mCameraPreview.mOkButton.setEnabled(false);
+        mCameraPreview.mOkButton.setBackgroundColor(Color.parseColor("#999999"));
         //deletes saved file.
 //        mCameraPreview.cleanUp();
         mSurfaceFrame.setVisibility(View.VISIBLE);
