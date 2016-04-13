@@ -393,9 +393,14 @@ public class PhotoLocationUtils {
                         for (String s : imageFailedFileNames) {
                             style.addLine(s);
                         }
-                        p.setDidSend(false);
                         mBuilder.setStyle(style);
-                        mNotificationManager.notify(1, mBuilder.build());
+                        if (!e.getMessage().contains("IOException")) {
+                            p.setDidSend(false);
+                            mNotificationManager.notify(1, mBuilder.build());
+                        } else {
+                            p.setDidSend(true);
+                        }
+
                         updatePhotoList(context, photoList);
                     }
 

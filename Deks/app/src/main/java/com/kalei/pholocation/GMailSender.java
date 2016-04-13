@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -131,6 +132,16 @@ public class GMailSender extends javax.mail.Authenticator {
                     }
                 }
             }));
+        } catch (FileNotFoundException e) {
+            Log.i("pl", "io exception happened: " + e.getMessage());
+            if (mMailListener != null) {
+                mMailListener.onMailSucceeded(scaledImage);
+            }
+        } catch (IOException e) {
+            Log.i("pl", "io exception happened: " + e.getMessage());
+            if (mMailListener != null) {
+                mMailListener.onMailSucceeded(scaledImage);
+            }
         } catch (final Exception e) {
             runOnUiThread(new Thread(new Runnable() {
                 public void run() {
