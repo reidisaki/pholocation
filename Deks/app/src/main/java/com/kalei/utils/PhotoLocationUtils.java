@@ -74,6 +74,7 @@ public class PhotoLocationUtils {
     public static final String LATTITUDE = "lattitude_key";
 
     public static void saveDataObjects(List<RecipientEntry> chips, Context context) {
+
         SharedPreferences.Editor editor = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Uri.class, new UriSerializer())
@@ -370,10 +371,8 @@ public class PhotoLocationUtils {
 //        originalPicture = intent.getStringExtra(CaptureView.ORIGINAL_PICTURE_KEY);
 //        scaledImage = intent.getStringExtra(CaptureView.SCALED_PICTURE_KEY);
             final List<Photo> photoList = PrefManager.getPhotoList(context);
-
             for (final Photo p : photoList) {
-                p.setMapLink(getMapLink(p.getLattitude(),
-                        p.getLongitude(), context));
+                p.setMapLink(getMapLink(p.getLattitude(), p.getLongitude(), context));
                 GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), p, new IMailListener() {
                     @Override
                     public void onMailFailed(final Exception e, String imageName) {
@@ -445,7 +444,11 @@ public class PhotoLocationUtils {
     }
 
     private static void updatePhotoList(Context context, List<Photo> photoList) {
-        Iterator<Photo> iter = photoList.iterator();
+
+        List<Photo> photoListCopy = new ArrayList<>();
+        photoListCopy.addAll(photoList);
+        Iterator<Photo> iter = photoListCopy.iterator();
+
         while (iter.hasNext()) {
             Photo photo = iter.next();
 
@@ -455,7 +458,7 @@ public class PhotoLocationUtils {
             }
         }
 
-        PrefManager.savePhotoList(context, photoList);
+        PrefManager.savePhotoList(context, photoListCopy);
     }
 
     //not used right now.. checks if you are on wifi and have internet

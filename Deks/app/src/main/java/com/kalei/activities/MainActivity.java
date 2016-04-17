@@ -1,5 +1,8 @@
 package com.kalei.activities;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -8,11 +11,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import com.amazon.device.ads.Ad;
-import com.amazon.device.ads.AdError;
-import com.amazon.device.ads.AdListener;
-import com.amazon.device.ads.AdProperties;
-import com.amazon.device.ads.InterstitialAd;
 import com.flurry.android.FlurryAgent;
 import com.kalei.PhotoLocationApplication;
 import com.kalei.fragments.CameraFragment;
@@ -28,6 +26,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -148,64 +147,64 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
 
         // Set the listener to use the callbacks below.
 
-        final InterstitialAd interstitialAd = new InterstitialAd(this);
+//        final InterstitialAd interstitialAd = new InterstitialAd(this);
+//
+//        // Set the listener to use the callbacks below.
+//        interstitialAd.setListener(new AdListener() {
+//            @Override
+//            public void onAdLoaded(final Ad ad, final AdProperties adProperties) {
+//                interstitialAd.showAd();
+//            }
+//
+//            @Override
+//            public void onAdFailedToLoad(final Ad ad, final AdError adError) {
+//                Log.i("pl", "ad failed: " + adError.getMessage());
+//            }
+//
+//            @Override
+//            public void onAdExpanded(final Ad ad) {
+//
+//            }
+//
+//            @Override
+//            public void onAdCollapsed(final Ad ad) {
+//
+//            }
+//
+//            @Override
+//            public void onAdDismissed(final Ad ad) {
+//
+//            }
+//        });
 
-        // Set the listener to use the callbacks below.
-        interstitialAd.setListener(new AdListener() {
+        // Load the interstitial.
+//        interstitialAd.loadAd();
+        //GOOGLE BS
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getString(R.string.admob_id));
+
+        mInterstitialAd.setAdListener(new AdListener() {
             @Override
-            public void onAdLoaded(final Ad ad, final AdProperties adProperties) {
-                interstitialAd.showAd();
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                mInterstitialAd.show();
             }
 
             @Override
-            public void onAdFailedToLoad(final Ad ad, final AdError adError) {
-                Log.i("pl", "ad failed: " + adError.getMessage());
-            }
-
-            @Override
-            public void onAdExpanded(final Ad ad) {
-
-            }
-
-            @Override
-            public void onAdCollapsed(final Ad ad) {
-
-            }
-
-            @Override
-            public void onAdDismissed(final Ad ad) {
+            public void onAdClosed() {
 
             }
         });
 
-        // Load the interstitial.
-        interstitialAd.loadAd();
-        //GOOGLE BS
-//        mInterstitialAd = new InterstitialAd(this);
-//        mInterstitialAd.setAdUnitId(getString(R.string.admob_id));
-//
-//        mInterstitialAd.setAdListener(new AdListener() {
-//            @Override
-//            public void onAdLoaded() {
-//                super.onAdLoaded();
-//                mInterstitialAd.show();
-//            }
-//
-//            @Override
-//            public void onAdClosed() {
-//
-//            }
-//        });
-//
-//        AdRequest adRequest = new AdRequest.Builder()
+        AdRequest adRequest = new AdRequest.Builder()
 //                .addTestDevice("990005115558117")
-//                .build();
-//        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
-//
-//        String deviceid = tm.getDeviceId();
-//        Log.i("pl", "deviceId: " + deviceid);
-//
-//        mInterstitialAd.loadAd(adRequest);
+                .build();
+        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+
+        String deviceid = tm.getDeviceId();
+        Log.i("pl", "deviceId: " + deviceid);
+
+        mInterstitialAd.loadAd(adRequest);
     }
 
     @Override

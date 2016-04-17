@@ -25,8 +25,8 @@ android {
         applicationId "com.kalei.pholocation"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 12
-        versionName "1.5.1"
+        versionCode 13
+        versionName "1.5.2"
     }
     buildTypes {
         release {
@@ -69,7 +69,6 @@ dependencies {
     compile files('libs/activation.jar')
     compile files('libs/additional.jar')
     compile files('libs/mail.jar')
-    compile files('libs/amazon-ads-5.7.1.jar')
     // JSON parsing library
     compile 'com.google.code.gson:gson:2.3.1'
     testCompile 'junit:junit:4.12'
@@ -86,6 +85,9 @@ dependencies {
     compile 'com.googlecode.json-simple:json-simple:1.1'
     compile 'org.apache.commons:commons-io:1.3.2'
     compile 'org.apache.httpcomponents:httpcore:4.4.3'
+    compile 'com.google.api-client:google-api-client-android:1.20.0' exclude module: 'httpclient'
+    compile 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
+    compile 'com.google.apis:google-api-services-vision:v1-rev2-1.21.0'
     compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.3.5') {
         exclude module: 'org.apache.httpcomponents:httpclient'
     }

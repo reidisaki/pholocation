@@ -15,9 +15,9 @@ public class WifiReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-        Log.i("Reid", "onReceive reset countesr to 0");
-        Log.i("Reid", "Resetting");
-        if (intent.getAction().equals(PhotoLocationUtils.NOTIFICATION_RETRY_ACTION)) {
+        Log.i("pl", "onReceive reset countesr to 0");
+        Log.i("pl", "Resetting");
+        if (intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE") || intent.getAction().equals(PhotoLocationUtils.NOTIFICATION_RETRY_ACTION)) {
             PhotoLocationUtils.mFailedSends = 0;
             PhotoLocationUtils.mSuccessfulSends = 0;
             PhotoLocationUtils.processEmailPicture(context, intent);
