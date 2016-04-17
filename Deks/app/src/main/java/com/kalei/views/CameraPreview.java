@@ -94,8 +94,12 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
                 Log.i("pl", "clicked ok");
                 String caption = mCaptionText.getText().toString();
                 mPhotoTakenListener.onPhotoConfirm();
-                PhotoLocationUtils.savePhoto(getContext(), mImageFilepath, mOriginalImagePath, MainActivity.mLocation.getLongitude(), MainActivity.mLocation
-                        .getLatitude(), caption);
+                double longitude = 0, lattitude = 0;
+                if (MainActivity.mLocation != null) {
+                    longitude = MainActivity.mLocation.getLongitude();
+                    lattitude = MainActivity.mLocation.getLatitude();
+                }
+                PhotoLocationUtils.savePhoto(getContext(), mImageFilepath, mOriginalImagePath, longitude, lattitude, caption);
                 getContext().startService(getPhotoUploadIntent(caption));
 
                 break;
