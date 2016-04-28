@@ -4,6 +4,9 @@ import com.kalei.PhotoLocationApplication;
 import com.kalei.interfaces.IMailListener;
 import com.kalei.models.Photo;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
 
@@ -36,6 +39,7 @@ public class GMailSender extends javax.mail.Authenticator {
     private String mailhost = "smtp.mailgun.org";
 //    private String mailhost = "smtp.gmail.com";
 
+    private Context context;
     private String user;
     private String password;
     private Session session;
@@ -47,11 +51,11 @@ public class GMailSender extends javax.mail.Authenticator {
         Security.addProvider(new com.kalei.pholocation.JSSEProvider());
     }
 
-    public GMailSender(String user, String password, Photo p, IMailListener listener) {
+    public GMailSender(Context context, String user, String password, Photo p, IMailListener listener) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
-
+        this.context = context;
         this.user = user;
         this.password = password;
         this.caption = p.getCaption();
@@ -98,6 +102,27 @@ public class GMailSender extends javax.mail.Authenticator {
         return new PasswordAuthentication(user, password);
     }
 
+    static String getEmail(Context context) {
+        AccountManager accountManager = AccountManager.get(context);
+        Account account = getAccount(accountManager);
+        if (account == null) {
+            return null;
+        } else {
+            return account.name;
+        }
+    }
+
+    private static Account getAccount(AccountManager accountManager) {
+        Account[] accounts = accountManager.getAccountsByType("com.google");
+        Account account;
+        if (accounts.length > 0) {
+            account = accounts[0];
+        } else {
+            account = null;
+        }
+        return account;
+    }
+
     public synchronized void sendMail(String subject, String body, String sender, String recipients, final String filename, final String scaledImage)
             throws Exception {
         try {
@@ -106,6 +131,10 @@ public class GMailSender extends javax.mail.Authenticator {
             MimeMessage message = new MimeMessage(session);
             DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/plain"));
             message.setSender(new InternetAddress("picture@photolocation.com"));
+            message.setReplyTo(new javax.mail.Address[]
+                    {
+                            new javax.mail.internet.InternetAddress(getEmail(context))
+                    });
 
             message.setSubject(caption.length() > 0 ? caption : subject);
             message.setDataHandler(handler);

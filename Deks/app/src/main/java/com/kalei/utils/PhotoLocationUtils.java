@@ -373,7 +373,8 @@ public class PhotoLocationUtils {
             final List<Photo> photoList = PrefManager.getPhotoList(context);
             for (final Photo p : photoList) {
                 p.setMapLink(getMapLink(p.getLattitude(), p.getLongitude(), context));
-                GMailSender mSender = new GMailSender(context.getString(R.string.username), context.getString(R.string.password), p, new IMailListener() {
+                GMailSender mSender = new GMailSender(context, context.getString(R.string.username), context
+                        .getString(R.string.password), p, new IMailListener() {
                     @Override
                     public void onMailFailed(final Exception e, String imageName) {
                         mFailedSends++;

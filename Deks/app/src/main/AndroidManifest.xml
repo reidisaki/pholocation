@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.FLASHLIGHT"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-feature android:name="android.hardware.camera"/>
 
     <uses-feature android:name="android.hardware.camera.autofocus"/>
@@ -55,8 +56,8 @@
                   android:screenOrientation="portrait">
         </activity>
         <!--<activity-->
-                <!--android:name="com.amazon.device.ads.AdActivity"-->
-                <!--android:configChanges="keyboardHidden|orientation|screenSize"/>-->
+        <!--android:name="com.amazon.device.ads.AdActivity"-->
+        <!--android:configChanges="keyboardHidden|orientation|screenSize"/>-->
         <meta-data
                 android:name="io.fabric.ApiKey"
                 android:value="c972bfa76ea337247175a6cc36112e65a8385cd4"/>
