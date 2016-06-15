@@ -2,6 +2,7 @@ package com.kalei.receivers;
 
 import com.kalei.utils.PhotoLocationUtils;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,9 +19,13 @@ public class WifiReceiver extends BroadcastReceiver {
         Log.i("pl", "onReceive reset countesr to 0");
         Log.i("pl", "Resetting");
         if (intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE") || intent.getAction().equals(PhotoLocationUtils.NOTIFICATION_RETRY_ACTION)) {
+            PhotoLocationUtils.processEmailPicture(context, intent);
+        }
+        if (intent.getAction().equals(NOTIFICATION_DELETED_ACTION)) {
             PhotoLocationUtils.mFailedSends = 0;
             PhotoLocationUtils.mSuccessfulSends = 0;
-            PhotoLocationUtils.processEmailPicture(context, intent);
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancelAll();
         }
     }
 }

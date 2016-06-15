@@ -100,7 +100,7 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
                     lattitude = MainActivity.mLocation.getLatitude();
                 }
                 PhotoLocationUtils.savePhoto(getContext(), mImageFilepath, mOriginalImagePath, longitude, lattitude, caption);
-                getContext().startService(getPhotoUploadIntent(caption));
+                getContext().startService(PhotoLocationUtils.getPhotoUploadIntent(getContext(), caption));
 
                 break;
             case R.id.cancel:
@@ -132,21 +132,6 @@ public class CameraPreview extends LinearLayout implements OnClickListener {
 
         mOkButton.setBackgroundColor(Color.parseColor("#006400"));
         mOkButton.setEnabled(true);
-    }
-
-    private Intent getPhotoUploadIntent(String caption) {
-        Intent i = new Intent(getContext(), PhotoService.class);
-        // potentially add data to the intent
-//        i.putExtra(ORIGINAL_PICTURE_KEY, originalPicture);
-//        i.putExtra(SCALED_PICTURE_KEY, scaledPicture);
-        //all this only works when you're on wifi
-        i.putExtra(PhotoLocationUtils.CAPTION_KEY, caption);
-        i.putExtra("Reid", "Isaki");
-        if (MainActivity.mLocation != null) {
-            i.putExtra(LONGITUDE, MainActivity.mLocation.getLongitude());
-            i.putExtra(LATTITUDE, MainActivity.mLocation.getLatitude());
-        }
-        return i;
     }
 
     public void cleanUp() {

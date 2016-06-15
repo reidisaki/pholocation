@@ -13,12 +13,14 @@ import com.google.gson.reflect.TypeToken;
 
 import com.android.ex.chips.RecipientEntry;
 import com.kalei.PhotoLocationApplication;
+import com.kalei.activities.MainActivity;
 import com.kalei.interfaces.IMailListener;
 import com.kalei.managers.PrefManager;
 import com.kalei.models.Photo;
 import com.kalei.pholocation.GMailSender;
 import com.kalei.pholocation.R;
 import com.kalei.receivers.WifiReceiver;
+import com.kalei.services.PhotoService;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -82,6 +84,21 @@ public class PhotoLocationUtils {
 
         editor.putString(EMAIL_KEY, gson.toJson(chips).toString());
         editor.commit();
+    }
+
+    public static Intent getPhotoUploadIntent(Context context, String caption) {
+        Intent i = new Intent(context, PhotoService.class);
+        // potentially add data to the intent
+//        i.putExtra(ORIGINAL_PICTURE_KEY, originalPicture);
+//        i.putExtra(SCALED_PICTURE_KEY, scaledPicture);
+        //all this only works when you're on wifi
+        i.putExtra(PhotoLocationUtils.CAPTION_KEY, caption);
+        i.putExtra("Reid", "Isaki");
+        if (MainActivity.mLocation != null) {
+            i.putExtra(LONGITUDE, MainActivity.mLocation.getLongitude());
+            i.putExtra(LATTITUDE, MainActivity.mLocation.getLatitude());
+        }
+        return i;
     }
 
     public static List<RecipientEntry> getDataObjects(Context context) {
@@ -381,11 +398,16 @@ public class PhotoLocationUtils {
                         Intent intent = new Intent(context, WifiReceiver.class);
                         intent.setAction(NOTIFICATION_RETRY_ACTION);
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+
+                        Intent deleteIntent = new Intent(context, WifiReceiver.class);
+                        intent.setAction(NOTIFICATION_DELETED_ACTION);
+                        PendingIntent pendingDeleteIntent = PendingIntent.getBroadcast(context, 1, deleteIntent, 0);
+
                         imageName = imageName.substring(imageName.lastIndexOf("/") + 1, imageName.length());
                         mBuilder.setSmallIcon(R.drawable.ic_launcher)
                                 .setContentTitle("Sending failed, tap to retry ")
                                 .setContentIntent(pendingIntent)
-                                .setAutoCancel(true)
+                                .setDeleteIntent(pendingDeleteIntent)
                                 .setContentText(mFailedSends + (mFailedSends == 1 ? " picture " : " pictures ") + " failed sending");
 
                         imageFailedFileNames.add(imageName);
@@ -415,7 +437,7 @@ public class PhotoLocationUtils {
                         mBuilder.setSmallIcon(R.drawable.ic_launcher)
                                 .setContentTitle(mSuccessfulSends + (mSuccessfulSends == 1 ? " picture " : " pictures ") + "sent successfully")
                                 .setContentText(imageName).setAutoCancel(true)
-                                .setContentIntent(pendingIntent);
+                                .setDeleteIntent(pendingIntent);
                         imageFileNames.add(imageName);
                         InboxStyle style = new InboxStyle().setSummaryText((mSuccessfulSends == 0 ? 1 : mSuccessfulSends) + " sent");
                         for (String s : imageFileNames) {

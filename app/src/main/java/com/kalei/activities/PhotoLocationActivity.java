@@ -5,8 +5,9 @@ import com.kalei.pholocation.R;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
-import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.Toolbar;
 
 import io.fabric.sdk.android.Fabric;
@@ -21,14 +22,14 @@ public abstract class PhotoLocationActivity extends FragmentActivity {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FULLSCREEN);
 
 //        AdRegistration.setAppKey(getString(R.string.amazon_ad_key));
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.splash);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
-            (AppCompatActivity) setSupportActionBar(toolbar);
+            setActionBar(toolbar);
 //            setSupportActionBar(toolbar);
         }
     }

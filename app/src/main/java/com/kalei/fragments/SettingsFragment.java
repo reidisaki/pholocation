@@ -84,6 +84,7 @@ public class SettingsFragment extends PhotoLocationFragment implements OnChecked
 
         ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
                 .toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+
         Button saveBtn = (Button) rootView.findViewById(R.id.save_btn);
         String currentEmailString = PhotoLocationUtils.getEmailStringList(getActivity());
         currentEmails.setText(currentEmailString != null && currentEmailString.length() == 0 ? "Please enter at least one email" : currentEmailString);
@@ -134,6 +135,8 @@ public class SettingsFragment extends PhotoLocationFragment implements OnChecked
         versionText.setText("v " + PhotoLocationApplication.getInstance().getVersionName(getActivity()));
         Switch wifiSwitch = (Switch) rootView.findViewById(R.id.send_wifi_switch);
         Switch saveOriginaLSwitch = (Switch) rootView.findViewById(R.id.save_original_switch);
+        Switch requireCommentSwitch = (Switch) rootView.findViewById(R.id.require_comment_switch);
+
         //TODO: Remove this later
         if (PhotoLocationApplication.debug) {
             TextView sendTextOnlyText = (TextView) rootView.findViewById(R.id.send_text_only_text);
@@ -141,7 +144,6 @@ public class SettingsFragment extends PhotoLocationFragment implements OnChecked
                 @Override
                 public void onClick(final View v) {
                     PrefManager.clear(getActivity());
-
                     Log.i("Reid", "Cleared shared prefs");
                 }
             });
@@ -153,6 +155,9 @@ public class SettingsFragment extends PhotoLocationFragment implements OnChecked
 
         saveOriginaLSwitch.setChecked(PrefManager.getOriginalOnly(getActivity()));
         saveOriginaLSwitch.setOnCheckedChangeListener(this);
+
+        requireCommentSwitch.setChecked(PrefManager.getCommentRequired(getActivity()));
+        requireCommentSwitch.setOnCheckedChangeListener(this);
         return rootView;
     }
 
@@ -179,6 +184,9 @@ public class SettingsFragment extends PhotoLocationFragment implements OnChecked
                 break;
             case R.id.save_original_switch:
                 PrefManager.saveOriginalPhoto(getActivity(), isChecked);
+                break;
+            case R.id.require_comment_switch:
+                PrefManager.setCommentRequired(getActivity(), isChecked);
                 break;
         }
     }

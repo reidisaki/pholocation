@@ -20,6 +20,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
@@ -325,40 +326,54 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
 
     @Override
     public void onPhotoTaken(String scaledImage, String originalImage) {
-        Animation animation = new TranslateAnimation(0, 0, 0, 500);
-        animation.setDuration(500);
-        animation.setAnimationListener(new AnimationListener() {
-            @Override
-            public void onAnimationStart(final Animation animation) {
+        if (PrefManager.getCommentRequired(getActivity())) {
+            Animation animation = new TranslateAnimation(0, 0, 0, 500);
+            animation.setDuration(500);
+            animation.setAnimationListener(new AnimationListener() {
+                @Override
+                public void onAnimationStart(final Animation animation) {
 
-            }
+                }
 
-            @Override
-            public void onAnimationEnd(final Animation animation) {
-                mCameraControls.setVisibility(View.GONE);
-            }
+                @Override
+                public void onAnimationEnd(final Animation animation) {
+                    mCameraControls.setVisibility(View.GONE);
+                }
 
-            @Override
-            public void onAnimationRepeat(final Animation animation) {
+                @Override
+                public void onAnimationRepeat(final Animation animation) {
 
-            }
-        });
-        mCameraControls.startAnimation(animation);
+                }
+            });
+            mCameraControls.startAnimation(animation);
 
-        mSurfaceFrame.setVisibility(View.GONE);
-        mPreviewPane.setVisibility(View.VISIBLE);
-        mCameraPreview.setVisibility(R.id.progress, View.VISIBLE);
-        mCameraPreview.setVisibility(R.id.imageView, View.GONE);
-
+            mSurfaceFrame.setVisibility(View.GONE);
+            mPreviewPane.setVisibility(View.VISIBLE);
+            mCameraPreview.setVisibility(R.id.progress, View.VISIBLE);
+            mCameraPreview.setVisibility(R.id.imageView, View.GONE);
+        }
         Log.i("pl", "photo taken");
     }
 
     @Override
     public void onPhotoProcessed(String scaledImagePath, String originalImagePath) {
         Log.i("pl", "Photo ready to be processed");
-        mCameraPreview.setImagePathsAndImageView(scaledImagePath, originalImagePath);
-        mCameraPreview.setVisibility(R.id.progress, View.GONE);
-        mCameraPreview.setVisibility(R.id.imageView, View.VISIBLE);
+
+        if (PrefManager.getCommentRequired(getActivity())) {
+            Log.i("pl", "enabled comments");
+            mCameraPreview.setImagePathsAndImageView(scaledImagePath, originalImagePath);
+            mCameraPreview.setVisibility(R.id.progress, View.GONE);
+            mCameraPreview.setVisibility(R.id.imageView, View.VISIBLE);
+        } else {
+            Log.i("pl", "disabled comments");
+            double longitude = 0, lattitude = 0;
+            if (MainActivity.mLocation != null) {
+                longitude = MainActivity.mLocation.getLongitude();
+                lattitude = MainActivity.mLocation.getLatitude();
+            }
+            PhotoLocationUtils.savePhoto(getActivity(), scaledImagePath, originalImagePath, longitude, lattitude, "");
+            getContext().startService(PhotoLocationUtils.getPhotoUploadIntent(getActivity(), ""));
+        }
     }
 }
 
