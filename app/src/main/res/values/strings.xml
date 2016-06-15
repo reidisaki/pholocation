@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">PhotoLocation</string>
+    <string name="username">postmaster@sandbox540fa4eec6994c5788835bb8518a246c.mailgun.org</string>
+    <string name="password">6fda75b4cec66d1a81391a6c69913bbe</string>
+    <string name="admob_id">ca-app-pub-5747146577301976/4355730843</string>
+    <string name="error_message_template">oopsies, there was a problem,</string>
+    <string name="edit">edit</string>
+    <string name="delete">delete</string>
+    <string name="save">save</string>
+    <string name="banner_ad_unit_id">ca-app-pub-5747146577301976/6560174047</string>
+    <string name="send_wifi_only">Send through wifi only</string>
+    <string name="save_original_text">Save original</string>
+    <string name="amazon_ad_key">cba5d18747bd431ea989f693e4b65ccf</string>
+
+</resources>
+
