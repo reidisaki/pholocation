@@ -12,7 +12,6 @@ import android.util.Log;
  * Created by risaki on 3/2/16.
  */
 public class WifiReceiver extends BroadcastReceiver {
-    public static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -21,7 +20,7 @@ public class WifiReceiver extends BroadcastReceiver {
         if (intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE") || intent.getAction().equals(PhotoLocationUtils.NOTIFICATION_RETRY_ACTION)) {
             PhotoLocationUtils.processEmailPicture(context, intent);
         }
-        if (intent.getAction().equals(NOTIFICATION_DELETED_ACTION)) {
+        if (intent.getAction().equals(PhotoLocationUtils.NOTIFICATION_DELETED_ACTION)) {
             PhotoLocationUtils.mFailedSends = 0;
             PhotoLocationUtils.mSuccessfulSends = 0;
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
