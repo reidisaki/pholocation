@@ -577,11 +577,12 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 mCamera.startPreview();
                 final File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, false);
                 final File originalPicture = getOutputMediaFile(MEDIA_TYPE_IMAGE, true);
-                mPhotoTakenListener.onPhotoTaken(pictureFile.toString(), originalPicture.toString());
+
                 if (pictureFile == null) {
                     Log.d("pl", "Error creating media file, check storage permissions: ");
                     return;
                 }
+                mPhotoTakenListener.onPhotoTaken(pictureFile.toString(), originalPicture.toString());
                 new SavePhotoTask(pictureFile.toString(), originalPicture.toString(), data).execute(mCameraRotation);
             }
         };

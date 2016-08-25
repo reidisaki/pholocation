@@ -359,20 +359,22 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     public void onPhotoProcessed(String scaledImagePath, String originalImagePath) {
         Log.i("pl", "Photo ready to be processed");
 
-        if (PrefManager.getCommentRequired(getActivity())) {
-            Log.i("pl", "enabled comments");
-            mCameraPreview.setImagePathsAndImageView(scaledImagePath, originalImagePath);
-            mCameraPreview.setVisibility(R.id.progress, View.GONE);
-            mCameraPreview.setVisibility(R.id.imageView, View.VISIBLE);
-        } else {
-            Log.i("pl", "disabled comments");
-            double longitude = 0, lattitude = 0;
-            if (MainActivity.mLocation != null) {
-                longitude = MainActivity.mLocation.getLongitude();
-                lattitude = MainActivity.mLocation.getLatitude();
+        if (getActivity() != null) {
+            if (PrefManager.getCommentRequired(getActivity())) {
+                Log.i("pl", "enabled comments");
+                mCameraPreview.setImagePathsAndImageView(scaledImagePath, originalImagePath);
+                mCameraPreview.setVisibility(R.id.progress, View.GONE);
+                mCameraPreview.setVisibility(R.id.imageView, View.VISIBLE);
+            } else {
+                Log.i("pl", "disabled comments");
+                double longitude = 0, lattitude = 0;
+                if (MainActivity.mLocation != null) {
+                    longitude = MainActivity.mLocation.getLongitude();
+                    lattitude = MainActivity.mLocation.getLatitude();
+                }
+                PhotoLocationUtils.savePhoto(getActivity(), scaledImagePath, originalImagePath, longitude, lattitude, "");
+                getContext().startService(PhotoLocationUtils.getPhotoUploadIntent(getActivity(), ""));
             }
-            PhotoLocationUtils.savePhoto(getActivity(), scaledImagePath, originalImagePath, longitude, lattitude, "");
-            getContext().startService(PhotoLocationUtils.getPhotoUploadIntent(getActivity(), ""));
         }
     }
 }
