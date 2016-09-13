@@ -14,7 +14,7 @@ import io.fabric.sdk.android.Fabric;
 /**
  * Created by risaki on 2/20/16.
  */
-public class PhotoLocationApplication extends Application {
+public class PhotoLocationApplication extends android.support.multidex.MultiDexApplication {
 
     public static String FLURRY_KEY = "JGBTZJXTZFXBS5VY6T56";
     public static PhotoLocationApplication mInstance;

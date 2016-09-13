@@ -1,5 +1,6 @@
 package com.kalei.views;
 
+import com.crashlytics.android.Crashlytics;
 import com.flurry.android.FlurryAgent;
 import com.kalei.activities.MainActivity;
 import com.kalei.fragments.CameraFragment;
@@ -42,6 +43,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import io.fabric.sdk.android.Logger;
 
 public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -449,12 +452,17 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 
         List<String> supportedFocusModes = params.getSupportedFocusModes();
         if (supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-            mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                @Override
-                public void onAutoFocus(boolean b, Camera camera) {
-                    // currently set to auto-focus on single touch
-                }
-            });
+            try {
+                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean b, Camera camera) {
+                        // currently set to auto-focus on single touch
+                    }
+                });
+            } catch (RuntimeException e) {
+                Log.e("pl", "auto focus failed");
+                Crashlytics.log("Auto focus failed");
+            }
         }
     }
 
@@ -582,8 +590,12 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                     Log.d("pl", "Error creating media file, check storage permissions: ");
                     return;
                 }
-                mPhotoTakenListener.onPhotoTaken(pictureFile.toString(), originalPicture.toString());
-                new SavePhotoTask(pictureFile.toString(), originalPicture.toString(), data).execute(mCameraRotation);
+                if (pictureFile != null && originalPicture != null) {
+                    mPhotoTakenListener.onPhotoTaken(pictureFile.toString(), originalPicture.toString());
+                    new SavePhotoTask(pictureFile.toString(), originalPicture.toString(), data).execute(mCameraRotation);
+                } else {
+                    Crashlytics.log("picture file is null:" + (pictureFile == null) + " or orginal picture is null: " + (originalPicture == null));
+                }
             }
         };
         try {

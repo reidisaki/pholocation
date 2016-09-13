@@ -14,8 +14,8 @@ android {
         applicationId "com.kalei.pholocation"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 15
-        versionName "1.5.4"
+        versionCode 16
+        versionName "1.5.5"
     }
     buildTypes {
         release {
@@ -32,6 +32,7 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
     dexOptions {
+        incremental true
         javaMaxHeapSize "4g"
     }
 }
@@ -87,5 +88,5 @@ dependencies {
 //        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
 //    }
 //    compile 'commons-io:commons-io:1.3.2'
-//    compile 'com.android.support:multidex:'
+    compile 'com.android.support:multidex:'
 }
