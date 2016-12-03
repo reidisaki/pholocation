@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">PhotoLocation</string>
-    <string name="username">postmaster@sandbox540fa4eec6994c5788835bb8518a246c.mailgun.org</string>
-    <string name="password">6fda75b4cec66d1a81391a6c69913bbe</string>
+    <!--<string name="username">postmaster@sandbox540fa4eec6994c5788835bb8518a246c.mailgun.org</string>-->
+    <!--<string name="password">6fda75b4cec66d1a81391a6c69913bbe</string>-->
+
+    <string name="username">postmaster@pholoco.chickenkiller.com</string>
+    <string name="password">nopass1</string>
     <string name="admob_id">ca-app-pub-5747146577301976/4355730843</string>
     <string name="error_message_template">oopsies, there was a problem,</string>
     <string name="edit">edit</string>
