@@ -528,6 +528,8 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
                 Log.d("pl", "File not found: " + e.getMessage());
             } catch (IOException e) {
                 Log.d("pl", "Error accessing file: " + e.getMessage());
+            } catch (NullPointerException e) {
+                Log.d("pl", "Somethign was nullt: " + e.getMessage());
             }
             Log.i("pl", "got location? " + (MainActivity.mLocation != null));
             //after 10 seconds create the photo object save it and call the service.
