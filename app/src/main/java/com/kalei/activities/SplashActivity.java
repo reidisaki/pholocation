@@ -36,6 +36,7 @@ public class SplashActivity extends PhotoLocationActivity {
     public void onRequestPermissionsResult(int requestCode,
             String[] permissions,
             int[] grantResults) {
+        startActivity(new Intent(SplashActivity.this, AdActivity.class));
         if (requestCode == 0) {
             if (grantResults.length > 0) {
                 startActivity(new Intent(SplashActivity.this, AdActivity.class));

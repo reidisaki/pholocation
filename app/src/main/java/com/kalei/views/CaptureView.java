@@ -567,44 +567,46 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
 //        mCanTakePicture = false;
         final int mCameraRotation = CameraFragment.mOrientation;
         Parameters parameters = mCamera.getParameters();
-        if (PrefManager.getFlashOption(mContext)) {
-            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-            mCamera.setParameters(parameters);
-            parameters.setFlashMode(Parameters.FLASH_MODE_ON);
-            mCamera.setParameters(parameters);
-            Log.i("pl", "flash mode on");
-        } else {
-            Log.i("pl", "flash mode off");
-            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-            mCamera.setParameters(parameters);
-        }
-        mCamera.setParameters(parameters);
-
-        Camera.PictureCallback mPictureCallback = new PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-
-                mCamera.startPreview();
-                final File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, false);
-                final File originalPicture = getOutputMediaFile(MEDIA_TYPE_IMAGE, true);
-
-                if (pictureFile == null) {
-                    Log.d("pl", "Error creating media file, check storage permissions: ");
-                    return;
-                }
-                if (pictureFile != null && originalPicture != null) {
-                    mPhotoTakenListener.onPhotoTaken(pictureFile.toString(), originalPicture.toString());
-                    new SavePhotoTask(pictureFile.toString(), originalPicture.toString(), data).execute(mCameraRotation);
-                } else {
-                    Crashlytics.log("picture file is null:" + (pictureFile == null) + " or orginal picture is null: " + (originalPicture == null));
-                }
+        if (parameters != null) {
+            if (PrefManager.getFlashOption(mContext)) {
+                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                mCamera.setParameters(parameters);
+                parameters.setFlashMode(Parameters.FLASH_MODE_ON);
+                mCamera.setParameters(parameters);
+                Log.i("pl", "flash mode on");
+            } else {
+                Log.i("pl", "flash mode off");
+                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                mCamera.setParameters(parameters);
             }
-        };
-        try {
+            mCamera.setParameters(parameters);
 
-            mCamera.takePicture(null, null, mPictureCallback);
-        } catch (RuntimeException e) {
-            Log.i("pl", "clicked too fast" + e.getMessage());
+            Camera.PictureCallback mPictureCallback = new PictureCallback() {
+                @Override
+                public void onPictureTaken(byte[] data, Camera camera) {
+
+                    mCamera.startPreview();
+                    final File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, false);
+                    final File originalPicture = getOutputMediaFile(MEDIA_TYPE_IMAGE, true);
+
+                    if (pictureFile == null) {
+                        Log.d("pl", "Error creating media file, check storage permissions: ");
+                        return;
+                    }
+                    if (pictureFile != null && originalPicture != null) {
+                        mPhotoTakenListener.onPhotoTaken(pictureFile.toString(), originalPicture.toString());
+                        new SavePhotoTask(pictureFile.toString(), originalPicture.toString(), data).execute(mCameraRotation);
+                    } else {
+                        Crashlytics.log("picture file is null:" + (pictureFile == null) + " or orginal picture is null: " + (originalPicture == null));
+                    }
+                }
+            };
+            try {
+
+                mCamera.takePicture(null, null, mPictureCallback);
+            } catch (RuntimeException e) {
+                Log.i("pl", "clicked too fast" + e.getMessage());
+            }
         }
     }
 

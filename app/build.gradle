@@ -14,8 +14,8 @@ android {
         applicationId "com.kalei.pholocation"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 19
-        versionName "1.5.7"
+        versionCode 21
+        versionName "1.5.8"
     }
     buildTypes {
         release {
@@ -35,6 +35,21 @@ android {
         incremental true
         javaMaxHeapSize "4g"
     }
+
+    buildTypes {
+        release {
+            debuggable false
+            minifyEnabled false
+            resValue 'string', 'app_name', '"PhotoLocation"'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            resValue 'string', 'app_name', '"photoLocation -debug"'
+            applicationIdSuffix ".debug"
+        }
+    }
+    productFlavors {
+    }
 }
 allprojects {
     repositories {
@@ -53,6 +68,8 @@ buildscript {
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
+
+
 dependencies {
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
