@@ -55,24 +55,27 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
         setContentView(R.layout.activity_main);
         FlurryAgent.init(this, PhotoLocationApplication.FLURRY_KEY);
         FlurryAgent.onStartSession(this);
-        loadToolbar("Settings");
+
         mCameraFragment = CameraFragment.newInstance();
         if (mSettingsFragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mSettingsFragment).commit();
         } else {
             getSupportFragmentManager().beginTransaction().replace(R.id.camera_container, mCameraFragment).commit();
         }
-        toolbar.setNavigationOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                clickBack();
-                //hide keyboard
-                if (v != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        if (!isKitKat) {
+            loadToolbar("Settings");
+            toolbar.setNavigationOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    clickBack();
+                    //hide keyboard
+                    if (v != null) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public void clickBack() {

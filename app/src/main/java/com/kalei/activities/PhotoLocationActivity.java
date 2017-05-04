@@ -3,9 +3,10 @@ package com.kalei.activities;
 import com.crashlytics.android.Crashlytics;
 import com.kalei.pholocation.R;
 
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Toolbar;
@@ -18,6 +19,8 @@ import io.fabric.sdk.android.Fabric;
 public abstract class PhotoLocationActivity extends FragmentActivity {
     public Toolbar toolbar;
 
+    protected boolean isKitKat = true;
+
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,10 +30,14 @@ public abstract class PhotoLocationActivity extends FragmentActivity {
 //        AdRegistration.setAppKey(getString(R.string.amazon_ad_key));
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.splash);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setActionBar(toolbar);
+        if (VERSION.SDK_INT > VERSION_CODES.KITKAT) {
+            isKitKat = false;
+            toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+            if (toolbar != null) {
+                setActionBar(toolbar);
 //            setSupportActionBar(toolbar);
+            }
         }
     }
 }

@@ -7,15 +7,15 @@ repositories {
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion '25.0.2'
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
         multiDexEnabled true
         applicationId "com.kalei.pholocation"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 21
-        versionName "1.5.8"
+        versionCode 22
+        versionName "1.5.9"
     }
     buildTypes {
         release {

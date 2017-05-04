@@ -416,7 +416,7 @@ public class PhotoLocationUtils {
                             style.addLine(s);
                         }
                         mBuilder.setStyle(style);
-                        if (e == null || !e.getMessage().contains("IOException")) {
+                        if (e == null || e.getMessage() == null) {
                             p.setDidSend(false);
                             mNotificationManager.notify(1, mBuilder.build());
                         } else {

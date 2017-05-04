@@ -17,6 +17,8 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.SensorManager;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -73,7 +75,9 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
 
-        ((MainActivity) getActivity()).getActionBar().hide();
+        if (VERSION.SDK_INT > VERSION_CODES.KITKAT) {
+            ((MainActivity) getActivity()).getActionBar().hide();
+        }
         View rootView = inflater.inflate(R.layout.fragment_camera, container, false);
         mSettingsImage = (ImageView) rootView.findViewById(R.id.settings_image);
         mSettingsImage.setOnClickListener(this);

@@ -6,15 +6,21 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v4.content.ContextCompat;
 
 /**
  * Created by risaki on 2/21/16.
  */
-public class SplashActivity extends PhotoLocationActivity {
+public class SplashActivity extends PhotoLocationActivity implements OnRequestPermissionsResultCallback {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         if (ContextCompat.checkSelfPermission(this,
                 permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
