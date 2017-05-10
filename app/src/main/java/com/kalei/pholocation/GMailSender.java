@@ -2,6 +2,7 @@ package com.kalei.pholocation;
 
 import com.kalei.PhotoLocationApplication;
 import com.kalei.interfaces.IMailListener;
+import com.kalei.managers.PrefManager;
 import com.kalei.models.Photo;
 
 import android.accounts.Account;
@@ -145,7 +146,9 @@ public class GMailSender extends javax.mail.Authenticator {
                 message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipients));
             }
 
-            if (!PhotoLocationApplication.debug) {
+            int picturesSent = PrefManager.getPicturesSent(context);
+            if (!PhotoLocationApplication.debug && BuildConfig.MAX_PICTURES_PER_DAY >= picturesSent) {
+                PrefManager.setPicturesSent(context, picturesSent + 1);
                 Transport.send(message);
             }
             Log.i("pl", "Sending mail");

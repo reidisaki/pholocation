@@ -16,6 +16,7 @@ import com.kalei.PhotoLocationApplication;
 import com.kalei.fragments.CameraFragment;
 import com.kalei.fragments.SettingsFragment;
 import com.kalei.interfaces.ICameraClickListener;
+import com.kalei.managers.PrefManager;
 import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 
@@ -33,6 +34,9 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import android.widget.Toolbar;
+
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends PhotoLocationActivity implements ConnectionCallbacks, OnConnectionFailedListener, ICameraClickListener,
                                                                    LocationListener {
@@ -52,7 +56,11 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
         if (PhotoLocationUtils.getEmailStringList(this).length() == 0) {
             mSettingsFragment = SettingsFragment.newInstance();
         }
-        setContentView(R.layout.activity_main);
+        if (!isKitKat) {
+            setContentView(R.layout.activity_main);
+        } else {
+            setContentView(R.layout.activity_main_kk);
+        }
         FlurryAgent.init(this, PhotoLocationApplication.FLURRY_KEY);
         FlurryAgent.onStartSession(this);
 
@@ -240,6 +248,19 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     @Override
     protected void onResume() {
         super.onResume();
+        compareDates();
         checkLocation();
+    }
+
+    private void compareDates() {
+        Date saveDate = new Date(PrefManager.getDateChecked(this));
+        Date todayDate = new Date();
+
+        long diff = todayDate.getTime() - saveDate.getTime();
+        int days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+        if (days > 0) {
+            PrefManager.setPicturesSent(this, 0);
+            PrefManager.setDateChecked(this, todayDate.toString());
+        }
     }
 }

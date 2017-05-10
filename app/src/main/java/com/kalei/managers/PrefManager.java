@@ -1,5 +1,6 @@
 package com.kalei.managers;
 
+import com.google.api.client.util.DateTime;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -12,6 +13,7 @@ import android.support.annotation.NonNull;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class PrefManager {
@@ -20,6 +22,9 @@ public class PrefManager {
     private final static String PHOTO_LIST = "photo_list";
     private final static String FLASH_OPTION = "flash_option";
     private final static String COMMENT_REQUIRED = "comment_required";
+    private final static String PICTURES_SENT = "pictures_sent";
+    private final static String DATE_LAST_CHECKED = "date_last_checked";
+    private final static String CHECKED_TODAY = "checked_today";
 
     //appboy keys
     private final static String APPBOY_VIDEOS_VIEWED = "app_boy_video_viewed";
@@ -39,11 +44,19 @@ public class PrefManager {
         getEditor(context).putBoolean(key, value).commit();
     }
 
+    private static void putInt(Context context, @NonNull String key, int value) {
+        getEditor(context).putInt(key, value).commit();
+    }
+
     /**
      * Helper method to get a boolean value from preferences
      */
     private static boolean getBoolean(Context context, @NonNull String key, boolean defValue) {
         return getPreferences(context).getBoolean(key, defValue);
+    }
+
+    private static int getInt(Context context, @NonNull String key, int defValue) {
+        return getPreferences(context).getInt(key, defValue);
     }
 
     /**
@@ -132,5 +145,29 @@ public class PrefManager {
 
     public static boolean getCommentRequired(Context context) {
         return getBoolean(context, COMMENT_REQUIRED, false);
+    }
+
+    public static void setPicturesSent(Context context, int picturesSent) {
+        putInt(context, PICTURES_SENT, picturesSent);
+    }
+
+    public static int getPicturesSent(Context context) {
+        return getInt(context, PICTURES_SENT, 0);
+    }
+
+    public static void setDateChecked(Context context, String dateSet) {
+        putString(context, DATE_LAST_CHECKED, dateSet);
+    }
+
+    public static String getDateChecked(Context context) {
+        return getString(context, DATE_LAST_CHECKED, new Date().toString());
+    }
+
+    public static void setCheckedToday(Context context, boolean checkedToday) {
+        putBoolean(context, CHECKED_TODAY, checkedToday);
+    }
+
+    public static boolean getCheckedToday(Context context) {
+        return getBoolean(context, CHECKED_TODAY, false);
     }
 }
