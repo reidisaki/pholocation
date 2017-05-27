@@ -79,26 +79,29 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
         //NB: if you don't release the current camera before switching, you app will crash
         mCamera.release();
 
-        //swap the id of the camera to be used
-        if (mCurrentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
-            Log.i("pl", "facing front");
-            mCurrentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
-            MainActivity.currentCameraId = mCurrentCameraId;
-        } else {
-            Log.i("pl", "facing back");
-            mCurrentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-            MainActivity.currentCameraId = mCurrentCameraId;
-        }
-        mCamera = Camera.open(mCurrentCameraId);
-        //Code snippet for this method from somewhere on android developers, i forget where
-        setCameraDisplayOrientation(mCurrentCameraId, mCamera);
         try {
+            //swap the id of the camera to be used
+            if (mCurrentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                Log.i("pl", "facing front");
+                mCurrentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+                MainActivity.currentCameraId = mCurrentCameraId;
+            } else {
+                Log.i("pl", "facing back");
+                mCurrentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+                MainActivity.currentCameraId = mCurrentCameraId;
+            }
+            mCamera = Camera.open(mCurrentCameraId);
+            //Code snippet for this method from somewhere on android developers, i forget where
+            setCameraDisplayOrientation(mCurrentCameraId, mCamera);
+
             //this step is critical or preview on new camera will no know where to render to
             mCamera.setPreviewDisplay(holder);
+            mCamera.startPreview();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
         }
-        mCamera.startPreview();
     }
 
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
