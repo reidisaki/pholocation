@@ -14,8 +14,8 @@ android {
         applicationId "com.kalei.pholocation"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 26
-        versionName "1.6.3"
+        versionCode 27
+        versionName "1.6.4"
 
 
         buildConfigField "int", "MAX_PICTURES_PER_DAY", "20"
