@@ -160,7 +160,7 @@ public class PrefManager {
     }
 
     public static String getDateChecked(Context context) {
-        return getString(context, DATE_LAST_CHECKED, new Date().toString());
+        return getString(context, DATE_LAST_CHECKED, String.valueOf(new Date().getTime()));
     }
 
     public static void setCheckedToday(Context context, boolean checkedToday) {

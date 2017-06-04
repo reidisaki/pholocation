@@ -35,6 +35,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -253,7 +255,8 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     }
 
     private void compareDates() {
-        Date saveDate = new Date(PrefManager.getDateChecked(this));
+
+        Date saveDate = new Date(Long.valueOf(PrefManager.getDateChecked(this)));
         Date todayDate = new Date();
 
         long diff = todayDate.getTime() - saveDate.getTime();
