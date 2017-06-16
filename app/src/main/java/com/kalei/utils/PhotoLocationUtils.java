@@ -387,8 +387,11 @@ public class PhotoLocationUtils {
 //        String originalPicture, scaledImage;
 //        originalPicture = intent.getStringExtra(CaptureView.ORIGINAL_PICTURE_KEY);
 //        scaledImage = intent.getStringExtra(CaptureView.SCALED_PICTURE_KEY);
+
             final List<Photo> photoList = PrefManager.getPhotoList(context);
+            Log.i("pl", "number of photos to send out: " + photoList.size());
             for (final Photo p : photoList) {
+                Log.i("pl", "photo: " + p.getDateTaken() + " location:" + p.getLattitude() + "," + p.getLongitude());
                 p.setMapLink(getMapLink(p.getLattitude(), p.getLongitude(), context));
                 GMailSender mSender = new GMailSender(context, context.getString(R.string.username), context
                         .getString(R.string.password), p, new IMailListener() {

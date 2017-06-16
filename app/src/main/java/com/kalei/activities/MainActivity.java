@@ -52,6 +52,7 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("reid", "testing");
         if (savedInstanceState != null) {
             mSettingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag("settings");
         }

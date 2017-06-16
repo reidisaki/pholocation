@@ -167,12 +167,12 @@ public class GMailSender extends javax.mail.Authenticator {
         } catch (FileNotFoundException e) {
             Log.i("pl", "io exception happened: " + e.getMessage());
             if (mMailListener != null) {
-                mMailListener.onMailSucceeded(scaledImage);
+                mMailListener.onMailFailed(e, scaledImage);
             }
         } catch (IOException e) {
             Log.i("pl", "io exception happened: " + e.getMessage());
             if (mMailListener != null) {
-                mMailListener.onMailSucceeded(scaledImage);
+                mMailListener.onMailFailed(e, scaledImage);
             }
         } catch (final Exception e) {
             runOnUiThread(new Thread(new Runnable() {
