@@ -39,6 +39,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.telephony.TelephonyManager;
@@ -66,6 +67,7 @@ public class PhotoLocationUtils {
 
     public static final String CAPTION_KEY = "caption_key";
     public static String EMAIL_KEY = "email_key";
+    public static String GROUP_KEY = "group_key";
     public static String MY_PREFS_NAME = "photolocation";
     public static int mSuccessfulSends = 0;
     public static int mFailedSends = 0;
@@ -75,15 +77,34 @@ public class PhotoLocationUtils {
     public static final String LONGITUDE = "longitude_key";
     public static final String LATTITUDE = "lattitude_key";
 
+    //1. save group list items and group name
+    //2. set current list of emails to the group list
+    //3. get the group list that is active
+    //4. get group list of groups
+    //5. get group of items in a group
+    //6. delete/edit a group of items in a group
+    //7. delete edit a group name
+
+    public static void saveDataObjects(String groupName, List<RecipientEntry> chips, Context context) {
+
+        SharedPreferences.Editor editor = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
+        editor.putString(GROUP_KEY + "_" + groupName, convertObjectToJSONString(chips));
+        editor.commit();
+    }
+
+    //stores the currently selected group list
     public static void saveDataObjects(List<RecipientEntry> chips, Context context) {
 
         SharedPreferences.Editor editor = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
+        editor.putString(EMAIL_KEY, convertObjectToJSONString(chips));
+        editor.commit();
+    }
+
+    public static String convertObjectToJSONString(List<RecipientEntry> chips) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Uri.class, new UriSerializer())
                 .create();
-
-        editor.putString(EMAIL_KEY, gson.toJson(chips).toString());
-        editor.commit();
+        return gson.toJson(chips).toString();
     }
 
     public static Intent getPhotoUploadIntent(Context context, String caption) {
@@ -101,14 +122,25 @@ public class PhotoLocationUtils {
         return i;
     }
 
-    public static List<RecipientEntry> getDataObjects(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE);
+    public static List<RecipientEntry> convertJSONStringToDataObjects(Context context, String jsonString) {
         Type listType = new TypeToken<ArrayList<RecipientEntry>>() {
         }.getType();
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Uri.class, new UriDeserializer())
                 .create();
-        List<RecipientEntry> list = gson.fromJson(prefs.getString(EMAIL_KEY, null), listType);
+        List<RecipientEntry> list = gson.fromJson(jsonString, listType);
+        return list;
+    }
+
+    public static List<RecipientEntry> getDataObjects(Context context) {
+        return getDataObjects("", context);
+    }
+
+    public static List<RecipientEntry> getDataObjects(String groupName, Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE);
+
+        List<RecipientEntry> list = convertJSONStringToDataObjects(context, prefs
+                .getString(groupName.length() > 0 ? GROUP_KEY + "_" + groupName : EMAIL_KEY, null));
         if (list == null) {
             list = new ArrayList<>();
         }
@@ -127,6 +159,12 @@ public class PhotoLocationUtils {
         String s = sb.toString();
 
         return s.length() > 0 ? s.substring(0, s.length() - 1) : s;
+    }
+
+    public static void deleteGroup(final Context context, final String listValue) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
+        editor.remove(GROUP_KEY + "_" + listValue);
+        editor.commit();
     }
 
     public static class UriSerializer implements JsonSerializer<Uri> {

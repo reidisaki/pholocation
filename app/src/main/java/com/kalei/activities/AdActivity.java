@@ -4,10 +4,12 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 
+import com.kalei.pholocation.BuildConfig;
 import com.kalei.pholocation.R;
 import com.kalei.utils.PhotoLocationUtils;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 public class AdActivity extends PhotoLocationActivity {
@@ -18,29 +20,33 @@ public class AdActivity extends PhotoLocationActivity {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(getString(R.string.admob_id));
+        if (BuildConfig.DEBUG) {
+            gotoActivity();
+        } else {
+            mInterstitialAd = new InterstitialAd(this);
+            mInterstitialAd.setAdUnitId(getString(R.string.admob_id));
 
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                super.onAdLoaded();
-                mInterstitialAd.show();
-            }
+            mInterstitialAd.setAdListener(new AdListener() {
+                @Override
+                public void onAdLoaded() {
+                    super.onAdLoaded();
+                    mInterstitialAd.show();
+                }
 
-            @Override
-            public void onAdFailedToLoad(final int errorCode) {
-                super.onAdFailedToLoad(errorCode);
-                gotoActivity();
-            }
+                @Override
+                public void onAdFailedToLoad(final int errorCode) {
+                    super.onAdFailedToLoad(errorCode);
+                    gotoActivity();
+                }
 
-            @Override
-            public void onAdClosed() {
-                gotoActivity();
-            }
-        });
+                @Override
+                public void onAdClosed() {
+                    gotoActivity();
+                }
+            });
 
-        requestNewInterstitial();
+            requestNewInterstitial();
+        }
     }
 
     private void requestNewInterstitial() {
@@ -104,6 +110,7 @@ public class AdActivity extends PhotoLocationActivity {
         } else {
             startActivity(new Intent(AdActivity.this, MainActivity.class));
         }
+        finish();
     }
 }
 /**

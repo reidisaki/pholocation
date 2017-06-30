@@ -27,6 +27,7 @@
                                        android:layout_width="match_parent"
                                        android:layout_height="match_parent"/>
 
+
     </FrameLayout>
     <FrameLayout android:layout_width="match_parent"
                  android:visibility="gone"
@@ -34,13 +35,30 @@
                  android:id="@+id/shutterScreen"
                  android:background="@android:color/black"
                  android:layout_height="match_parent"/>
-
+    <LinearLayout android:layout_width="match_parent"
+                  android:visibility="gone"
+                  android:orientation="horizontal"
+                  android:id="@+id/category_layout"
+                  android:layout_above="@+id/camera_controls_relative"
+                  android:layout_height="wrap_content">
+        <!--here is where you will load up the picture group buttons show this for 2 seconds and hide it-->
+    </LinearLayout>
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
                     android:background="#48000000"
                     android:id="@+id/camera_controls_relative"
                     android:layout_alignParentBottom="true">
+        <ImageView
+                android:padding="10dp"
+                android:id="@+id/grouping"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/shutter"
+                android:layout_toRightOf="@+id/camera_switch"
+                android:src="@drawable/categories"/>
+
         <ImageView android:id="@+id/shutter"
                    android:layout_centerHorizontal="true"
                    tools:visibility="visible"
@@ -55,6 +73,7 @@
                 android:layout_height="50dp"
                 android:layout_centerVertical="true"
                 android:src="@drawable/switch_camera"/>
+
         <ImageView
                 android:padding="10dp"
                 android:id="@+id/flash"

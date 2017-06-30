@@ -1,5 +1,6 @@
 package com.kalei.fragments;
 
+import com.android.ex.chips.RecipientEntry;
 import com.kalei.activities.MainActivity;
 import com.kalei.interfaces.ICameraClickListener;
 import com.kalei.interfaces.IPhotoTakenListener;
@@ -10,6 +11,7 @@ import com.kalei.views.CameraPreview;
 import com.kalei.views.CaptureView;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -22,33 +24,39 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by risaki on 2/22/16.
  */
 public class CameraFragment extends PhotoLocationFragment implements OnClickListener, IPhotoTakenListener {
-    private ImageView mSettingsImage, mShutter, mCameraSwitch, mFlash;
+    private ImageView mSettingsImage, mShutter, mCameraSwitch, mFlash, mCategoryGrouping;
     private CaptureView mCaptureView;
     private CameraPreview mCameraPreview;
     private FrameLayout mShutterScreen, mSurfaceFrame, mPreviewPane;
     private RelativeLayout mCameraControls;
+    private LinearLayout mCategoryLinearLayout;
     private Handler mHandler;
-    public boolean shouldBackOutofApp = true;
+    public boolean shouldBackOutofApp = true, mIsCategoryGroupingVisible = false;
     public ICameraClickListener mCameraClickListener;
     public int numPicturesTaken = 1;
     private static int NUMBER_PICTURES_BEFORE_SHOWING_AD = 5;
@@ -81,6 +89,11 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
         View rootView = inflater.inflate(R.layout.fragment_camera, container, false);
         mSettingsImage = (ImageView) rootView.findViewById(R.id.settings_image);
         mSettingsImage.setOnClickListener(this);
+
+        mCategoryGrouping = (ImageView) rootView.findViewById(R.id.grouping);
+        mCategoryGrouping.setOnClickListener(this);
+        mCategoryLinearLayout = (LinearLayout) rootView.findViewById(R.id.category_layout);
+
         mShutter = (ImageView) rootView.findViewById(R.id.shutter);
         mShutter.setOnClickListener(this);
         mSurfaceFrame = (FrameLayout) rootView.findViewById(R.id.capture_view_frame);
@@ -151,11 +164,57 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                 shouldBackOutofApp = true;
                 mCaptureView.switchCamera();
                 break;
+            case R.id.grouping:
+                shouldBackOutofApp = false;
+                showHideCameraCategories();
+                break;
             default:
                 mCaptureView.setAlpha(1f);
                 mShutter.setVisibility(View.VISIBLE);
                 break;
         }
+    }
+
+    private void showHideCameraCategories() {
+        SharedPreferences prefs = getActivity().getSharedPreferences(PhotoLocationUtils.MY_PREFS_NAME, Context.MODE_PRIVATE);
+        Map<String, ?> keys = prefs.getAll();
+
+        int i = 0;
+        if (mCategoryLinearLayout.getChildCount() == 0) {
+            for (final Map.Entry<String, ?> entry : keys.entrySet()) {
+                if (entry.getKey().startsWith(PhotoLocationUtils.GROUP_KEY)) {
+                    final Button b = new Button(getActivity());
+                    final String buttonTitle = entry.getKey().toString().replace(PhotoLocationUtils.GROUP_KEY + "_", "");
+                    b.setText(buttonTitle);
+                    b.setTag("button" + i);
+                    b.setOnLongClickListener(new OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(final View v) {
+                            List<RecipientEntry> list = PhotoLocationUtils.convertJSONStringToDataObjects(getActivity(), entry.getValue().toString());
+//                        handleGroupButtonClicked(list, buttonTitle, b.getTag().toString());
+                            return false;
+                        }
+                    });
+                    b.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(final View v) {
+                            List<RecipientEntry> list = PhotoLocationUtils.convertJSONStringToDataObjects(getActivity(), entry.getValue().toString());
+//                        handleGroupButtonClicked(list, buttonTitle, b.getTag().toString());
+                        }
+                    });
+                    i++;
+                    mCategoryLinearLayout.addView(b);
+                }
+            }
+        }
+        if (!mIsCategoryGroupingVisible) {
+            //hide the categories
+            mIsCategoryGroupingVisible = true;
+        } else {
+            //showthe categories
+            mIsCategoryGroupingVisible = false;
+        }
+        mCategoryLinearLayout.setVisibility(mIsCategoryGroupingVisible ? View.VISIBLE : View.GONE);
     }
 
     private void shutterShow() {

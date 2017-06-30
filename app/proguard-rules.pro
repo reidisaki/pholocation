@@ -20,3 +20,5 @@
 -dontwarn
 -ignorewarnings
 -dontshrink
+-dontwarn java.lang.invoke.*
+-dontwarn **$$Lambda$*
