@@ -8,4 +8,5 @@ public interface IPhotoTakenListener {
     void onPhotoCancel();
     void onPhotoTaken(String scaledImagePath, String originalFilePath);
     void onPhotoProcessed(String scaledImagePath, String originalFilePath);
+    void onCameraTapped();
 }

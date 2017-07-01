@@ -423,6 +423,7 @@ public class CaptureView extends SurfaceView implements SurfaceHolder.Callback {
             FlurryAgent.logEvent("null pointer exception" + e.getMessage());
         }
         mGestureDetector.onTouchEvent(event);
+        mPhotoTakenListener.onCameraTapped();
         return true;
     }
 

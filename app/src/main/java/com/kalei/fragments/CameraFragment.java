@@ -173,6 +173,11 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                 mShutter.setVisibility(View.VISIBLE);
                 break;
         }
+
+        if (v.getId() != R.id.grouping) {
+            //hide it everytime unless we are trying to actually show it.
+            mCategoryLinearLayout.setVisibility(View.GONE);
+        }
     }
 
     private void showHideCameraCategories() {
@@ -439,6 +444,11 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                 getContext().startService(PhotoLocationUtils.getPhotoUploadIntent(getActivity(), ""));
             }
         }
+    }
+
+    @Override
+    public void onCameraTapped() {
+        mCategoryLinearLayout.setVisibility(View.GONE);
     }
 }
 
