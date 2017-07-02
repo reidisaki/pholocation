@@ -192,20 +192,16 @@ public class CameraFragment extends PhotoLocationFragment implements OnClickList
                     final String buttonTitle = entry.getKey().toString().replace(PhotoLocationUtils.GROUP_KEY + "_", "");
                     b.setText(buttonTitle);
                     b.setTag("button" + i);
-                    b.setOnLongClickListener(new OnLongClickListener() {
-                        @Override
-                        public boolean onLongClick(final View v) {
-                            List<RecipientEntry> list = PhotoLocationUtils.convertJSONStringToDataObjects(getActivity(), entry.getValue().toString());
+                    b.setOnLongClickListener(v -> {
+                        List<RecipientEntry> list = PhotoLocationUtils.convertJSONStringToDataObjects(getActivity(), entry.getValue().toString());
 //                        handleGroupButtonClicked(list, buttonTitle, b.getTag().toString());
-                            return false;
-                        }
+                        return false;
                     });
-                    b.setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(final View v) {
-                            List<RecipientEntry> list = PhotoLocationUtils.convertJSONStringToDataObjects(getActivity(), entry.getValue().toString());
-//                        handleGroupButtonClicked(list, buttonTitle, b.getTag().toString());
-                        }
+                    b.setOnClickListener(v -> {
+                        List<RecipientEntry> list = PhotoLocationUtils.convertJSONStringToDataObjects(getActivity(), entry.getValue().toString());
+                        PhotoLocationUtils.saveDataObjects(list, getActivity());
+                        Toast.makeText(getActivity(), "using " + buttonTitle + " grouping", Toast.LENGTH_SHORT).show();
+                        mCategoryLinearLayout.setVisibility(View.GONE);
                     });
                     i++;
                     mCategoryLinearLayout.addView(b);
