@@ -150,8 +150,10 @@ public class GMailSender extends javax.mail.Authenticator {
             if (!PhotoLocationApplication.debug && BuildConfig.MAX_PICTURES_PER_DAY >= picturesSent) {
                 PrefManager.setPicturesSent(context, picturesSent + 1);
                 Transport.send(message);
+                Log.i("pl", "Sending mail");
+            } else {
+                Log.i("pl", "MAX USAGE OCCURED");
             }
-            Log.i("pl", "Sending mail");
 
             runOnUiThread(new Thread(new Runnable() {
                 public void run() {
