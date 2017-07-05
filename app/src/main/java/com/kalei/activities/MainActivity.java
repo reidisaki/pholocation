@@ -37,6 +37,7 @@ import android.widget.Toolbar;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -257,14 +258,21 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
 
     private void compareDates() {
 
-        Date saveDate = new Date(Long.valueOf(PrefManager.getDateChecked(this)));
+        Date saveDate = new Date(PrefManager.getDateChecked(this));
         Date todayDate = new Date();
+
+        // debug
+//        Calendar c = Calendar.getInstance();
+//        c.setTime(todayDate);
+//        c.add(Calendar.DATE, 1);  // number of days to add
+//        todayDate = c.getTime();
+        //
 
         long diff = todayDate.getTime() - saveDate.getTime();
         int days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
         if (days > 0) {
             PrefManager.setPicturesSent(this, 0);
-            PrefManager.setDateChecked(this, todayDate.toString());
         }
+        PrefManager.setDateChecked(this, todayDate.toString());
     }
 }

@@ -151,21 +151,20 @@ public class GMailSender extends javax.mail.Authenticator {
                 PrefManager.setPicturesSent(context, picturesSent + 1);
                 Transport.send(message);
                 Log.i("pl", "Sending mail");
+                runOnUiThread(new Thread(new Runnable() {
+                    public void run() {
+                        File f = new File(scaledImage);
+                        Log.i("pl", "scaled image size: " + f.length());
+                        f.delete(); //delete old smaller file
+
+                        if (mMailListener != null) {
+                            mMailListener.onMailSucceeded(scaledImage);
+                        }
+                    }
+                }));
             } else {
                 Log.i("pl", "MAX USAGE OCCURED");
             }
-
-            runOnUiThread(new Thread(new Runnable() {
-                public void run() {
-                    File f = new File(scaledImage);
-                    Log.i("pl", "scaled image size: " + f.length());
-                    f.delete(); //delete old smaller file
-
-                    if (mMailListener != null) {
-                        mMailListener.onMailSucceeded(scaledImage);
-                    }
-                }
-            }));
         } catch (FileNotFoundException e) {
             Log.i("pl", "io exception happened: " + e.getMessage());
             if (mMailListener != null) {
