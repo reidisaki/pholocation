@@ -155,12 +155,20 @@ public class PrefManager {
         return getInt(context, PICTURES_SENT, 0);
     }
 
-    public static void setDateChecked(Context context, String dateSet) {
-        putString(context, DATE_LAST_CHECKED, dateSet);
+    public static void setDateChecked(Context context, long dateTimeLong) {
+        putLong(context, DATE_LAST_CHECKED, dateTimeLong);
     }
 
-    public static String getDateChecked(Context context) {
-        return getString(context, DATE_LAST_CHECKED, String.valueOf(new Date().getTime()));
+    public static Long getDateChecked(Context context) {
+        return getLong(context, DATE_LAST_CHECKED, -1);
+    }
+
+    private static Long getLong(Context context, @NonNull String key, long defValue) {
+        return getPreferences(context).getLong(key, defValue);
+    }
+
+    private static void putLong(Context context, @NonNull String key, long value) {
+        getEditor(context).putLong(key, value).commit();
     }
 
     public static void setCheckedToday(Context context, boolean checkedToday) {

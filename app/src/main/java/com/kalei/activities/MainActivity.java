@@ -257,8 +257,16 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
     }
 
     private void compareDates() {
+        Date saveDate = null;
+        if (PrefManager.getDateChecked(this) == -1) {
+            //initialize if not initialized in sharedPref
+            saveDate = new Date();
+            PrefManager.setDateChecked(this, saveDate.getTime());
+        } else {
+            //get last saved date
+            saveDate = new Date(PrefManager.getDateChecked(this));
+        }
 
-        Date saveDate = new Date(PrefManager.getDateChecked(this));
         Date todayDate = new Date();
 
         // debug
@@ -269,10 +277,11 @@ public class MainActivity extends PhotoLocationActivity implements ConnectionCal
         //
 
         long diff = todayDate.getTime() - saveDate.getTime();
-        int days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+        long days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+        //check if a day has passed from last time you checked
         if (days > 0) {
             PrefManager.setPicturesSent(this, 0);
+            PrefManager.setDateChecked(this, todayDate.getTime());
         }
-        PrefManager.setDateChecked(this, todayDate.toString());
     }
 }
