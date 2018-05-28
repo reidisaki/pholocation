@@ -34,8 +34,6 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import static com.google.android.gms.internal.zzir.runOnUiThread;
-
 public class GMailSender extends javax.mail.Authenticator {
     private String mailhost = "smtp.mailgun.org";
 //    private String mailhost = "smtp.gmail.com";
@@ -151,17 +149,17 @@ public class GMailSender extends javax.mail.Authenticator {
                 PrefManager.setPicturesSent(context, picturesSent + 1);
                 Transport.send(message);
                 Log.i("pl", "Sending mail");
-                runOnUiThread(new Thread(new Runnable() {
-                    public void run() {
-                        File f = new File(scaledImage);
-                        Log.i("pl", "scaled image size: " + f.length());
-                        f.delete(); //delete old smaller file
+//                runOnUiThread(new Thread(new Runnable() {
+//                    public void run() {
+                File f = new File(scaledImage);
+                Log.i("pl", "scaled image size: " + f.length());
+                f.delete(); //delete old smaller file
 
-                        if (mMailListener != null) {
-                            mMailListener.onMailSucceeded(scaledImage);
-                        }
-                    }
-                }));
+                if (mMailListener != null) {
+                    mMailListener.onMailSucceeded(scaledImage);
+                }
+//                    }
+//                }));
             } else {
                 Log.i("pl", "MAX USAGE OCCURED");
             }
@@ -176,13 +174,13 @@ public class GMailSender extends javax.mail.Authenticator {
                 mMailListener.onMailFailed(e, scaledImage);
             }
         } catch (final Exception e) {
-            runOnUiThread(new Thread(new Runnable() {
-                public void run() {
-                    if (mMailListener != null) {
-                        mMailListener.onMailFailed(e, scaledImage);
-                    }
-                }
-            }));
+//            runOnUiThread(new Thread(new Runnable() {
+//                public void run() {
+//                    if (mMailListener != null) {
+            mMailListener.onMailFailed(e, scaledImage);
+//        }
+//    }
+//            }));
 
             Log.i("pl", "FAILED: " + e.getMessage());
         }
