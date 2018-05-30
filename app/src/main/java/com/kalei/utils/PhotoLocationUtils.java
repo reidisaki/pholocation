@@ -556,9 +556,7 @@ public class PhotoLocationUtils {
                 List<Address> addresses = geoCoder.getFromLocation(lattitude, longitude, 1);
 
                 if (addresses.size() > 0) {
-                    for (int i = 0; i < addresses.get(0).getMaxAddressLineIndex(); i++) {
-                        add += addresses.get(0).getAddressLine(i) + ",";
-                    }
+                    add += addresses.get(0).getAddressLine(0);
                 }
             } catch (IOException e1) {
                 e1.printStackTrace();

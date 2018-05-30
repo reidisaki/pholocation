@@ -41,13 +41,11 @@
                   android:theme="@style/Theme.AppCompat.NoActionBar"
                   android:screenOrientation="fullSensor">
         </activity>
-        <activity android:name="com.kalei.activities.SplashActivity"
+        <activity android:name="com.kalei.activities.AdColonySplashActivity"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-                  android:noHistory="true"
                   android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -73,6 +71,11 @@
                  android:icon="@drawable/ic_launcher"
                  android:label="PhotoService Kalei style"
         ></service>
+
+        <activity android:name="com.adcolony.sdk.AdColonyInterstitialActivity"
+                  android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity android:name="com.adcolony.sdk.AdColonyAdViewActivity"
+                  android:configChanges="keyboardHidden|orientation|screenSize"/>
     </application>
 
 </manifest>
