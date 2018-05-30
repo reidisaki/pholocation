@@ -22,7 +22,7 @@ android {
         applicationId "com.kalei.pholocation"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 36
+        versionCode 37
         versionName "1.7.4"
 
 
@@ -48,7 +48,7 @@ android {
     }
     buildTypes {
         release {
-            debuggable true
+//            debuggable true
             resValue 'string', 'app_name', '"PhotoLocation"'
             signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
